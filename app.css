@@ -6790,6 +6790,409 @@ button.lc-hearts-pop-row {
   margin-bottom: 1.25rem;
 }
 
+/* Leaderboard — live rankings */
+.lc-lb-live {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.lc-lb-live-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.lc-lb-live-header h1 {
+  font-family: var(--font-brand);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  background: linear-gradient(135deg, #fde68a 0%, #f472b6 40%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lc-lb-live-sub {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.5;
+}
+
+.lc-lb-week-pill {
+  display: inline-block;
+  margin-top: 0.65rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f172a;
+  background: linear-gradient(90deg, #fde68a, #f472b6);
+}
+
+.lc-lb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.lc-lb-tab {
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.lc-lb-tab.on {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.22);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+}
+
+.lc-lb-your-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 14px;
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(244, 114, 182, 0.1));
+}
+
+.lc-lb-your-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.lc-lb-your-rank {
+  font-family: var(--font-brand);
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #fde68a;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+.lc-lb-your-metric {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #a5f3fc;
+}
+
+.lc-lb-podium {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0 0;
+}
+
+.lc-lb-podium-slot {
+  position: relative;
+  text-align: center;
+  padding: 0.85rem 0.5rem 1rem;
+  border-radius: 16px 16px 12px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  min-height: 0;
+}
+
+.lc-lb-podium-slot--1 {
+  order: 2;
+  padding-top: 1.35rem;
+  padding-bottom: 1.35rem;
+  border-color: rgba(251, 191, 36, 0.65);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.28) 0%, rgba(244, 114, 182, 0.15) 55%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow:
+    0 0 40px rgba(251, 191, 36, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-10px);
+  animation: lc-lb-podium-glow 2.5s ease-in-out infinite;
+}
+
+.lc-lb-podium-slot--2 {
+  order: 1;
+  border-color: rgba(203, 213, 225, 0.5);
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.25), rgba(15, 23, 42, 0.85));
+}
+
+.lc-lb-podium-slot--3 {
+  order: 3;
+  border-color: rgba(180, 83, 9, 0.45);
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.22), rgba(15, 23, 42, 0.85));
+}
+
+.lc-lb-podium-slot.is-me {
+  outline: 2px solid rgba(56, 189, 248, 0.7);
+  outline-offset: 2px;
+}
+
+@keyframes lc-lb-podium-glow {
+  0%, 100% { box-shadow: 0 0 32px rgba(251, 191, 36, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+  50% { box-shadow: 0 0 48px rgba(244, 114, 182, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28); }
+}
+
+.lc-lb-podium-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.lc-lb-podium-slot--1 .lc-lb-podium-glow {
+  background: radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.5), transparent 70%);
+}
+
+.lc-lb-podium-crown {
+  display: block;
+  font-size: 1.35rem;
+  margin-bottom: 0.25rem;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.lc-lb-podium-slot--1 .lc-lb-podium-crown {
+  font-size: 1.85rem;
+}
+
+.lc-lb-podium-avatar {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 0.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.lc-lb-podium-slot--1 .lc-lb-podium-avatar {
+  width: 72px;
+  height: 72px;
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.4);
+}
+
+.lc-lb-podium-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.lc-lb-podium-slot--1 .lc-lb-podium-emoji {
+  font-size: 2.6rem;
+}
+
+.lc-lb-podium-rank-label {
+  margin: 0 0 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lc-lb-podium-slot--1 .lc-lb-podium-rank-label {
+  color: #fde68a;
+}
+
+.lc-lb-podium-name {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.lc-lb-podium-score {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a5f3fc;
+}
+
+.lc-lb-podium-gap {
+  margin: 0.15rem 0 0;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.lc-lb-you-badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: #38bdf8;
+  vertical-align: middle;
+}
+
+.lc-lb-rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.lc-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lc-lb-row.is-me {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.lc-lb-row-rank {
+  width: 1.75rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.lc-lb-row-avatar {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lc-lb-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.lc-lb-row-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.lc-lb-row-gap {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.lc-lb-row-metric {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #fde68a;
+  flex-shrink: 0;
+}
+
+.lc-lb-highlight-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  max-width: 260px;
+}
+
+.lc-lb-highlight-panel h2 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  margin: 0 0 0.65rem;
+}
+
+.lc-lb-highlight-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.lc-lb-highlight-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.lc-lb-highlight-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.5rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.lc-lb-highlight-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lc-lb-highlight-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.lc-lb-highlight-text strong {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.lc-lb-highlight-text span {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.lc-lb-error {
+  text-align: center;
+  color: #f87171;
+}
+
+@media (max-width: 520px) {
+  .lc-lb-podium {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.35rem;
+  }
+  .lc-lb-podium-slot--1 {
+    transform: translateY(-6px);
+  }
+  .lc-lb-podium-emoji {
+    font-size: 1.65rem;
+  }
+  .lc-lb-podium-slot--1 .lc-lb-podium-emoji {
+    font-size: 2rem;
+  }
+}
+
 /* Nav treasure-chest icon (quests) */
 .lc-nav-chest-icon {
   display: inline-block;
@@ -7022,6 +7425,156 @@ button.lc-hearts-pop-row {
 .lc-quest-card.done {
   border-color: rgba(251, 191, 36, 0.22);
   background: rgba(30, 41, 59, 0.72);
+}
+
+.lc-quest-card.claimed {
+  border-color: rgba(74, 222, 128, 0.25);
+}
+
+.lc-quest-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.lc-quest-head-row .lc-quest-label {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.lc-quest-reward-pill {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: linear-gradient(90deg, #fde68a, #a5f3fc);
+}
+
+.lc-quest-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.lc-quest-fill--done {
+  background: linear-gradient(90deg, #4ade80, #fbbf24);
+}
+
+.lc-quest-claim-btn,
+.lc-quest-checkin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.65rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #0f172a;
+  background: linear-gradient(135deg, #fde68a 0%, #f472b6 50%, #38bdf8 100%);
+  box-shadow: 0 4px 16px rgba(244, 114, 182, 0.35);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.lc-quest-checkin-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  color: #fff;
+}
+
+.lc-quest-claim-btn:hover,
+.lc-quest-checkin-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.lc-quest-claimed-badge {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #4ade80;
+}
+
+.lc-quests-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  border: 2px solid rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.lc-quests-summary-label {
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.lc-quests-claim-all {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #0f172a;
+  background: #fde68a;
+}
+
+.lc-quests-all-done {
+  width: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.lc-quests-earned-today {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #a5f3fc;
+}
+
+.lc-quest-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  z-index: 300;
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: linear-gradient(90deg, #fde68a, #86efac);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.lc-quest-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.lc-quest-error {
+  color: #f87171;
+  text-align: center;
+  padding: 2rem;
 }
 
 .lc-quest-card.locked {
@@ -8108,6 +8661,9 @@ body.lc-jump-open {
     padding: 0 1.5rem 2rem;
   }
   .lc-lb-tip-card {
+    max-width: none;
+  }
+  .lc-lb-highlight-panel {
     max-width: none;
   }
   .lc-profile-body {

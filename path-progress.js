@@ -396,6 +396,9 @@
     progress.part = targetPart || progress.part;
     progress.nodeIndex = Math.max(progress.nodeIndex, 4);
     saveProgress(progress);
+    if (global.RNFQuestSystem && RNFQuestSystem.trackTierAdvance) {
+      RNFQuestSystem.trackTierAdvance();
+    }
     return progress;
   }
 
@@ -493,7 +496,15 @@
     if (passed) {
       if (ctx.nodeId) markNodeDone(progress, ctx.nodeId);
       progress = loadProgress();
+      var stageBefore = progress.stage;
       advanceNodeIndex(progress, layout);
+      progress = loadProgress();
+      if (global.RNFQuestSystem) {
+        if (RNFQuestSystem.trackAdventureStep) RNFQuestSystem.trackAdventureStep();
+        if (progress.stage > stageBefore && RNFQuestSystem.trackTierAdvance) {
+          RNFQuestSystem.trackTierAdvance();
+        }
+      }
     }
 
     clearLessonContext();

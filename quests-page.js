@@ -1,9 +1,7 @@
 /**
- * Special quests — Rainy Night Frog
+ * Special quests — daily quest board.
  */
 (function (global) {
-  var DAILY_GOAL = 10;
-
   var COURSE_KEYS = {
     en: "flow.courseEn",
     es: "flow.courseEs",
@@ -32,12 +30,12 @@
     return global.AppI18n ? AppI18n.t(path, vars) : path;
   }
 
-  function hoursUntilReset() {
-    var now = new Date();
-    var end = new Date(now);
-    end.setHours(24, 0, 0, 0);
-    var diff = end - now;
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60)));
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function renderStatsBar(stats) {
@@ -51,95 +49,147 @@
     );
   }
 
-  function questCard(opts) {
-    var cur = Math.min(opts.current, opts.goal);
-    var pct = opts.goal ? Math.min(100, Math.round((cur / opts.goal) * 100)) : 0;
-    var done = cur >= opts.goal;
-    var locked = opts.locked;
+  function questCard(q) {
+    var pct = q.goal ? Math.min(100, Math.round((q.progress / q.goal) * 100)) : 0;
+    var done = q.done;
+    var claimed = q.claimed;
 
-    if (locked) {
-      return (
-        '<div class="lc-quest-card locked">' +
-        '<span class="lc-quest-icon" aria-hidden="true">🔒</span>' +
-        '<p class="lc-quest-label">' +
-        t("flow.questMoreLocked") +
-        "</p></div>"
-      );
+    var actions = "";
+    if (q.id === "checkin" && !done && !claimed) {
+      actions =
+        '<button type="button" class="lc-quest-checkin-btn" data-quest-checkin>📅 ' +
+        escapeHtml(t("flow.questCheckinBtn")) +
+        "</button>";
+    } else if (q.canClaim) {
+      actions =
+        '<button type="button" class="lc-quest-claim-btn" data-quest-claim="' +
+        q.id +
+        '">' +
+        escapeHtml(t("flow.questClaim")) +
+        " +" +
+        q.reward +
+        " 💎</button>";
+    } else if (claimed) {
+      actions =
+        '<span class="lc-quest-claimed-badge">✓ ' +
+        escapeHtml(t("flow.questClaimed")) +
+        "</span>";
     }
 
     return (
       '<div class="lc-quest-card' +
       (done ? " done" : "") +
+      (claimed ? " claimed" : "") +
+      '" data-quest-id="' +
+      q.id +
       '">' +
-      '<span class="lc-quest-bolt" aria-hidden="true">⚡</span>' +
+      '<span class="lc-quest-bolt" aria-hidden="true">' +
+      q.icon +
+      "</span>" +
       '<div class="lc-quest-body">' +
+      '<div class="lc-quest-head-row">' +
       '<p class="lc-quest-label">' +
-      t("flow.dailyXpTask", { n: opts.goal }) +
+      escapeHtml(t(q.titleKey, { n: q.goal })) +
+      "</p>" +
+      '<span class="lc-quest-reward-pill">+' +
+      q.reward +
+      " 💎</span></div>" +
+      '<p class="lc-quest-desc">' +
+      escapeHtml(t(q.descKey)) +
       "</p>" +
       '<div class="lc-quest-bar-wrap">' +
       '<div class="lc-quest-bar">' +
-      '<div class="lc-quest-fill" style="width:' +
+      '<div class="lc-quest-fill' +
+      (done ? " lc-quest-fill--done" : "") +
+      '" style="width:' +
       pct +
       '%"></div>' +
       '<span class="lc-quest-num">' +
-      cur +
+      q.progress +
       " / " +
-      opts.goal +
+      q.goal +
       "</span></div>" +
       '<span class="lc-quest-chest' +
       (done ? " done" : "") +
       '" aria-hidden="true"></span>' +
-      "</div></div></div>"
+      "</div>" +
+      actions +
+      "</div></div>"
     );
   }
 
-  function renderMain(stats) {
-    var hours = hoursUntilReset();
-    var xp = stats.dailyXp || 0;
+  function renderMain() {
+    var api = global.RNFQuestSystem;
+    if (!api) {
+      return '<p class="lc-quest-error">' + escapeHtml(t("flow.questLoadError")) + "</p>";
+    }
+    var summary = api.getSummary();
+    var hours = summary.hoursLeft;
+    var allDone = summary.done >= summary.total;
+    var cards = "";
+    summary.quests.forEach(function (q) {
+      cards += questCard(q);
+    });
 
     return (
       '<div class="lc-quests-hero">' +
       '<div class="lc-quests-hero-text">' +
       "<h1>" +
-      t("flow.questHeroTitle") +
+      escapeHtml(t("flow.questHeroTitle")) +
       "</h1>" +
       "<p>" +
-      t("flow.questHeroDesc") +
+      escapeHtml(t("flow.questHeroDesc")) +
       "</p></div>" +
       '<div class="lc-quests-hero-art" aria-hidden="true">' +
       '<div class="lc-quests-hero-lift">' +
       '<div class="lc-quests-hero-chest"></div>' +
       '<div class="lc-quests-frog" data-frog-logo></div>' +
       "</div></div></div>" +
+      '<div class="lc-quests-summary">' +
+      '<span class="lc-quests-summary-label">' +
+      escapeHtml(t("flow.questSummary", { done: summary.done, total: summary.total })) +
+      "</span>" +
+      (summary.gemsAvailable > 0
+        ? '<button type="button" class="lc-quests-claim-all" data-quest-claim-all>' +
+          escapeHtml(t("flow.questClaimAll", { n: summary.gemsAvailable })) +
+          "</button>"
+        : "") +
+      (allDone
+        ? '<p class="lc-quests-all-done">' + escapeHtml(t("flow.questAllDoneToday")) + "</p>"
+        : "") +
+      "</div>" +
       '<section class="lc-quests-daily">' +
       '<div class="lc-quests-daily-head">' +
       "<h2>" +
-      t("flow.learnDailyTitle") +
+      escapeHtml(t("flow.learnDailyTitle")) +
       "</h2>" +
       '<span class="lc-quests-timer">' +
       '<span class="lc-quests-timer-icon" aria-hidden="true"></span>' +
-      t("flow.questHoursLeft", { n: hours }) +
+      escapeHtml(t("flow.questHoursLeft", { n: hours })) +
       "</span></div>" +
-      questCard({ current: xp, goal: DAILY_GOAL, locked: false }) +
-      questCard({ locked: true }) +
+      cards +
       "</section>"
     );
   }
 
   function renderAside() {
+    var summary = global.RNFQuestSystem ? RNFQuestSystem.getSummary() : { gemsEarned: 0 };
     return (
       '<div class="lc-quests-monthly">' +
       '<div class="lc-quests-monthly-medal" aria-hidden="true">' +
       '<span class="lc-quests-monthly-coin"></span>' +
-      '<span class="lc-quests-monthly-bolt">⚡</span></div>' +
+      '<span class="lc-quests-monthly-bolt">💎</span></div>' +
       "<h2>" +
-      t("flow.questMonthlyTitle") +
+      escapeHtml(t("flow.questRewardsTitle")) +
       "</h2>" +
       "<p>" +
-      t("flow.questMonthlyDesc") +
+      escapeHtml(t("flow.questRewardsDesc", { n: 60 })) +
+      "</p>" +
+      '<p class="lc-quests-earned-today">' +
+      escapeHtml(t("flow.questEarnedToday", { n: summary.gemsEarned || 0 })) +
       "</p>" +
       '<a class="lc-quests-monthly-cta" href="learn.html">' +
-      t("flow.leaderboardGoLearn") +
+      escapeHtml(t("flow.leaderboardGoLearn")) +
       "</a></div>" +
       '<nav class="lc-panel-footer lc-shop-footer">' +
       '<a href="home.html">' +
@@ -166,6 +216,59 @@
     );
   }
 
+  function bindQuestActions() {
+    document.querySelectorAll("[data-quest-claim]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-quest-claim");
+        if (!id || !global.RNFQuestSystem) return;
+        var r = RNFQuestSystem.claim(id);
+        if (r.ok) {
+          showToast(t("flow.questClaimedToast", { n: r.reward }));
+          init();
+        }
+      });
+    });
+
+    var claimAll = document.querySelector("[data-quest-claim-all]");
+    if (claimAll) {
+      claimAll.addEventListener("click", function () {
+        if (!global.RNFQuestSystem) return;
+        var r = RNFQuestSystem.claimAll();
+        if (r.gems > 0) {
+          showToast(t("flow.questClaimedToast", { n: r.gems }));
+          init();
+        }
+      });
+    }
+
+    var checkinBtn = document.querySelector("[data-quest-checkin]");
+    if (checkinBtn) {
+      checkinBtn.addEventListener("click", function () {
+        if (!global.RNFQuestSystem) return;
+        RNFQuestSystem.doCheckin();
+        showToast(t("flow.questCheckinDone"));
+        init();
+      });
+    }
+  }
+
+  function showToast(msg) {
+    var el = document.getElementById("lcQuestToast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "lcQuestToast";
+      el.className = "lc-quest-toast";
+      el.setAttribute("role", "status");
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () {
+      el.classList.remove("show");
+    }, 2600);
+  }
+
   function init() {
     var stats = global.LCApp
       ? LCApp.getLearnStats()
@@ -173,7 +276,10 @@
 
     var main = document.getElementById("questsMain");
     var side = document.getElementById("questsSide");
-    if (main) main.innerHTML = renderMain(stats);
+    if (main) {
+      main.innerHTML = renderMain();
+      bindQuestActions();
+    }
     if (side) {
       side.innerHTML = renderStatsBar(stats) + renderAside();
     }
@@ -197,5 +303,5 @@
     if (global.LCApp && LCApp.initHeartsPicker) LCApp.initHeartsPicker();
   }
 
-  global.RNFQuests = { init: init };
+  global.RNFQuests = { init: init, showToast: showToast };
 })(typeof window !== "undefined" ? window : this);
