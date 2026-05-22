@@ -54,13 +54,20 @@
           </button>
         </li>
       </ul>
-      <p class="lc-learn-lang" data-learn-lang-label>🇺🇸 英語</p>
-      <div id="langTriggerMount" class="lc-learn-lang-mount"></div>
     </nav>
 
-    <div class="lc-learn-body">
-      <main class="lc-learn-path-col" id="pathCol"></main>
-      <aside class="lc-learn-panel" id="sidePanel" aria-label="Widgets"></aside>
+    <div class="lc-learn-stage">
+      <header class="lc-learn-topbar" aria-label="Status">
+        <p class="lc-learn-topbar-course" data-learn-lang-label>🇺🇸 英語</p>
+        <div class="lc-learn-topbar-actions">
+          <div id="learnStatsMount" class="lc-learn-stats-mount"></div>
+          <div id="langTriggerMount" class="lc-learn-lang-mount-top"></div>
+        </div>
+      </header>
+      <div class="lc-learn-body">
+        <main class="lc-learn-path-col" id="pathCol"></main>
+        <aside class="lc-learn-panel" id="sidePanel" aria-label="Widgets"></aside>
+      </div>
     </div>
   </div>
 

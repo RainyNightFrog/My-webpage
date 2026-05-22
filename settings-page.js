@@ -154,7 +154,10 @@
     document.querySelectorAll("[data-font-sample]").forEach(function (el) {
       var id = el.getAttribute("data-font-sample");
       var preset = RNFSettings.FONT_PRESETS[id];
-      if (preset) el.style.fontFamily = preset.font;
+      if (!preset) return;
+      var scale = preset.scale != null ? preset.scale : 1;
+      el.style.fontFamily = preset.font;
+      el.style.fontSize = 1.05 * scale + "rem";
     });
   }
 

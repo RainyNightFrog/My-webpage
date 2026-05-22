@@ -1178,14 +1178,15 @@
 
     var pathCol = document.getElementById("pathCol");
     var sidePanel = document.getElementById("sidePanel");
+    var statsMount = document.getElementById("learnStatsMount");
     if (!pathCol) return;
+
+    if (statsMount) statsMount.innerHTML = renderTopBar(stats);
 
     pathCol.innerHTML = renderPondJourney() + renderChapterBanner();
 
     if (sidePanel) {
-      sidePanel.innerHTML =
-        renderTopBar(stats) +
-        renderSidePanel(stats, consumeLessonFinishPayload());
+      sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
       bindSidePanelActions();
     }
 

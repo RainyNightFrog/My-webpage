@@ -4,30 +4,31 @@
 (function (global) {
   var STORAGE_KEY = "rnf_user_settings";
 
+  /** scale = 全站根字級倍率（rem 文字會跟著變大）；large 只放大、不改字體風格 */
   var FONT_PRESETS = {
     outfit: {
       font: '"Outfit", "Microsoft JhengHei", "PingFang TC", sans-serif',
       display: '"Syne", "Outfit", "Microsoft JhengHei", sans-serif',
       brand: '"Fredoka", "Outfit", "Microsoft JhengHei", sans-serif',
-      size: "100%",
+      scale: 1,
     },
     clear: {
       font: '"Segoe UI", "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", sans-serif',
       display: '"Segoe UI", "Microsoft JhengHei", sans-serif',
       brand: '"Segoe UI", "Microsoft JhengHei", sans-serif',
-      size: "106%",
+      scale: 1,
     },
     fredoka: {
       font: '"Fredoka", "Microsoft JhengHei", sans-serif',
       display: '"Fredoka", "Microsoft JhengHei", sans-serif',
       brand: '"Fredoka", "Microsoft JhengHei", sans-serif',
-      size: "100%",
+      scale: 1,
     },
     large: {
-      font: '"Outfit", "Microsoft JhengHei", sans-serif',
-      display: '"Syne", "Outfit", sans-serif',
-      brand: '"Fredoka", "Outfit", sans-serif',
-      size: "114%",
+      font: '"Outfit", "Microsoft JhengHei", "PingFang TC", sans-serif',
+      display: '"Syne", "Outfit", "Microsoft JhengHei", sans-serif',
+      brand: '"Fredoka", "Outfit", "Microsoft JhengHei", sans-serif',
+      scale: 1.32,
     },
   };
 
@@ -85,11 +86,14 @@
     settings = settings || loadSettings();
     var preset = FONT_PRESETS[settings.font] || FONT_PRESETS.outfit;
     var root = document.documentElement;
+    var scale = preset.scale != null ? preset.scale : 1;
     root.style.setProperty("--font", preset.font);
     root.style.setProperty("--font-display", preset.display);
     root.style.setProperty("--font-brand", preset.brand);
-    root.style.fontSize = preset.size;
+    root.style.setProperty("--rnf-text-scale", String(scale));
+    root.style.fontSize = Math.round(16 * scale) + "px";
     root.dataset.rnfFont = settings.font;
+    root.dataset.rnfTextScale = String(scale);
     root.dataset.rnfSound = settings.soundEnabled ? "on" : "off";
     root.dataset.rnfEffects = settings.effectsEnabled ? "on" : "off";
     if (!settings.effectsEnabled) {

@@ -4375,13 +4375,61 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   min-height: 100vh;
   max-width: 1280px;
   margin: 0 auto;
+  padding: 1.35rem 0.75rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.lc-learn-page .lc-learn-shell {
+  padding-top: 1.75rem;
+}
+
+.lc-learn-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.lc-learn-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 1.15rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lc-learn-topbar-course {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.lc-learn-topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.lc-learn-stats-mount {
+  display: flex;
+  align-items: center;
+}
+
+.lc-learn-lang-mount-top {
+  flex-shrink: 0;
 }
 
 .lc-learn-nav {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1.25rem 0.85rem 1.5rem;
+  padding: 0.5rem 0.85rem 1.5rem;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -4409,7 +4457,7 @@ body.lc-lesson-last-chance .lc-progress-wrap {
 }
 
 .lc-learn-top-stats {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0;
   justify-content: flex-end;
 }
 
@@ -11799,9 +11847,9 @@ body[data-i18n-page="setup"] .lc-footer-bar {
 }
 
 .lc-settings-font-sample {
-  font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
+  line-height: 1.35;
 }
 
 .lc-settings-lang-grid {
