@@ -51,8 +51,8 @@
   <script src="zh-literacy-bank.js"></script>
   <script src="en-literacy-bank.js"></script>
   <script src="mascot-pool.js"></script>
-  <script src="question-generator.js?v=20260522"></script>
-  <script src="questions.js?v=20260522"></script>
+  <script src="question-generator.js?v=20260523"></script>
+  <script src="questions.js?v=20260523"></script>
   <script src="question-audit.js"></script>
   <script src="quest-system.js"></script>
   <script src="path-progress.js"></script>
@@ -60,8 +60,8 @@
   <script src="leaderboard-data.js"></script>
   <script src="adventure-island.js"></script>
   <script src="shop-inventory.js"></script>
-  <script src="practice-backpack.js?v=20260522"></script>
-  <script src="practice-engine.js?v=20260522"></script>
+  <script src="practice-backpack.js?v=20260523"></script>
+  <script src="practice-engine.js?v=20260523"></script>
   <script>
     var mode = "normal";
     var params = new URLSearchParams(location.search);
@@ -89,15 +89,23 @@
     }
     var viewGrade = params.get("view") === "grade";
 
-    AppI18n.applyPage("lesson");
-    LCApp.initLangPopover("langTriggerMount");
+    try {
+      AppI18n.applyPage("lesson");
+      LCApp.initLangPopover("langTriggerMount");
+    } catch (uiErr) {
+      console.error(uiErr);
+    }
 
     function updateLessonScoreBadge() {
       var el = document.getElementById("lessonScoreBadge");
-      if (!el || !global.LCApp || !LCApp.courseMeta) return;
+      if (!el || !window.LCApp || !LCApp.courseMeta) return;
       el.textContent = LCApp.courseMeta(LCApp.getLearnTarget()).flag || "⭐";
     }
-    updateLessonScoreBadge();
+    try {
+      updateLessonScoreBadge();
+    } catch (badgeErr) {
+      console.error(badgeErr);
+    }
 
     var engine;
 
