@@ -226,7 +226,7 @@
     );
   }
 
-  function renderPondStop(n, index) {
+  function renderPondStop(n, index, onLily) {
     if (n.type === "jump") return renderPondJump(n);
 
     var state = n.state || "locked";
@@ -236,6 +236,7 @@
       n.type +
       " lc-pond-stop--" +
       state +
+      (onLily ? " lc-pond-stop--lily" : "") +
       (n.boss || n.type === "trophy" || n.type === "raid"
         ? " lc-pond-stop--boss"
         : "");
@@ -289,6 +290,13 @@
     return (
       '<div class="lc-pond-pals" aria-hidden="true">' +
       animals +
+      '<span class="lc-pond-float-reward lc-pond-float-reward--gem" style="left:12%;top:42%">+💎</span>' +
+      '<span class="lc-pond-float-reward lc-pond-float-reward--xp" style="left:78%;top:38%">+XP</span>' +
+      '<span class="lc-pond-float-reward lc-pond-float-reward--gem" style="left:45%;top:72%">+💎</span>' +
+      '<span class="lc-pond-float-reward lc-pond-float-reward--xp" style="left:88%;top:65%">+XP</span>' +
+      '<span class="lc-pond-lily-deco" style="left:8%;top:55%"></span>' +
+      '<span class="lc-pond-lily-deco lc-pond-lily-deco--pink" style="left:62%;top:48%"></span>' +
+      '<span class="lc-pond-lily-deco lc-pond-lily-deco--gold" style="left:35%;top:78%"></span>' +
       '<div class="lc-pond-pal lc-pond-pal--firefly"></div>' +
       '<div class="lc-pond-pal lc-pond-pal--newt"></div>' +
       '<div class="lc-pond-pal lc-pond-pal--dragon" data-frog-logo></div>' +
@@ -296,43 +304,255 @@
     );
   }
 
+  function renderPondZoneTitle(block) {
+    if (!block.zoneKey) return "";
+    return (
+      '<div class="lc-pond-zone-head">' +
+      '<span class="lc-pond-zone-badge">' +
+      (block.mascot || "✦") +
+      "</span>" +
+      '<span class="lc-pond-zone-title">' +
+      t(block.zoneKey) +
+      "</span></div>"
+    );
+  }
+
+  function renderPondRowZone(block) {
+    var row = "";
+    block.nodes.forEach(function (n, i) {
+      row += renderPondStop(n, i);
+    });
+    return (
+      '<div class="lc-pond-zone ' +
+      (block.zone || "") +
+      '">' +
+      renderPondZoneTitle(block) +
+      '<div class="lc-pond-track-row">' +
+      row +
+      "</div></div>"
+    );
+  }
+
+  function renderPondSnakeZone(block) {
+    var nodes = block.nodes || [];
+    var rows = block.rows || [5, 5, 5];
+    var idx = 0;
+    var rowsHtml = "";
+    for (var r = 0; r < rows.length; r++) {
+      var count = rows[r];
+      var rtl = r % 2 === 1;
+      var rowNodes = "";
+      for (var c = 0; c < count && idx < nodes.length; c++, idx++) {
+        rowNodes += renderPondStop(nodes[idx], idx, true);
+      }
+      rowsHtml +=
+        (r > 0
+          ? '<div class="lc-pond-snake-turn" aria-hidden="true"><span></span></div>'
+          : "") +
+        '<div class="lc-pond-snake-row' +
+        (rtl ? " lc-pond-snake-row--rtl" : "") +
+        '">' +
+        rowNodes +
+        "</div>";
+    }
+    return (
+      '<div class="lc-pond-lake-wrap">' +
+      '<div class="lc-pond-descent" aria-hidden="true">' +
+      '<span class="lc-pond-descent-line"></span>' +
+      '<span class="lc-pond-descent-label">' +
+      t("flow.pondDescent") +
+      "</span></div>" +
+      '<div class="lc-pond-zone lc-pond-zone--lake ' +
+      (block.zone || "") +
+      '">' +
+      '<div class="lc-pond-lake-bg" aria-hidden="true"></div>' +
+      '<div class="lc-pond-lake-shimmer" aria-hidden="true"></div>' +
+      renderPondZoneTitle(block) +
+      '<div class="lc-pond-snake">' +
+      rowsHtml +
+      "</div>" +
+      '<p class="lc-pond-lake-hint">' +
+      t("flow.pondLakeHint") +
+      "</p></div></div>"
+    );
+  }
+
   function renderPondJourney() {
     var layout = getPathLayout();
-    var track = "";
+    var skyTrack = "";
+    var lakeHtml = "";
     layout.forEach(function (block) {
       if (block.divider) {
-        track += renderPondDivider(block.divider);
+        skyTrack += renderPondDivider(block.divider);
         return;
       }
       if (!block.nodes) return;
-      track +=
-        '<div class="lc-pond-zone ' +
-        (block.zone || "") +
-        '">' +
-        '<div class="lc-pond-zone-label" aria-hidden="true"></div>' +
-        '<div class="lc-pond-track-row">';
-      block.nodes.forEach(function (n, i) {
-        track += renderPondStop(n, i);
-      });
-      track += "</div></div>";
+      if (block.layout === "snake") {
+        lakeHtml = renderPondSnakeZone(block);
+        return;
+      }
+      skyTrack += renderPondRowZone(block);
     });
     var unit = getActiveUnit();
     return (
-      '<div class="lc-pond-scene lc-pond-scene--vivid ' +
+      '<div class="lc-pond-scene lc-pond-scene--vivid lc-pond-scene--filled ' +
       (unit.sceneClass || "") +
       '">' +
       '<div class="lc-pond-scene-bg" aria-hidden="true"></div>' +
+      '<div class="lc-pond-scene-aurora" aria-hidden="true"></div>' +
       renderPondPals() +
-      '<div class="lc-pond-scroll">' +
+      '<div class="lc-pond-scroll lc-pond-scroll--full">' +
+      '<div class="lc-pond-sky-path">' +
       '<div class="lc-pond-river">' +
       '<div class="lc-pond-river-line" aria-hidden="true"></div>' +
       '<div class="lc-pond-track lc-pond-track--wide">' +
-      track +
+      skyTrack +
       "</div></div></div>" +
+      lakeHtml +
+      "</div>" +
       '<button type="button" class="lc-pond-scroll-hint" data-pond-scroll aria-label="Scroll">' +
       t("flow.pondScrollHint") +
       " →</button></div>"
     );
+  }
+
+  var ISLAND_CHEER_KEYS = [
+    "flow.islandCheer1",
+    "flow.islandCheer2",
+    "flow.islandCheer3",
+    "flow.islandCheer4",
+    "flow.islandCheer5",
+    "flow.islandCheer6",
+    "flow.islandCheer7",
+    "flow.islandCheer8",
+    "flow.islandCheer9",
+    "flow.islandCheer10",
+  ];
+
+  var ISLAND_TIP_KEYS = [
+    "flow.islandTip1",
+    "flow.islandTip2",
+    "flow.islandTip3",
+    "flow.islandTip4",
+    "flow.islandTip5",
+    "flow.islandTip6",
+  ];
+
+  var ISLAND_BUDDIES = [
+    { flag: "🇯🇵", skin: "👧", nameKey: "flow.buddyJp" },
+    { flag: "🇧🇷", skin: "👦", nameKey: "flow.buddyBr" },
+    { flag: "🇰🇪", skin: "👧", nameKey: "flow.buddyKe" },
+    { flag: "🇫🇷", skin: "👦", nameKey: "flow.buddyFr" },
+    { flag: "🇮🇳", skin: "👧", nameKey: "flow.buddyIn" },
+    { flag: "🇺🇸", skin: "👦", nameKey: "flow.buddyUs" },
+    { flag: "🇪🇬", skin: "👧", nameKey: "flow.buddyEg" },
+    { flag: "🇲🇽", skin: "👦", nameKey: "flow.buddyMx" },
+  ];
+
+  var cheerRotateTimer = null;
+
+  function renderChapterBuddies() {
+    var items = "";
+    ISLAND_BUDDIES.forEach(function (b, i) {
+      items +=
+        '<div class="lc-pond-buddy" style="--buddy-i:' +
+        i +
+        '" title="' +
+        t(b.nameKey) +
+        '">' +
+        '<span class="lc-pond-buddy-flag" aria-hidden="true">' +
+        b.flag +
+        "</span>" +
+        '<span class="lc-pond-buddy-face" aria-hidden="true">' +
+        b.skin +
+        "</span>" +
+        '<span class="lc-pond-buddy-name">' +
+        t(b.nameKey) +
+        "</span></div>";
+    });
+    return (
+      '<div class="lc-pond-buddies" aria-label="' +
+      t("flow.islandBuddiesTitle") +
+      '">' +
+      '<p class="lc-pond-buddies-kicker">' +
+      t("flow.islandBuddiesTitle") +
+      "</p>" +
+      '<div class="lc-pond-buddies-row">' +
+      items +
+      "</div></div>"
+    );
+  }
+
+  function renderChapterTips() {
+    var chips = "";
+    ISLAND_TIP_KEYS.forEach(function (key, i) {
+      chips +=
+        '<span class="lc-pond-tip-chip' +
+        (i === 0 ? " lc-pond-tip-chip--active" : "") +
+        '" data-tip-index="' +
+        i +
+        '">' +
+        t(key) +
+        "</span>";
+    });
+    return (
+      '<div class="lc-pond-tips" role="region" aria-live="polite">' +
+      '<span class="lc-pond-tips-icon" aria-hidden="true">💡</span>' +
+      '<div class="lc-pond-tips-track">' +
+      chips +
+      "</div>" +
+      '<a class="lc-pond-tips-shop" href="shop.html">' +
+      t("flow.islandTipShop") +
+      "</a></div>"
+    );
+  }
+
+  function renderCheerTitle(initialIndex) {
+    var idx = initialIndex || 0;
+    var lines = "";
+    ISLAND_CHEER_KEYS.forEach(function (key, i) {
+      lines +=
+        '<span class="lc-pond-cheer-line' +
+        (i === idx ? " lc-pond-cheer-line--active" : "") +
+        '" data-cheer-index="' +
+        i +
+        '">' +
+        t(key) +
+        "</span>";
+    });
+    return (
+      '<h1 class="lc-pond-chapter-title lc-pond-chapter-title--cheer" data-cheer-rotate>' +
+      lines +
+      "</h1>"
+    );
+  }
+
+  function bindCheerRotation(root) {
+    if (cheerRotateTimer) {
+      clearInterval(cheerRotateTimer);
+      cheerRotateTimer = null;
+    }
+    var wrap = root.querySelector("[data-cheer-rotate]");
+    if (!wrap) return;
+    var lines = wrap.querySelectorAll(".lc-pond-cheer-line");
+    if (!lines.length) return;
+    var cur = 0;
+    cheerRotateTimer = setInterval(function () {
+      lines[cur].classList.remove("lc-pond-cheer-line--active");
+      cur = (cur + 1) % lines.length;
+      lines[cur].classList.add("lc-pond-cheer-line--active");
+    }, 4200);
+  }
+
+  function bindTipsRotation(root) {
+    var chips = root.querySelectorAll(".lc-pond-tip-chip");
+    if (!chips.length) return;
+    var cur = 0;
+    setInterval(function () {
+      chips[cur].classList.remove("lc-pond-tip-chip--active");
+      cur = (cur + 1) % chips.length;
+      chips[cur].classList.add("lc-pond-tip-chip--active");
+    }, 5500);
   }
 
   function renderIslandHud() {
@@ -396,12 +616,22 @@
       '<p class="lc-pond-island-name">' +
       t("flow.adventureIslandName") +
       "</p>" +
-      '<h1 class="lc-pond-chapter-title">' +
+      '<div class="lc-pond-chapter-hero">' +
+      '<div class="lc-pond-chapter-hero-main">' +
+      renderCheerTitle(0) +
+      '<p class="lc-pond-chapter-topic">' +
+      '<span class="lc-pond-chapter-topic-lbl">' +
+      t("flow.islandTopicLabel") +
+      "</span> " +
       t(unit.topicKey) +
-      "</h1>" +
+      "</p>" +
       '<p class="lc-pond-chapter-sub">' +
       t(unit.subKey || "flow.pondChapterSub") +
-      "</p></header>"
+      "</p></div>" +
+      renderChapterBuddies() +
+      "</div>" +
+      renderChapterTips() +
+      "</header>"
     );
   }
 
@@ -727,7 +957,12 @@
     var scroll = root.querySelector(".lc-pond-scroll");
     if (!btn || !scroll) return;
     btn.addEventListener("click", function () {
-      scroll.scrollBy({ left: 220, behavior: "smooth" });
+      var lake = scroll.querySelector(".lc-pond-lake-wrap");
+      if (lake) {
+        lake.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        scroll.scrollBy({ left: 220, behavior: "smooth" });
+      }
     });
   }
 
@@ -761,13 +996,19 @@
 
     bindJumpButtons(pathCol);
     bindPondScroll(pathCol);
+    bindCheerRotation(pathCol);
+    bindTipsRotation(pathCol);
 
     var currentStop = pathCol.querySelector(".lc-pond-stop--current");
     var pondScroll = pathCol.querySelector(".lc-pond-scroll");
     if (currentStop && pondScroll) {
       setTimeout(function () {
-        currentStop.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-      }, 120);
+        currentStop.scrollIntoView({
+          inline: "center",
+          block: "center",
+          behavior: "smooth",
+        });
+      }, 180);
     }
 
     if (global.LCApp && LCApp.initCoursePicker) LCApp.initCoursePicker();
@@ -795,5 +1036,6 @@
     openJumpModal: openJumpModal,
     closeJumpModal: closeJumpModal,
     refreshJumpModalCopy: refreshJumpModalCopy,
+    bindCheerRotation: bindCheerRotation,
   };
 })(typeof window !== "undefined" ? window : this);

@@ -8927,6 +8927,203 @@ button.lc-pond-rail-link {
   max-width: 520px;
 }
 
+.lc-pond-chapter-hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(140px, 38%);
+  gap: 1rem 1.25rem;
+  align-items: start;
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .lc-pond-chapter-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lc-pond-chapter-title--cheer {
+  position: relative;
+  min-height: 2.6em;
+  margin-bottom: 0.5rem;
+}
+
+.lc-pond-cheer-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+  pointer-events: none;
+}
+
+.lc-pond-cheer-line--active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.lc-pond-chapter-topic {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 0.35rem;
+  line-height: 1.4;
+}
+
+.lc-pond-chapter-topic-lbl {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fde047;
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid rgba(253, 224, 71, 0.35);
+  margin-right: 0.25rem;
+}
+
+.lc-pond-buddies {
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  background: linear-gradient(
+    145deg,
+    rgba(56, 189, 248, 0.12),
+    rgba(244, 114, 182, 0.1)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lc-pond-buddies-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.lc-pond-buddies-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+}
+
+.lc-pond-buddy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  width: 52px;
+  padding: 0.35rem 0.2rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: lc-buddy-pop 0.5s ease backwards;
+  animation-delay: calc(var(--buddy-i, 0) * 0.06s);
+}
+
+@keyframes lc-buddy-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lc-pond-buddy-flag {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.lc-pond-buddy-face {
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.lc-pond-buddy-name {
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  line-height: 1.15;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-pond-tips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.25rem;
+  border-radius: 12px;
+  background: rgba(30, 27, 75, 0.45);
+  border: 1px dashed rgba(167, 139, 250, 0.35);
+}
+
+.lc-pond-tips-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.lc-pond-tips-track {
+  position: relative;
+  flex: 1;
+  min-height: 2.4em;
+  min-width: 0;
+}
+
+.lc-pond-tip-chip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.65);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+
+.lc-pond-tip-chip--active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lc-pond-tips-shop {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #67e8f9;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(103, 232, 249, 0.12);
+  border: 1px solid rgba(103, 232, 249, 0.3);
+}
+
+.lc-pond-tips-shop:hover {
+  color: #a5f3fc;
+  background: rgba(103, 232, 249, 0.22);
+}
+
 .lc-pond-scene {
   position: relative;
   min-height: 380px;
@@ -8937,6 +9134,33 @@ button.lc-pond-rail-link {
     radial-gradient(ellipse 80% 60% at 50% 100%, rgba(14, 165, 233, 0.2) 0%, transparent 65%),
     rgba(0, 0, 0, 0.25);
   overflow: hidden;
+}
+
+.lc-pond-scene--filled {
+  min-height: 720px;
+}
+
+.lc-pond-scene-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 15% 20%, rgba(167, 139, 250, 0.25), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 85% 30%, rgba(244, 114, 182, 0.2), transparent 50%),
+    radial-gradient(ellipse 60% 50% at 50% 85%, rgba(34, 211, 238, 0.22), transparent 60%);
+  animation: lc-pond-aurora-shift 12s ease-in-out infinite alternate;
+}
+
+@keyframes lc-pond-aurora-shift {
+  0% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
 }
 
 .lc-pond-main {
@@ -9017,6 +9241,269 @@ button.lc-pond-rail-link {
   scrollbar-width: thin;
   scrollbar-color: rgba(167, 139, 250, 0.5) transparent;
   padding: 2rem 1rem 1rem;
+}
+
+.lc-pond-scroll--full {
+  overflow-y: auto;
+  max-height: min(78vh, 680px);
+  padding-bottom: 2.5rem;
+}
+
+.lc-pond-sky-path {
+  margin-bottom: 0.5rem;
+}
+
+.lc-pond-descent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0 0.25rem;
+}
+
+.lc-pond-descent-line {
+  display: block;
+  width: 3px;
+  height: 36px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #67e8f9, #a78bfa, #22d3ee);
+  box-shadow: 0 0 12px rgba(103, 232, 249, 0.6);
+}
+
+.lc-pond-descent-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #a5f3fc;
+  text-transform: uppercase;
+}
+
+.lc-pond-lake-wrap {
+  min-width: 100%;
+  padding: 0 0.5rem 1rem;
+}
+
+.lc-pond-lake-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse 90% 70% at 30% 40%, rgba(34, 211, 238, 0.35), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 70% 60%, rgba(167, 139, 250, 0.28), transparent 50%),
+    linear-gradient(160deg, rgba(6, 78, 99, 0.55), rgba(30, 27, 75, 0.65));
+  z-index: 0;
+}
+
+.lc-pond-lake-shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0,
+    transparent 40px,
+    rgba(255, 255, 255, 0.03) 40px,
+    rgba(255, 255, 255, 0.06) 80px
+  );
+  animation: lc-pond-shimmer 8s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes lc-pond-shimmer {
+  0% {
+    transform: translateX(-20px);
+  }
+  100% {
+    transform: translateX(20px);
+  }
+}
+
+.lc-pond-zone--lake {
+  position: relative;
+  min-height: 340px;
+  padding: 1.25rem 1rem 1.5rem;
+  border: 2px solid rgba(103, 232, 249, 0.35);
+  background: transparent;
+  overflow: hidden;
+}
+
+.lc-pond-zone-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.lc-pond-zone-badge {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.lc-pond-zone-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, #fde047, #67e8f9, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lc-pond-snake {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.lc-pond-snake-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+}
+
+.lc-pond-snake-row--rtl {
+  flex-direction: row-reverse;
+}
+
+.lc-pond-snake-turn {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1.5rem;
+  height: 20px;
+}
+
+.lc-pond-snake-row--rtl + .lc-pond-snake-turn,
+.lc-pond-snake-turn + .lc-pond-snake-row--rtl {
+  justify-content: flex-start;
+}
+
+.lc-pond-snake-turn span {
+  display: block;
+  width: 48px;
+  height: 20px;
+  border-right: 3px dashed rgba(103, 232, 249, 0.45);
+  border-bottom: 3px dashed rgba(167, 139, 250, 0.45);
+  border-radius: 0 0 12px 0;
+}
+
+.lc-pond-snake-row--rtl ~ .lc-pond-snake-turn span {
+  border-right: none;
+  border-left: 3px dashed rgba(244, 114, 182, 0.45);
+  border-bottom: 3px dashed rgba(103, 232, 249, 0.45);
+  border-radius: 0 0 0 12px;
+}
+
+.lc-pond-lake-hint {
+  position: relative;
+  z-index: 2;
+  margin: 0.75rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.lc-pond-stop--lily {
+  min-width: 72px;
+}
+
+.lc-pond-stop--lily .lc-pond-stop-pad {
+  width: 64px;
+  height: 64px;
+  border-radius: 50% 50% 42% 42%;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.55), rgba(21, 128, 61, 0.75));
+  border: 2px solid rgba(134, 239, 172, 0.65);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.lc-pond-stop--lily.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.7), rgba(34, 197, 94, 0.8));
+  border-color: #fde047;
+  animation: lc-lily-glow 2s ease-in-out infinite;
+}
+
+.lc-pond-stop--lily.lc-pond-stop--chest .lc-pond-stop-pad {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.65), rgba(217, 119, 6, 0.75));
+  border-color: #fde047;
+}
+
+.lc-pond-stop--lily.lc-pond-stop--bonus .lc-pond-stop-pad {
+  background: linear-gradient(180deg, rgba(244, 114, 182, 0.6), rgba(168, 85, 247, 0.75));
+}
+
+@keyframes lc-lily-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(253, 224, 71, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(103, 232, 249, 0.55);
+  }
+}
+
+.lc-pond-float-reward {
+  position: absolute;
+  z-index: 1;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  animation: lc-pond-float-reward 4s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+.lc-pond-float-reward--gem {
+  background: rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+  border: 1px solid rgba(125, 211, 252, 0.5);
+}
+
+.lc-pond-float-reward--xp {
+  background: rgba(167, 139, 250, 0.35);
+  color: #e9d5ff;
+  border: 1px solid rgba(216, 180, 254, 0.5);
+  animation-delay: 1.2s;
+}
+
+@keyframes lc-pond-float-reward {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
+}
+
+.lc-pond-lily-deco {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 40% 40%;
+  background: linear-gradient(180deg, #4ade80, #15803d);
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.lc-pond-lily-deco--pink {
+  background: linear-gradient(180deg, #f472b6, #be185d);
+}
+
+.lc-pond-lily-deco--gold {
+  background: linear-gradient(180deg, #fde047, #ca8a04);
+  width: 36px;
+  height: 36px;
 }
 
 .lc-pond-river {

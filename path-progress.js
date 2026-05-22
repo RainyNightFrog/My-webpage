@@ -269,6 +269,59 @@
     ];
   }
 
+  function buildLakeNodes(sid, stage, part) {
+    return [
+      mkNode(sid + "-lk-c1", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-lk-listen1", "listen", stage, part, {
+        playKey: "flow.pathPlayListen",
+      }),
+      mkNode(sid + "-lk-vocab", "vocab", stage, part, {
+        playKey: "flow.pathPlayVocab",
+      }),
+      mkNode(sid + "-lk-drill", "practice", stage, part, {
+        playKey: "flow.pathPlayDrill",
+      }),
+      mkNode(sid + "-lk-bonus", "bonus", stage, part, {
+        gemHint: "bonus",
+        playKey: "flow.pathPlayBonus",
+      }),
+      mkNode(sid + "-lk-star", "star", stage, part, {
+        playKey: "flow.pathPlayLesson",
+      }),
+      mkNode(sid + "-lk-match", "match", stage, part, {
+        playKey: "flow.pathPlayMatch",
+      }),
+      mkNode(sid + "-lk-flash", "flash", stage, part, {
+        playKey: "flow.pathPlayFlash",
+      }),
+      mkNode(sid + "-lk-c2", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-lk-quiz", "quiz", stage, part, { playKey: "flow.pathPlayQuiz" }),
+      mkNode(sid + "-lk-story", "story", stage, part, {
+        playKey: "flow.pathPlayStory",
+      }),
+      mkNode(sid + "-lk-listen2", "listen", stage, part, {
+        playKey: "flow.pathPlayListen",
+      }),
+      mkNode(sid + "-lk-practice2", "practice", stage, part, {
+        playKey: "flow.pathPlayDrill",
+      }),
+      mkNode(sid + "-lk-c3", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-lk-raid", "raid", stage, part, {
+        gemHint: "challenge",
+        playKey: "flow.pathPlayRaid",
+      }),
+    ];
+  }
+
   function buildNodeBlueprint(stage, part) {
     var sid = "s" + stage + "p" + part;
     var meadowMascot = stage <= 1 ? "🐸" : stage <= 3 ? "🦉" : "🐉";
@@ -276,20 +329,32 @@
     return [
       {
         zone: "lc-pond-zone--meadow",
+        zoneKey: "flow.pondZoneMeadow",
         nodes: buildMeadowNodes(sid, stage, part),
         mascot: meadowMascot,
       },
       { divider: "flow.learnSectionForest" },
       {
         zone: "lc-pond-zone--forest",
+        zoneKey: "flow.pondZoneForest",
         nodes: buildForestNodes(sid, stage, part),
         mascot: forestMascot,
       },
       { divider: "flow.learnSectionFriends" },
       {
         zone: "lc-pond-zone--coral",
+        zoneKey: "flow.pondZoneCoral",
         nodes: buildCoralNodes(sid, stage, part),
         mascot: "🦆",
+      },
+      { divider: "flow.learnSectionLake" },
+      {
+        zone: "lc-pond-zone--lake",
+        zoneKey: "flow.pondZoneLake",
+        layout: "snake",
+        rows: [5, 5, 5],
+        nodes: buildLakeNodes(sid, stage, part),
+        mascot: "🐠",
       },
     ];
   }
