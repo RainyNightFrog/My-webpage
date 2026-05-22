@@ -756,6 +756,7 @@
       z-index: 2;
       min-width: 0;
       max-width: 100%;
+      overflow: visible;
     }
 
     .badges {
@@ -822,13 +823,15 @@
       font-family: var(--font-display);
       font-size: clamp(1.4rem, 3.2vw, 2.85rem);
       font-weight: 800;
-      line-height: 1.22;
+      line-height: 1.25;
       letter-spacing: -0.02em;
       margin-bottom: 1rem;
       white-space: normal;
       text-wrap: balance;
-      overflow-wrap: break-word;
+      overflow-wrap: anywhere;
+      word-break: keep-all;
       max-width: 100%;
+      overflow: visible;
       background: linear-gradient(
         120deg,
         #fff 0%,
@@ -849,12 +852,20 @@
       100% { background-position: 200% center; }
     }
 
-    /* 中文標題較短：寬螢幕可維持單行 */
+    /* 中文標題：允許換行，避免窄欄被裁切 */
     html[lang="zh-Hant"] .hero-content h1,
     html[lang="zh-Hans"] .hero-content h1 {
-      font-size: clamp(1.35rem, 3.6vw, 3.25rem);
-      white-space: nowrap;
-      line-height: 1.15;
+      font-size: clamp(1.3rem, 2.9vw, 2.65rem);
+      line-height: 1.28;
+      white-space: normal;
+      text-wrap: pretty;
+    }
+
+    @media (min-width: 1100px) {
+      html[lang="zh-Hant"] .hero-content h1,
+      html[lang="zh-Hans"] .hero-content h1 {
+        font-size: clamp(1.45rem, 2.4vw, 2.85rem);
+      }
     }
 
     /* 英文等較長文案：允許換行、略調字級 */
@@ -930,6 +941,36 @@
       background: rgba(56, 189, 248, 0.12);
       backdrop-filter: blur(8px);
       transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .btn-island {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.85rem 1.35rem;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-decoration: none;
+      color: #1e1b4b;
+      background: linear-gradient(135deg, #fde68a 0%, #f472b6 45%, #38bdf8 100%);
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 8px 28px rgba(244, 114, 182, 0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-island::before {
+      content: "🏝️";
+    }
+
+    .btn-island:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-island[hidden] {
+      display: none !important;
     }
 
     .btn-secondary:hover {
@@ -1235,6 +1276,13 @@
     .lang-chip[data-learn="it"] { background: linear-gradient(135deg, #22c55e, #15803d); }
     .lang-chip[data-learn="pt"] { background: linear-gradient(135deg, #14b8a6, #0d9488); }
 
+    @media (max-width: 1024px) and (min-width: 901px) {
+      html[lang="zh-Hant"] .hero-content h1,
+      html[lang="zh-Hans"] .hero-content h1 {
+        font-size: clamp(1.2rem, 2.5vw, 2.1rem);
+      }
+    }
+
     @media (max-width: 900px) {
       .hero {
         grid-template-columns: 1fr;
@@ -1248,8 +1296,8 @@
 
       html[lang="zh-Hant"] .hero-content h1,
       html[lang="zh-Hans"] .hero-content h1 {
-        white-space: normal;
-        font-size: clamp(1.15rem, 4.2vw, 2.2rem);
+        font-size: clamp(1.2rem, 4.5vw, 2.25rem);
+        line-height: 1.3;
       }
 
       html[lang="en"] .hero-content h1 {
@@ -1363,6 +1411,7 @@
 
         <div class="cta-row">
           <a class="btn-primary" href="languages.html" data-i18n="home.btnStart">立即開始</a>
+          <a class="btn-island home-island-cta" id="btnAdventureIsland" href="learn.html" hidden data-i18n="home.btnAdventureIsland">進入冒險島</a>
           <a class="btn-secondary" href="explore.html" data-i18n="home.btnTools">探索工具箱</a>
         </div> 
 
@@ -1469,6 +1518,7 @@
   <script src="frog-logo-asset.js"></script>
   <script src="frog-logo-inline.js"></script>
   <script src="i18n.js"></script>
+  <script src="adventure-island.js"></script>
   <script src="app.js"></script>
   <script>
     (function () {
@@ -1488,6 +1538,18 @@
       AppI18n.applyPage("home");
       initHomeLangPicker();
       updateA11y();
+
+      function refreshAdventureIslandCta() {
+        var btn = document.getElementById("btnAdventureIsland");
+        if (!btn || !window.RNFAdventureIsland) return;
+        if (RNFAdventureIsland.isUnlocked()) {
+          btn.hidden = false;
+        } else {
+          btn.hidden = true;
+        }
+      }
+      refreshAdventureIslandCta();
+      document.addEventListener("rnf:island-unlocked", refreshAdventureIslandCta);
 
       document.addEventListener("lc:langchange", function () {
         AppI18n.applyPage("home");
