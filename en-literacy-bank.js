@@ -111,9 +111,9 @@
     [
       "en_lit_e11",
       "beginner",
-      '"Can you lend me a pen?" — "Sure, _______."',
-      "「能借我筆嗎？」—「當然，_______。」",
-      ["here you are", "it doesn't matter", "never mind", "you're welcome"],
+      "SKIP_E11",
+      "",
+      [],
       0,
     ],
     [
@@ -549,9 +549,70 @@
     ],
   ];
 
+  function buildPenLendDialog() {
+    return {
+      id: "en_lit_e11",
+      type: "text_choice",
+      level: "beginner",
+      courses: ["en"],
+      badge: "daily",
+      vocabKey: "en_lit:e11_pen",
+      prompt: L(
+        "對話情境：對方說「能借我一支筆嗎？」，你把筆遞給他。回覆應填哪句？（不是「不客氣」）",
+        "对话情境：对方说「能借我一支笔吗？」，你把笔递给他。回复应填哪句？（不是「不客气」）",
+        'Dialog: "Can I borrow a pen?" You hand them the pen. What do you say? (Not "you\'re welcome")'
+      ),
+      promptLine: L(
+        "能借我一支筆嗎？— 當然，_______。",
+        "能借我一支笔吗？— 当然，_______。",
+        '"Can I borrow a pen?" — "Sure, _______."'
+      ),
+      bubbleLine: L(
+        "遞東西 → here you are｜對方道謝 → you're welcome",
+        "递东西 → here you are｜对方道谢 → you're welcome",
+        "Handing something → here you are | Thanks → you're welcome"
+      ),
+      speakLine: L("here you are", "here you are", "here you are"),
+      speakLang: "en-US",
+      options: [
+        {
+          label: L(
+            "here you are（給你／遞上東西）",
+            "here you are（给你／递上东西）",
+            "here you are (handing something over)"
+          ),
+          correct: true,
+        },
+        {
+          label: L(
+            "you're welcome（不客氣，對方謝你時）",
+            "you're welcome（不客气，对方谢你时）",
+            "you're welcome (reply to \"thank you\")"
+          ),
+          correct: false,
+        },
+        {
+          label: L("never mind（沒關係）", "never mind（没关系）", "never mind"),
+          correct: false,
+        },
+        {
+          label: L(
+            "it doesn't matter（沒關係）",
+            "it doesn't matter（没关系）",
+            "it doesn't matter"
+          ),
+          correct: false,
+        },
+      ],
+    };
+  }
+
   var BANK = RAW.map(function (row) {
+    if (row[0] === "en_lit_e11") return null;
     return tc(row[0], row[1], row[2], row[3], row[4], row[5]);
-  });
+  }).filter(Boolean);
+
+  BANK.push(buildPenLendDialog());
 
   global.RNFEnLiteracyBank = {
     BANK: BANK,

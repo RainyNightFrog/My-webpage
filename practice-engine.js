@@ -529,7 +529,12 @@
       saveHearts(capped);
       return capped;
     }
-    if (mode === "normal" || mode === "review") {
+    if (mode === "challenge" || mode === "drill") {
+      var hardCap = Math.min(loadHearts(), 3);
+      saveHearts(hardCap);
+      return hardCap;
+    }
+    if (mode === "normal" || mode === "review" || mode === "chest") {
       saveHearts(MAX_HEARTS);
       return MAX_HEARTS;
     }
@@ -611,7 +616,8 @@
     if (daily.xp >= DAILY_XP_GOAL && !daily.celebrated) {
       self.renderDailyQuestComplete(
         Math.min(daily.xp, DAILY_XP_GOAL),
-        DAILY_XP_GOAL
+        DAILY_XP_GOAL,
+        self.state.xp || 0
       );
       return;
     }
@@ -707,9 +713,24 @@
         this.renderNoMistakes();
         return;
       }
+      var reviewSize = Math.max(1, Math.min(filterIds.length, SESSION_SIZE));
+      this.state.queue = RNFQuestions.buildSession(reviewSize, filterIds, {
+        mode: "review",
+        mistakesOnly: true,
+      });
+      this.renderCurrent();
+      return;
     }
-    this.state.queue = RNFQuestions.buildSession(SESSION_SIZE, filterIds, {
+    var sessionSize = SESSION_SIZE;
+    if (this.state.mode === "challenge") sessionSize = 12;
+    if (this.state.mode === "chest") sessionSize = 6;
+    var stageTier =
+      global.RNFPathProgress && RNFPathProgress.getPathTier
+        ? RNFPathProgress.getPathTier()
+        : 1;
+    this.state.queue = RNFQuestions.buildSession(sessionSize, filterIds, {
       mode: this.state.mode,
+      stageTier: stageTier,
     });
     if (this.state.mode === "jump") {
       this._jumpPart = getJumpTestPart();
@@ -1519,6 +1540,19 @@
     return html + "</div>";
   };
 
+  function textChoiceOptionLabel(opt) {
+    if (!opt || !opt.label) return "";
+    if (
+      getLearnCourse() !== "zh" &&
+      global.RNFQuestions &&
+      RNFQuestions.tUiField &&
+      (opt.label.hant || opt.label.hans)
+    ) {
+      return RNFQuestions.tUiField(opt.label);
+    }
+    return tf(opt.label);
+  }
+
   PracticeEngine.prototype.renderTextChoice = function (q) {
     var html = "";
     var cue = textChoiceBubbleText(q);
@@ -1546,7 +1580,7 @@
         '<span class="lc-pick-key">' +
         (i + 1) +
         "</span> " +
-        tf(opt.label) +
+        textChoiceOptionLabel(opt) +
         "</button>";
     });
     return html + "</div>";
@@ -2903,7 +2937,9 @@
       "</div>" +
       '<p class="lc-jump-fail-msg">' +
       jumpTestFailMsgText(part) +
-      "</p></div>";
+      "</p>" +
+      gemNote +
+      "</div>";
 
     if (global.RNFFrogLogo) RNFFrogLogo.mount();
 
@@ -3087,16 +3123,51 @@
     this.onProgress(100);
   };
 
-  PracticeEngine.prototype.renderDailyQuestComplete = function (current, goal) {
+  PracticeEngine.prototype.animateDailyQuestFill = function (start, end, max) {
+    var fill = this.root.querySelector(".lc-daily-quest-fill");
+    var prog = this.root.querySelector(".lc-daily-quest-progress");
+    if (!fill || !prog || !max) return;
+
+    var from = Math.max(0, Math.min(start, max));
+    var to = Math.max(from, Math.min(end, max));
+    var duration = 1500;
+    var t0 = null;
+
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
+    }
+
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      var elapsed = ts - t0;
+      var p = Math.min(1, elapsed / duration);
+      var val = Math.round(from + (to - from) * easeOutCubic(p));
+      var pct = (val / max) * 100;
+      fill.style.width = pct + "%";
+      prog.textContent = val + " / " + max;
+      if (p < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        fill.style.width = (to / max) * 100 + "%";
+        prog.textContent = to + " / " + max;
+        fill.classList.add("lc-daily-quest-fill--done");
+      }
+    }
+
+    requestAnimationFrame(frame);
+  };
+
+  PracticeEngine.prototype.renderDailyQuestComplete = function (current, goal, sessionXp) {
     var self = this;
-    var cur = current || goal || DAILY_XP_GOAL;
     var max = goal || DAILY_XP_GOAL;
-    var pct = max ? Math.min(100, Math.round((cur / max) * 100)) : 100;
+    var end = Math.min(current != null ? current : max, max);
+    var gained = sessionXp || 0;
+    var start = Math.max(0, end - gained);
 
     this.root.innerHTML =
       '<div class="lc-daily-done">' +
       '<h2 class="lc-daily-done-title">' +
-      t("flow.dailyAllDone") +
+      t("flow.dailyLessonDone") +
       "</h2>" +
       '<div class="lc-daily-quest-card">' +
       '<div class="lc-daily-quest-head">' +
@@ -3106,11 +3177,9 @@
       "</span></div>" +
       '<div class="lc-daily-quest-track-wrap">' +
       '<div class="lc-daily-quest-track">' +
-      '<div class="lc-daily-quest-fill" style="width:' +
-      pct +
-      '%"></div>' +
+      '<div class="lc-daily-quest-fill lc-daily-quest-fill--animate" style="width:0%"></div>' +
       '<span class="lc-daily-quest-progress">' +
-      cur +
+      start +
       " / " +
       max +
       "</span></div>" +
@@ -3120,10 +3189,86 @@
     if (this.btnSkip) this.btnSkip.classList.add("lc-hidden");
     this.setAction(true, t("flow.continue"));
     if (this.btnAction) {
+      this.btnAction.disabled = true;
+      this.btnAction.classList.add("lc-btn--waiting");
+      setTimeout(function () {
+        if (self.btnAction) {
+          self.btnAction.disabled = false;
+          self.btnAction.classList.remove("lc-btn--waiting");
+        }
+      }, 1550);
       this.btnAction.onclick = function () {
         self.renderGemReward(DAILY_GEM_REWARD);
       };
     }
+    this.onProgress(100);
+
+    var runAnim = function () {
+      self.animateDailyQuestFill(start, end, max);
+    };
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(runAnim);
+    } else {
+      setTimeout(runAnim, 50);
+    }
+  };
+
+  PracticeEngine.prototype.renderPathGemReward = function (amount, subKey, onContinue) {
+    var self = this;
+    var n = amount || 0;
+    var gems = "";
+    for (var i = 0; i < Math.min(n, 6); i++) {
+      gems += '<span class="lc-gem-piece"></span>';
+    }
+    var sub = subKey ? t(subKey) : t("flow.pathGemDefaultSub");
+
+    this.root.innerHTML =
+      '<div class="lc-gem-reward lc-gem-reward--path">' +
+      '<div class="lc-gem-reward-stage" aria-hidden="true">' +
+      '<div class="lc-gem-sparkles"><span></span><span></span><span></span><span></span><span></span><span></span></div>' +
+      '<div class="lc-gem-chest-open">' +
+      '<div class="lc-gem-chest-lid"></div>' +
+      '<div class="lc-gem-chest-body">' +
+      gems +
+      "</div></div>" +
+      '<div class="lc-gem-shadow"></div></div>' +
+      '<h2 class="lc-gem-reward-title">' +
+      t("flow.gemEarned", { n: n }) +
+      "</h2>" +
+      '<p class="lc-gem-reward-sub">' +
+      sub +
+      "</p></div>";
+
+    if (this.btnSkip) this.btnSkip.classList.add("lc-hidden");
+    this.setAction(true, t("flow.continue"));
+    if (this.btnAction) {
+      this.btnAction.onclick = function () {
+        if (typeof onContinue === "function") onContinue();
+      };
+    }
+    this.onProgress(100);
+    if (global.document && document.dispatchEvent) {
+      document.dispatchEvent(new CustomEvent("lc:heartschange"));
+    }
+  };
+
+  PracticeEngine.prototype.renderDrillFail = function (pathResult) {
+    var self = this;
+    this.resetLessonFooter();
+    this.root.innerHTML =
+      '<div class="lc-complete lc-drill-fail">' +
+      '<div class="lc-complete-hero">🌧️😅</div>' +
+      '<h2 class="lc-complete-title">' +
+      t(pathResult.rewardKey || "flow.pathDrillFail") +
+      "</h2>" +
+      '<p class="lc-complete-sub">' +
+      t("flow.pathDrillFailSub") +
+      "</p>" +
+      '<a class="lc-btn-primary lc-btn-block" href="learn.html">' +
+      t("flow.backToLearnHub") +
+      "</a></div>";
+    if (this.btnSkip) this.btnSkip.classList.add("lc-hidden");
+    this.setAction(false);
     this.onProgress(100);
   };
 
@@ -3276,20 +3421,26 @@
       '<p class="lc-complete-sub">' +
       (acc >= 80 ? t("flow.greatJob") : t("flow.keepGoing")) +
       "</p>" +
-      '<div class="lc-stat-grid">' +
-      '<div class="lc-stat-card"><span class="lc-stat-val">' +
+      '<div class="lc-stat-grid lc-stat-grid--complete">' +
+      '<div class="lc-stat-card">' +
+      '<span class="lc-stat-val">' +
       s.correct +
-      '</span><span class="lc-stat-lbl">' +
+      "</span>" +
+      '<span class="lc-stat-lbl">' +
       t("flow.correctCount") +
-      '</span></div>' +
-      '<div class="lc-stat-card"><span class="lc-stat-val">' +
+      "</span></div>" +
+      '<div class="lc-stat-card">' +
+      '<span class="lc-stat-val">' +
       acc +
-      '%</span><span class="lc-stat-lbl">' +
+      "%</span>" +
+      '<span class="lc-stat-lbl">' +
       t("flow.accuracy") +
-      '</span></div>' +
-      '<div class="lc-stat-card lc-stat-xp"><span class="lc-stat-val">+' +
+      "</span></div>" +
+      '<div class="lc-stat-card lc-stat-xp">' +
+      '<span class="lc-stat-val">+' +
       s.xp +
-      '</span><span class="lc-stat-lbl">' +
+      "</span>" +
+      '<span class="lc-stat-lbl">' +
       t("flow.xpBonus") +
       "</span></div>" +
       "</div>" +
@@ -3301,18 +3452,12 @@
       t("flow.continuePractice") +
       "</a>" +
       (mistakes.length
-        ? '<a class="lc-btn-ghost lc-btn-block" href="lesson.html?mode=review">' +
+        ? '<a class="lc-btn-ghost lc-btn-block lc-btn-review-mistakes" href="lesson.html?mode=review" title="' +
+          t("flow.reviewMistakesHint") +
+          '">' +
           t("flow.reviewMistakes") +
-          " (" +
-          mistakes.length +
-          ")</a>"
+          "</a>"
         : "") +
-      '<button type="button" class="lc-btn-ghost lc-btn-block" id="btnViewGrade">' +
-      t("flow.reviewReport") +
-      "</button>" +
-      '<a class="lc-btn-ghost lc-btn-block" href="review.html">' +
-      t("flow.goReview") +
-      "</a>" +
       '<a class="lc-btn-ghost lc-btn-block" href="home.html">' +
       t("flow.backHome") +
       "</a>" +
@@ -3324,12 +3469,6 @@
     this.publishScore(false);
     this._lastCompleteHtml = true;
 
-    var gradeBtn = document.getElementById("btnViewGrade");
-    if (gradeBtn) {
-      gradeBtn.addEventListener("click", function () {
-        self.renderGradeReport();
-      });
-    }
     if (this.btnAction) {
       this.btnAction.onclick = null;
     }
@@ -3337,18 +3476,66 @@
 
   PracticeEngine.prototype.renderComplete = function () {
     var self = this;
+    var s = this.state;
+    var acc =
+      s.answered > 0 ? Math.round((s.correct / s.answered) * 100) : 0;
+
     this.resetLessonFooter();
-    saveSessionReport(this.state);
+    saveSessionReport(s);
+
+    if (s.mode === "jump") {
+      var jumpResult =
+        global.RNFPathProgress && RNFPathProgress.onLessonComplete
+          ? RNFPathProgress.onLessonComplete({
+              mode: "jump",
+              success: true,
+              acc: acc,
+            })
+          : null;
+      if (jumpResult && jumpResult.success && jumpResult.gems > 0) {
+        this.renderPathGemReward(jumpResult.gems, jumpResult.rewardKey, function () {
+          location.href = "learn.html";
+        });
+        return;
+      }
+      location.href = "learn.html";
+      return;
+    }
+
     if (global.LCApp && LCApp.incrementUnitsCompleted) {
       LCApp.incrementUnitsCompleted();
     }
-    try {
-      if (!localStorage.getItem(unlockStorageKey())) {
-        this.renderUnlockScore();
-        return;
-      }
-    } catch (e) {}
-    finishSessionFlow(self);
+
+    var pathResult = null;
+    if (global.RNFPathProgress && s.mode !== "review") {
+      pathResult = RNFPathProgress.onLessonComplete({
+        mode: s.mode,
+        acc: acc,
+        success: true,
+      });
+    }
+
+    if (pathResult && pathResult.passed === false) {
+      this.renderDrillFail(pathResult);
+      return;
+    }
+
+    function afterPathReward() {
+      try {
+        if (!localStorage.getItem(unlockStorageKey())) {
+          self.renderUnlockScore();
+          return;
+        }
+      } catch (e) {}
+      finishSessionFlow(self);
+    }
+
+    if (pathResult && pathResult.gems > 0) {
+      this.renderPathGemReward(pathResult.gems, pathResult.rewardKey, afterPathReward);
+      return;
+    }
+
+    afterPathReward();
   };
 
   PracticeEngine.renderGradeFromStorage = function (root) {

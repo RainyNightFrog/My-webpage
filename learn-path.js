@@ -26,75 +26,29 @@
     pt: "🇧🇷",
   };
 
-  var ACTIVE_UNIT_DEFAULT = {
-    stage: 1,
-    part: 4,
-    topicKey: "flow.learnSectionTravel",
-    banner: "moon",
-    guideSection: 4,
-  };
-
-  var ACTIVE_UNIT_BY_COURSE = {
-    zh: {
-      stage: 1,
-      part: 1,
-      topicKey: "flow.learnUnitTopic2",
-      banner: "moon",
-      guideSection: 2,
-    },
-    ko: {
-      stage: 1,
-      part: 1,
-      topicKey: "flow.learnUnitTopic2",
-      banner: "moon",
-      guideSection: 2,
-    },
-    ja: {
-      stage: 1,
-      part: 1,
-      topicKey: "flow.learnUnitTopic2",
-      banner: "moon",
-      guideSection: 2,
-    },
-    en: {
-      stage: 1,
-      part: 1,
-      topicKey: "flow.learnUnitTopic2",
-      banner: "moon",
-      guideSection: 2,
-    },
-  };
-
   function getActiveUnit() {
-    var target = "en";
-    try {
-      target = sessionStorage.getItem("learn_target") || "en";
-    } catch (e) {}
-    return ACTIVE_UNIT_BY_COURSE[target] || ACTIVE_UNIT_DEFAULT;
+    if (global.RNFPathProgress && RNFPathProgress.getActiveUnit) {
+      return RNFPathProgress.getActiveUnit();
+    }
+    return {
+      stage: 1,
+      part: 1,
+      topicKey: "flow.pathStage1Topic",
+      subKey: "flow.pathStage1Sub",
+      banner: "moon",
+      guideSection: 1,
+      tier: 1,
+      tierLabelKey: "flow.pathTier1",
+      sceneClass: "lc-pond-scene--s1",
+    };
   }
 
-  /** @type {{ nodes?: object[], divider?: string, prop?: string, mascot?: string }[]} */
-  var PATH_LAYOUT = [
-    {
-      nodes: [
-        { type: "jump", jumpStyle: "blue", showTip: true, targetPart: 6 },
-        { type: "star", state: "locked" },
-        { type: "practice", state: "locked" },
-        { type: "chest", state: "locked" },
-        { type: "star", state: "locked" },
-        { type: "trophy", state: "locked" },
-      ],
-      prop: "npc",
-    },
-    { divider: "flow.learnSectionFriends" },
-    {
-      nodes: [
-        { type: "jump", jumpStyle: "pink", showTip: true },
-        { type: "star", state: "locked" },
-        { type: "star", state: "current", href: "lesson.html" },
-      ],
-    },
-  ];
+  function getPathLayout() {
+    if (global.RNFPathProgress && RNFPathProgress.buildPathLayout) {
+      return RNFPathProgress.buildPathLayout();
+    }
+    return [];
+  }
 
   function t(path, vars) {
     return global.AppI18n ? AppI18n.t(path, vars) : path;
@@ -122,7 +76,7 @@
 
   function flattenPondStops() {
     var stops = [];
-    PATH_LAYOUT.forEach(function (block) {
+    getPathLayout().forEach(function (block) {
       if (block.divider) {
         stops.push({ kind: "divider", key: block.divider });
         return;
@@ -146,21 +100,58 @@
     );
   }
 
+  function gemBadgeHtml(node) {
+    if (node.gemHint === "jump") {
+      return (
+        '<span class="lc-pond-gem-badge lc-pond-gem-badge--jump">+' +
+        (global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_WIN : 10) +
+        " 💎</span>"
+      );
+    }
+    if (node.gemHint === "challenge") {
+      return (
+        '<span class="lc-pond-gem-badge lc-pond-gem-badge--boss">+' +
+        (global.RNFPathProgress ? RNFPathProgress.GEM_CHALLENGE : 3) +
+        " 💎</span>"
+      );
+    }
+    if (node.gemHint === "chest") {
+      return (
+        '<span class="lc-pond-gem-badge lc-pond-gem-badge--chest">+' +
+        (global.RNFPathProgress ? RNFPathProgress.GEM_CHEST : 4) +
+        " 💎</span>"
+      );
+    }
+    return "";
+  }
+
   function renderPondJump(n) {
     var style = n.jumpStyle || "violet";
     var tipHtml =
       n.showTip !== false
         ? '<span class="lc-pond-jump-tip">' + t("flow.learnJump") + "</span>"
         : "";
+    var riskHtml =
+      '<span class="lc-pond-jump-risk">' +
+      t("flow.pathJumpRisk", {
+        win: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_WIN : 10,
+        lose: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_FAIL : 3,
+      }) +
+      "</span>";
     return (
       '<div class="lc-pond-stop lc-pond-stop--jump lc-pond-stop--' +
       style +
+      (n.state === "done" ? " lc-pond-stop--done" : "") +
       '">' +
       tipHtml +
+      gemBadgeHtml(n) +
+      riskHtml +
       '<button type="button" class="lc-pond-jump-btn" aria-label="' +
       t("flow.learnJump") +
       '" data-target-part="' +
       (n.targetPart || getActiveUnit().part + 1) +
+      '" data-target-stage="' +
+      (n.targetStage || getActiveUnit().stage) +
       '">' +
       '<span class="lc-pond-stop-glow"></span>' +
       '<span class="lc-pond-stop-icon">' +
@@ -195,6 +186,10 @@
       state === "locked"
         ? '<span class="lc-pond-lock" aria-hidden="true">🔒</span>'
         : "";
+    var doneMark =
+      state === "done"
+        ? '<span class="lc-pond-done-mark" aria-hidden="true">✓</span>'
+        : "";
 
     return (
       "<" +
@@ -202,6 +197,7 @@
       attrs +
       ">" +
       ribbon +
+      gemBadgeHtml(n) +
       '<span class="lc-pond-stop-pad"></span>' +
       '<span class="lc-pond-stop-icon">' +
       nodeIcon(n.type) +
@@ -209,6 +205,7 @@
       '<span class="lc-pond-stop-type">' +
       nodeTypeLabel(n.type) +
       "</span>" +
+      doneMark +
       lock +
       "</" +
       tag +
@@ -217,8 +214,13 @@
   }
 
   function renderPondPals() {
+    var animals =
+      global.RNFPathProgress && RNFPathProgress.renderPathAnimals
+        ? RNFPathProgress.renderPathAnimals()
+        : "";
     return (
       '<div class="lc-pond-pals" aria-hidden="true">' +
+      animals +
       '<div class="lc-pond-pal lc-pond-pal--firefly"></div>' +
       '<div class="lc-pond-pal lc-pond-pal--newt"></div>' +
       '<div class="lc-pond-pal lc-pond-pal--dragon" data-frog-logo></div>' +
@@ -236,8 +238,11 @@
         track += renderPondStop(item.node, i);
       }
     });
+    var unit = getActiveUnit();
     return (
-      '<div class="lc-pond-scene">' +
+      '<div class="lc-pond-scene ' +
+      (unit.sceneClass || "") +
+      '">' +
       renderPondPals() +
       '<div class="lc-pond-scroll">' +
       '<div class="lc-pond-river">' +
@@ -254,6 +259,7 @@
   function renderChapterBanner() {
     var unit = getActiveUnit();
     var accent = unit.banner || "moon";
+    var tierLbl = unit.tierLabelKey ? t(unit.tierLabelKey) : "";
     return (
       '<header class="lc-pond-chapter lc-pond-chapter--' +
       accent +
@@ -265,6 +271,9 @@
         part: unit.part,
       }) +
       "</a>" +
+      '<span class="lc-pond-tier-pill">' +
+      tierLbl +
+      "</span>" +
       '<a class="lc-pond-chapter-guide" href="guide.html?section=' +
       (unit.guideSection || 1) +
       '">' +
@@ -275,7 +284,7 @@
       t(unit.topicKey) +
       "</h1>" +
       '<p class="lc-pond-chapter-sub">' +
-      t("flow.pondChapterSub") +
+      t(unit.subKey || "flow.pondChapterSub") +
       "</p></header>"
     );
   }
@@ -454,6 +463,7 @@
 
   var jumpOverlayEl = null;
   var jumpTargetPart = null;
+  var jumpTargetStage = null;
 
   function ensureJumpOverlay() {
     if (jumpOverlayEl) return jumpOverlayEl;
@@ -495,15 +505,20 @@
   function refreshJumpModalCopy() {
     if (!jumpOverlayEl || jumpOverlayEl.hidden) return;
     var part = jumpTargetPart || getActiveUnit().part + 1;
-    jumpOverlayEl.querySelector(".lc-jump-msg").textContent = t("flow.jumpTestPrompt", {
-      n: part,
-    });
+    jumpOverlayEl.querySelector(".lc-jump-msg").textContent =
+      t("flow.jumpTestPrompt", { n: part }) +
+      "\n" +
+      t("flow.pathJumpRisk", {
+        win: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_WIN : 10,
+        lose: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_FAIL : 3,
+      });
     jumpOverlayEl.querySelector("[data-jump-later]").textContent = t("flow.jumpTestLater");
     jumpOverlayEl.querySelector("[data-jump-start]").textContent = t("flow.jumpTestStart");
   }
 
-  function openJumpModal(targetPart) {
+  function openJumpModal(targetPart, targetStage) {
     jumpTargetPart = targetPart;
+    jumpTargetStage = targetStage || getActiveUnit().stage;
     var overlay = ensureJumpOverlay();
     refreshJumpModalCopy();
     overlay.hidden = false;
@@ -520,10 +535,15 @@
 
   function startJumpTest() {
     var part = jumpTargetPart || getActiveUnit().part + 1;
+    var stage = jumpTargetStage || getActiveUnit().stage;
     try {
       sessionStorage.setItem("rnf_jump_test_part", String(part));
     } catch (e) {}
-    location.href = "lesson.html?mode=jump&part=" + encodeURIComponent(part);
+    location.href =
+      "lesson.html?mode=jump&part=" +
+      encodeURIComponent(part) +
+      "&stage=" +
+      encodeURIComponent(stage);
   }
 
   function bindJumpButtons(root) {
@@ -533,8 +553,10 @@
       var btn = e.target.closest(".lc-pond-jump-btn");
       if (!btn || !root.contains(btn)) return;
       var part = parseInt(btn.getAttribute("data-target-part") || "", 10);
+      var stage = parseInt(btn.getAttribute("data-target-stage") || "", 10);
       if (!part || isNaN(part)) part = getActiveUnit().part + 1;
-      openJumpModal(part);
+      if (!stage || isNaN(stage)) stage = getActiveUnit().stage;
+      openJumpModal(part, stage);
     });
   }
 

@@ -2681,12 +2681,35 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   margin-bottom: 1.5rem;
 }
 
+.lc-stat-grid--complete {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @media (max-width: 520px) {
   .lc-stat-grid { grid-template-columns: 1fr; }
+  .lc-stat-grid--complete {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .lc-stat-grid--complete {
+    grid-template-columns: 1fr;
+  }
 }
 
 .lc-stat-card {
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 5.5rem;
+  padding: 1rem 0.65rem;
+  gap: 0.4rem;
   border-radius: var(--radius);
   background: var(--glass);
   border: 1px solid var(--glass-border);
@@ -2699,15 +2722,28 @@ body.lc-lesson-last-chance .lc-progress-wrap {
 
 .lc-stat-val {
   display: block;
+  width: 100%;
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.65rem;
   font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
 }
 
 .lc-stat-lbl {
-  font-size: 0.8rem;
+  display: block;
+  width: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.35;
   color: var(--text-soft);
   font-weight: 600;
+}
+
+.lc-btn-review-mistakes {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.12);
 }
 
 .lc-complete-actions {
@@ -3666,10 +3702,38 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   left: 0;
   top: 0;
   bottom: 0;
+  width: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45);
-  transition: width 0.35s ease;
+  background: linear-gradient(90deg, #16a34a, #4ade80, #86efac);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.45);
+  transition: width 0.08s linear;
+  will-change: width;
+}
+
+.lc-daily-quest-fill--animate {
+  min-width: 0;
+}
+
+.lc-daily-quest-fill--done {
+  box-shadow: 0 0 22px rgba(74, 222, 128, 0.65);
+  animation: lc-daily-fill-pulse 0.6s ease 1;
+}
+
+@keyframes lc-daily-fill-pulse {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.15);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.lc-btn-primary.lc-btn--waiting {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .lc-daily-quest-progress {
@@ -5887,6 +5951,23 @@ button.lc-hearts-pop-row {
   line-height: 1;
 }
 
+.lc-profile-avatar.has-avatar {
+  border-style: solid;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.2), rgba(167, 139, 250, 0.15));
+}
+
+.lc-profile-avatar.has-avatar .lc-profile-avatar-plus,
+.lc-profile-avatar.has-avatar .lc-profile-avatar-silhouette {
+  display: none;
+}
+
+.lc-profile-avatar-emoji {
+  font-size: 4.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
 .lc-profile-edit-badge {
   position: absolute;
   top: 6px;
@@ -6252,6 +6333,144 @@ button.lc-hearts-pop-row {
 
 .lc-avatar-later:hover {
   text-decoration: underline;
+}
+
+.lc-avatar-picker-card {
+  position: relative;
+  max-width: min(520px, 96vw);
+  max-height: min(90vh, 720px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.lc-avatar-picker-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.lc-avatar-picker-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lc-avatar-picker-preview {
+  font-size: 3.5rem;
+  line-height: 1;
+  margin: 0.25rem auto 0.5rem;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(244, 114, 182, 0.25), rgba(56, 189, 248, 0.25));
+  border: 3px solid rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+}
+
+.lc-avatar-picker-card h2 {
+  margin-bottom: 0.35rem;
+}
+
+.lc-avatar-picker-sub {
+  margin: 0 0 0.85rem;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.45;
+}
+
+.lc-avatar-picker-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.lc-avatar-picker-tab {
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lc-avatar-picker-tab.on {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  color: #fff;
+}
+
+.lc-avatar-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 0.45rem;
+  max-height: min(42vh, 320px);
+  overflow-y: auto;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lc-avatar-picker-item {
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 1.65rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.lc-avatar-picker-item:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.lc-avatar-picker-item.selected {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  transform: scale(1.06);
+}
+
+.lc-avatar-save {
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 0.65rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.lc-nav-profile-emoji {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: block;
 }
 
 /* Leaderboard (locked) */
@@ -8151,6 +8370,174 @@ button.lc-pond-rail-link {
 
 .lc-pond-stop--pink .lc-pond-stop-pad {
   border-color: #f472b6;
+}
+
+/* Path overhaul — stage themes, animals, gems */
+.lc-pond-tier-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fbbf24, #f472b6);
+  color: #1e1b4b;
+  letter-spacing: 0.04em;
+}
+
+.lc-pond-chapter--violet {
+  border-left-color: #a78bfa;
+  background: linear-gradient(135deg, rgba(46, 16, 101, 0.75), rgba(15, 23, 42, 0.55));
+}
+
+.lc-pond-scene--s1 {
+  border-color: rgba(74, 222, 128, 0.25);
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(34, 197, 94, 0.22), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(251, 191, 36, 0.15), transparent),
+    rgba(0, 0, 0, 0.25);
+}
+
+.lc-pond-scene--s2 {
+  border-color: rgba(56, 189, 248, 0.3);
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 70%, rgba(56, 189, 248, 0.25), transparent),
+    radial-gradient(ellipse 50% 40% at 75% 30%, rgba(244, 114, 182, 0.18), transparent),
+    rgba(0, 0, 0, 0.25);
+}
+
+.lc-pond-scene--s3 {
+  border-color: rgba(192, 132, 252, 0.35);
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 100%, rgba(168, 85, 247, 0.28), transparent),
+    radial-gradient(ellipse 50% 35% at 10% 20%, rgba(251, 113, 133, 0.2), transparent),
+    rgba(0, 0, 0, 0.3);
+}
+
+.lc-pond-animals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lc-pond-animal {
+  position: absolute;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  animation: lc-pond-animal-bob 4.5s ease-in-out infinite;
+  opacity: 0.92;
+}
+
+@keyframes lc-pond-animal-bob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+.lc-pond-gem-badge {
+  position: absolute;
+  top: -6px;
+  right: 4px;
+  z-index: 4;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.45);
+  white-space: nowrap;
+}
+
+.lc-pond-gem-badge--jump {
+  background: linear-gradient(90deg, #fbbf24, #f97316);
+}
+
+.lc-pond-gem-badge--boss {
+  background: linear-gradient(90deg, #a78bfa, #ec4899);
+}
+
+.lc-pond-gem-badge--chest {
+  background: linear-gradient(90deg, #34d399, #22d3ee);
+}
+
+.lc-pond-jump-risk {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  max-width: 92px;
+  line-height: 1.3;
+  margin-top: 0.15rem;
+}
+
+.lc-pond-stop--done .lc-pond-stop-pad {
+  border-color: #4ade80;
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.35), rgba(22, 101, 52, 0.45));
+  opacity: 1;
+  filter: none;
+}
+
+.lc-pond-stop--done .lc-pond-stop-type {
+  color: #86efac;
+}
+
+.lc-pond-done-mark {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 4;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.5);
+}
+
+.lc-pond-stop--star.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #fde047, #f59e0b 40%, #7c3aed 100%);
+}
+
+.lc-pond-stop--practice.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #67e8f9, #0ea5e9 50%, #1e3a8a 100%);
+}
+
+.lc-pond-stop--chest.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #fbbf24, #ea580c 55%, #7c2d12 100%);
+}
+
+.lc-pond-stop--trophy.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #f472b6, #a855f7 50%, #4c1d95 100%);
+}
+
+.lc-pond-stop--jump.lc-pond-stop--current .lc-pond-stop-pad {
+  animation: lc-pond-jump-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lc-pond-jump-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(244, 114, 182, 0.65); }
+}
+
+.lc-jump-fail-gems {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f87171;
+  text-align: center;
+}
+
+.lc-gem-reward--path .lc-gem-chest-body {
+  background: linear-gradient(180deg, #38bdf8, #6366f1);
+}
+
+.lc-drill-fail .lc-complete-title {
+  color: #fca5a5;
 }
 
 .lc-pond-scroll-hint {

@@ -52,12 +52,19 @@
   <script src="question-generator.js"></script>
   <script src="questions.js"></script>
   <script src="question-audit.js"></script>
+  <script src="path-progress.js"></script>
   <script src="practice-engine.js"></script>
   <script>
     var mode = "normal";
     var params = new URLSearchParams(location.search);
     if (params.get("mode") === "review") mode = "review";
     if (params.get("mode") === "jump") mode = "jump";
+    if (params.get("mode") === "drill") mode = "drill";
+    if (params.get("mode") === "challenge") mode = "challenge";
+    if (params.get("mode") === "chest") mode = "chest";
+    if (window.RNFPathProgress && RNFPathProgress.bindLessonFromUrl) {
+      RNFPathProgress.bindLessonFromUrl(params);
+    }
     var viewGrade = params.get("view") === "grade";
 
     AppI18n.applyPage("lesson");

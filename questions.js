@@ -1153,7 +1153,7 @@
   }
 
   var _fullBankCache = null;
-  var _fullBankCacheVersion = 38;
+  var _fullBankCacheVersion = 39;
   var MIN_CHOICE_OPTIONS = 5;
 
   function dedupeEmojiPickQuestion(q, course) {
@@ -1599,6 +1599,38 @@
     return shuffle(hard).concat(shuffle(rest));
   }
 
+  function isLiteracyQuestion(q) {
+    if (!q || !q.id) return false;
+    return q.id.indexOf("zh_lit_") === 0 || q.id.indexOf("en_lit_") === 0;
+  }
+
+  function filterPoolByStageTier(pool, tier, course) {
+    if (!tier || tier <= 1) return pool;
+    var harder = pool.filter(function (q) {
+      if (q.level === "intermediate" || q.level === "advanced") return true;
+      if (isLiteracyQuestion(q)) {
+        if (tier >= 3 && q.id && /_(h\d|e\d{2,})/.test(q.id)) return true;
+        if (tier >= 2) return true;
+      }
+      return !isBeginnerQuestion(q);
+    });
+    if (tier >= 3) {
+      var advanced = pool.filter(function (q) {
+        return (
+          q.level === "advanced" ||
+          (isLiteracyQuestion(q) && q.id && /_(h\d|e5|e6)/.test(q.id))
+        );
+      });
+      if (advanced.length >= 6) harder = advanced;
+    }
+    if (harder.length < 8) {
+      harder = pool.filter(function (q) {
+        return !isBeginnerQuestion(q) || isLiteracyQuestion(q);
+      });
+    }
+    return harder.length ? harder : pool;
+  }
+
   function questionTypeKey(q) {
     if (!q) return "other";
     if (q.type === "word_bank") return "word_bank:" + (q.variant || "default");
@@ -1667,12 +1699,17 @@
       filterIds.forEach(function (ref) {
         var q = resolveQuestionRef(ref);
         if (q && !isCantoneseQuestion(q)) {
-          out.push(q);
-          usedReview[q.id] = true;
-          var rvk = questionVocabKey(q);
-          if (rvk) usedVocabReview[rvk] = true;
+          if (questionMatchesCourse(q, reviewCourse)) {
+            out.push(q);
+            usedReview[q.id] = true;
+            var rvk = questionVocabKey(q);
+            if (rvk) usedVocabReview[rvk] = true;
+          }
         }
       });
+      if (opts.mistakesOnly) {
+        return shuffle(out).slice(0, size);
+      }
       var reviewPool = bank.filter(function (q) {
         if (reviewCourse === "zh" && isCantoneseQuestion(q)) return false;
         if (reviewCourse === "zh" && isCircularZhTextChoice(q)) return false;
@@ -1692,8 +1729,17 @@
     }
 
     var course = getLearnTarget();
+    var stageTier = opts.stageTier || 1;
     var beginner =
-      opts.mode !== "jump" && (opts.beginner === true || useBeginnerPool());
+      stageTier <= 1 &&
+      opts.mode !== "jump" &&
+      opts.mode !== "drill" &&
+      opts.mode !== "challenge" &&
+      (opts.beginner === true || useBeginnerPool());
+
+    if (stageTier >= 2 || opts.mode === "drill" || opts.mode === "challenge") {
+      beginner = false;
+    }
 
     var pool = bank.filter(function (q) {
       if (!questionMatchesCourse(q, course)) return false;
@@ -1706,9 +1752,14 @@
     });
     if (beginner) {
       pool = pool.filter(isBeginnerQuestion);
+    } else {
+      pool = filterPoolByStageTier(pool, stageTier, course);
     }
     pool = boostZhGeneratedPool(pool, course);
     pool = boostZhHardPool(pool, course);
+    if (stageTier >= 3 || opts.mode === "challenge") {
+      pool = boostZhHardPool(pool, course);
+    }
     pool = shuffle(
       pool.map(function (q) {
         return expandQuestionChoices(q, course);
