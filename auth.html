@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="flow.authLoginTitle">?�入 ??Rainy Night Frog</title>
+  <title data-i18n="flow.authLoginTitle">登入帳戶</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="app.css">
 </head>
@@ -21,14 +21,14 @@
     <main class="lc-auth-main">
       <div class="lc-auth-card" id="authLoggedIn" hidden>
         <p class="lc-auth-welcome" id="authLoggedInName"></p>
-        <p class="lc-auth-hint" data-i18n="flow.authLoggedInHint">你�?寶石?��?心�??�險島進度?�已?�步??/p>
-        <button type="button" class="lc-btn-primary lc-btn-block" id="authContinueBtn" data-i18n="flow.authContinuePlay">繼�??�險</button>
-        <button type="button" class="lc-btn-ghost lc-btn-block" id="authLogoutBtn" data-i18n="flow.authLogout">?�出</button>
+        <p class="lc-auth-hint" data-i18n="flow.authLoggedInHint">你的寶石、愛心與冒險島進度都已同步到此帳戶。</p>
+        <button type="button" class="lc-btn-primary lc-btn-block" id="authContinueBtn" data-i18n="flow.authContinuePlay">繼續冒險</button>
+        <button type="button" class="lc-btn-ghost lc-btn-block" id="authLogoutBtn" data-i18n="flow.authLogout">登出</button>
       </div>
 
       <div class="lc-auth-card" id="authFormsWrap">
-        <h1 class="lc-auth-title" id="authTitle" data-i18n="flow.authLoginTitle">?�入帳戶</h1>
-        <p class="lc-auth-sub" data-i18n="flow.authSub">註�?一次�?永�?保�?學�??�度?�寶?�、�?心�??�險島解?��?/p>
+        <h1 class="lc-auth-title" id="authTitle" data-i18n="flow.authLoginTitle">登入帳戶</h1>
+        <p class="lc-auth-sub" data-i18n="flow.authSub">註冊一次，永久保存學習進度、寶石、愛心與冒險島解鎖，換裝置登入也不會重來。</p>
         <p class="lc-auth-error" id="authError" hidden role="alert"></p>
 
         <div id="authLoginPanel">
@@ -42,18 +42,18 @@
               <input type="password" class="lc-auth-input" id="authLoginPassword" required minlength="6" autocomplete="current-password" />
               <button type="button" class="lc-auth-eye" id="authLoginEye" aria-label="Show">??</button>
             </label>
-            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.authLoginBtn">?�入</button>
+            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.authLoginBtn">登入</button>
           </form>
           <p class="lc-auth-switch">
-            <span data-i18n="flow.authNoAccount">?��??�帳?��?</span>
-            <a href="auth.html?mode=register" data-auth-mode="register" data-i18n="flow.authGoRegister">立即註�?</a>
+            <span data-i18n="flow.authNoAccount">還沒有帳戶？</span>
+            <a href="auth.html?mode=register" data-auth-mode="register" data-i18n="flow.authGoRegister">立即註冊</a>
           </p>
         </div>
 
         <div id="authRegisterPanel" hidden>
           <form class="lc-auth-form" id="authRegisterForm" novalidate>
             <label class="lc-auth-field">
-              <span data-i18n="flow.signupName">姓�?（選填�?</span>
+              <span data-i18n="flow.signupName">姓名（選填）</span>
               <input type="text" class="lc-auth-input" id="authRegName" autocomplete="name" />
             </label>
             <label class="lc-auth-field">
@@ -65,11 +65,11 @@
               <input type="password" class="lc-auth-input" id="authRegPassword" required minlength="6" autocomplete="new-password" />
               <button type="button" class="lc-auth-eye" id="authRegEye" aria-label="Show">??</button>
             </label>
-            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.signupCreateAccount">?�建帳戶</button>
+            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.signupCreateAccount">創建帳戶</button>
           </form>
           <p class="lc-auth-switch">
-            <span data-i18n="flow.authHasAccount">已�?帳戶�?/span>
-            <a href="auth.html?mode=login" data-auth-mode="login" data-i18n="flow.authGoLogin">?�入</a>
+            <span data-i18n="flow.authHasAccount">已有帳戶？</span>
+            <a href="auth.html?mode=login" data-auth-mode="login" data-i18n="flow.authGoLogin">登入</a>
           </p>
         </div>
       </div>

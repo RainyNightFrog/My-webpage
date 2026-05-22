@@ -675,7 +675,7 @@
           <h1 data-i18n="review.title">內容審核</h1>
           <p data-i18n="review.subtitle">輸入文字後送出，由 AI 依所選語言規則檢查語法並回傳 JSON。</p>
           <a class="nav-link" href="home.html" data-i18n="review.linkHome">← 返回首頁</a>
-          <a class="nav-link" href="index.html" data-i18n="review.linkCalc">數字計算器</a>
+          <a class="nav-link" href="index.html" data-i18n="review.linkCalc">← 數字計算器</a>
         </div>
         <div id="langMount" class="lang-mount"></div>
       </div>
@@ -702,11 +702,11 @@
               placeholder="貼上 Gemini 或 OpenAI API Key"
               autocomplete="off"
             />
-            <p class="settings-hint" data-i18n="review.settingsHint">金鑰僅保存在本機瀏覽器（sessionStorage），不會上傳至其他伺服器。OpenAI 若遇 CORS 錯誤，請改選 Gemini 或使用本機代理。</p>
+            <p class="settings-hint" data-i18n="review.settingsHint">金鑰僅保存在本機瀏覽器（sessionStorage）。OpenAI 若遇 CORS 錯誤，請改選 Gemini 或使用本機代理。</p>
           </div>
         </div>
 
-        <label id="input-label" for="content" data-i18n="review.labelContent">待審內容</label>
+        <label id="input-label" for="content" data-i18n="review.labelContent">待審內容（{lang}）</label>
         <textarea
           id="content"
           name="content"

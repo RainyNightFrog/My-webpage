@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="home.title">Rainy Night Frog</title>
+  <title data-i18n="home.title">Rainy Night Frog â€” å…è²»èªè¨€å­¸ç¿’å·¥å…·</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="app.css">
 </head>
@@ -11,12 +11,12 @@
   <div class="lc-bg" aria-hidden="true"></div>
   <div class="lc-wrap">
     <header class="lc-header">
-      <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">é¦–é?</a>
+      <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">é¦–é </a>
       <div class="lc-header-end">
         <div class="lc-score-pill" id="scoreDisplay" aria-live="polite">
-          <span class="lc-score-badge" aria-hidden="true">?¸</span>
+          <span class="lc-score-badge" aria-hidden="true">?ï¿½ï¿½</span>
           <div class="lc-score-body">
-            <span class="lc-score-label" data-i18n="flow.scoreCorrect">ç­”å?</span>
+            <span class="lc-score-label" data-i18n="flow.scoreCorrect">ç­”å°</span>
             <div class="lc-score-nums">
               <span class="lc-score-num" id="scoreNum">0</span>
               <span class="lc-score-slash">/</span>
@@ -36,7 +36,7 @@
     <main class="lc-main" id="quizRoot"></main>
 
     <div class="lc-footer-bar">
-      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">è·³é?</button>
+      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">è·³é</button>
       <button type="button" class="lc-btn-primary" id="btnAction" disabled data-i18n="flow.check">æª¢æŸ¥</button>
     </div>
   </div>
@@ -95,9 +95,9 @@
       if (!window.RNFPractice || !RNFPractice.PracticeEngine) {
         document.getElementById("quizRoot").innerHTML =
           '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "?¡æ?è¼‰å…¥ç·´ç?é¡Œï?è«‹é??°æ•´?†é??¢ã€?) +
+          (AppI18n.t("flow.lessonLoadError") || "?ï¿½ï¿½?è¼‰å…¥ç·´ï¿½?é¡Œï¿½?è«‹ï¿½??ï¿½æ•´?ï¿½ï¿½??ï¿½ï¿½?) +
           '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "?æ–°?´ç?") +
+          (AppI18n.t("flow.reloadPage") || "?ï¿½æ–°?ï¿½ï¿½?") +
           "</button></div>";
         return;
       }
@@ -119,9 +119,9 @@
         console.error(err);
         document.getElementById("quizRoot").innerHTML =
           '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "?¡æ?è¼‰å…¥ç·´ç?é¡Œï?è«‹é??°æ•´?†é??¢ã€?) +
+          (AppI18n.t("flow.lessonLoadError") || "?ï¿½ï¿½?è¼‰å…¥ç·´ï¿½?é¡Œï¿½?è«‹ï¿½??ï¿½æ•´?ï¿½ï¿½??ï¿½ï¿½?) +
           '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "?æ–°?´ç?") +
+          (AppI18n.t("flow.reloadPage") || "?ï¿½æ–°?ï¿½ï¿½?") +
           "</button></div>";
       }
       if (mode === "review") {
