@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="calc.title">數字總和計算器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .lang-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .lang-bar label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 0;
+    }
+
+    .lang-bar select {
+      padding: 0.35rem 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      background: #fff;
+      color: #1a1a2e;
+    }
+
+    .lang-bar select option {
+      color: #1a1a2e;
+      background-color: #ffffff;
+    }
+
+    .nav-link {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #4a6cf7;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #1a1a2e;
+    }
+
+    .hint {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #444;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #4a6cf7;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+    }
+
+    .field-group {
+      margin-top: 1rem;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #4a6cf7;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+    }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      color: #fff;
+      background: #4a6cf7;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background: #3d5ce0;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: #f8f9fc;
+      border-radius: 8px;
+      border-left: 4px solid #4a6cf7;
+      display: none;
+    }
+
+    .result.visible {
+      display: block;
+    }
+
+    .result-label {
+      font-size: 0.8rem;
+      color: #666;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-value {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .result-meta {
+      font-size: 0.875rem;
+      color: #888;
+      margin-top: 0.5rem;
+    }
+
+    .compare {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .compare.visible {
+      display: block;
+    }
+
+    .compare.match {
+      background: #f0fff4;
+      color: #276749;
+      border-left: 4px solid #38a169;
+    }
+
+    .compare.mismatch {
+      background: #fff5f5;
+      color: #9b2c2c;
+      border-left: 4px solid #e53e3e;
+    }
+
+    .compare-detail {
+      font-size: 0.8125rem;
+      font-weight: 400;
+      margin-top: 0.35rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="appRoot">
+    <h1 data-i18n="calc.title">數字總和計算器</h1>
+    <p class="hint" data-i18n="calc.hint">請貼上一列數字，可用空格、逗號或換行分隔。</p>
+
+    <label for="numbers" data-i18n="calc.labelNumbers">數字輸入</label>
+    <textarea
+      id="numbers"
+      data-i18n-placeholder="calc.placeholderNumbers"
+      placeholder="例如：10, 20, 30&#10;40 50&#10;60"
+      rows="5"
+    ></textarea>
+
+    <div class="field-group">
+      <label for="expectedSum" data-i18n="calc.labelExpected">預期總和（選填）</label>
+      <input
+        type="text"
+        id="expectedSum"
+        inputmode="decimal"
+        data-i18n-placeholder="calc.placeholderExpected"
+        placeholder="例如：100"
+        autocomplete="off"
+      />
+    </div>
+
+    <button type="button" id="calcBtn" data-i18n="calc.btnCalc">計算總和</button>
+
+    <div class="result" id="result">
+      <div class="result-label" data-i18n="calc.labelSum">總和</div>
+      <div class="result-value" id="sumValue">0</div>
+      <div class="result-meta" id="meta"></div>
+      <div class="compare" id="compare" role="status"></div>
+    </div>
+
+    <a class="nav-link" href="home.html" data-i18n="calc.linkHome">← 返回首頁</a>
+    <a class="nav-link" href="review.html" data-i18n="calc.linkReview">前往 AI 語法審核 →</a>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script>
+    (function () {
+      var input = document.getElementById("numbers");
+      var expectedInput = document.getElementById("expectedSum");
+      var calcBtn = document.getElementById("calcBtn");
+      var resultEl = document.getElementById("result");
+      var sumValueEl = document.getElementById("sumValue");
+      var metaEl = document.getElementById("meta");
+      var compareEl = document.getElementById("compare");
+      var appRoot = document.getElementById("appRoot");
+
+      AppI18n.createLangSelector(appRoot, {
+        page: "calc",
+        callback: function () {
+          AppI18n.applyPage("calc");
+        },
+      });
+      AppI18n.applyPage("calc");
+
+      function parseNumbers(text) {
+        var trimmed = text.trim();
+        if (!trimmed) {
+          return { numbers: [], invalid: [] };
+        }
+
+        var parts = trimmed.split(/[\s,，、;；]+/).filter(function (s) {
+          return s.length > 0;
+        });
+
+        var numbers = [];
+        var invalid = [];
+
+        for (var i = 0; i < parts.length; i++) {
+          var part = parts[i];
+          var n = Number(part);
+          if (part !== "" && !isNaN(n) && isFinite(n)) {
+            numbers.push(n);
+          } else {
+            invalid.push(part);
+          }
+        }
+
+        return { numbers: numbers, invalid: invalid };
+      }
+
+      function formatNumber(n) {
+        return n.toLocaleString(AppI18n.numberLocale(), {
+          maximumFractionDigits: 10,
+        });
+      }
+
+      function sumsEqual(a, b) {
+        return Math.abs(a - b) < 1e-9;
+      }
+
+      function updateCompare(actualSum) {
+        compareEl.classList.remove("visible", "match", "mismatch");
+        compareEl.textContent = "";
+
+        var expectedText = expectedInput.value.trim();
+        if (!expectedText) {
+          return;
+        }
+
+        var expected = Number(expectedText);
+        if (expectedText === "" || isNaN(expected) || !isFinite(expected)) {
+          alert(AppI18n.t("calc.alertExpectedInvalid"));
+          return;
+        }
+
+        var matched = sumsEqual(actualSum, expected);
+        compareEl.classList.add("visible", matched ? "match" : "mismatch");
+        compareEl.innerHTML =
+          (matched
+            ? AppI18n.t("calc.compareMatch")
+            : AppI18n.t("calc.compareMismatch")) +
+          '<div class="compare-detail">' +
+          AppI18n.format(AppI18n.t("calc.compareDetail"), {
+            actual: formatNumber(actualSum),
+            expected: formatNumber(expected),
+          }) +
+          "</div>";
+      }
+
+      function calculate() {
+        var text = input.value;
+        var parsed = parseNumbers(text);
+
+        if (parsed.numbers.length === 0 && parsed.invalid.length === 0) {
+          alert(AppI18n.t("calc.alertEmpty"));
+          resultEl.classList.remove("visible");
+          compareEl.classList.remove("visible", "match", "mismatch");
+          return;
+        }
+
+        if (parsed.invalid.length > 0) {
+          alert(
+            AppI18n.format(AppI18n.t("calc.alertInvalid"), {
+              items: parsed.invalid.join("」、「"),
+            })
+          );
+          if (parsed.numbers.length === 0) {
+            resultEl.classList.remove("visible");
+            compareEl.classList.remove("visible", "match", "mismatch");
+            return;
+          }
+        }
+
+        var sum = 0;
+        for (var j = 0; j < parsed.numbers.length; j++) {
+          sum += parsed.numbers[j];
+        }
+
+        sumValueEl.textContent = formatNumber(sum);
+        metaEl.textContent = AppI18n.format(AppI18n.t("calc.metaCount"), {
+          n: parsed.numbers.length,
+        });
+        resultEl.classList.add("visible");
+        updateCompare(sum);
+      }
+
+      calcBtn.addEventListener("click", calculate);
+
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          calculate();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

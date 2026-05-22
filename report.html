@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="flow.reviewReport">回顧答題成績</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app" data-i18n-page="lesson">
+  <div class="lc-bg" aria-hidden="true"></div>
+  <div class="lc-wrap">
+    <header class="lc-header">
+      <a class="lc-logo" href="home.html">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-logo-text" data-i18n="flow.brandName">Rainy Night Frog</span>
+      </a>
+      <div class="lc-header-end">
+        <div id="langTriggerMount"></div>
+      </div>
+    </header>
+    <main class="lc-main" id="quizRoot"></main>
+  </div>
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="practice-engine.js"></script>
+  <script>
+    AppI18n.applyPage("lesson");
+    LCApp.initLangPopover("langTriggerMount");
+    RNFPractice.renderGradeFromStorage(document.getElementById("quizRoot"));
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("lesson");
+      RNFPractice.renderGradeFromStorage(document.getElementById("quizRoot"));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="flow.learnPageTitle">學習 — Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app lc-learn-page lc-learn-pond-mode" data-i18n-page="learn">
+  <div class="lc-bg lc-pond-bg" aria-hidden="true"></div>
+  <div class="lc-pond-rain" aria-hidden="true"></div>
+
+  <div class="lc-pond-shell">
+    <nav class="lc-pond-rail" aria-label="Main">
+      <a class="lc-pond-rail-brand" href="home.html" title="Rainy Night Frog">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+      </a>
+      <ul class="lc-pond-rail-menu">
+        <li>
+          <a class="lc-pond-rail-link active" href="learn.html" data-i18n-title="flow.navLearn">
+            <span class="lc-pond-rail-icon" aria-hidden="true">✦</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navLearn">學習</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-pond-rail-link" href="leaderboard.html">
+            <span class="lc-pond-rail-icon" aria-hidden="true">🛡</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navLeaderboard">排行榜</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-pond-rail-link" href="quests.html">
+            <span class="lc-pond-rail-icon lc-nav-chest-icon" aria-hidden="true"></span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navQuests">特別任務</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-pond-rail-link" href="shop.html">
+            <span class="lc-pond-rail-icon" aria-hidden="true">💎</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navShop">寶石</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-pond-rail-link" href="profile.html">
+            <span class="lc-pond-rail-icon" aria-hidden="true">🐸</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navProfile">檔案</span>
+          </a>
+        </li>
+        <li class="lc-pond-rail-more">
+          <button type="button" class="lc-pond-rail-link lc-learn-more-btn" data-nav-more aria-expanded="false">
+            <span class="lc-pond-rail-icon lc-more-icon" aria-hidden="true">⋯</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.navMore">更多</span>
+          </button>
+        </li>
+      </ul>
+      <p class="lc-pond-rail-course" data-learn-lang-label>🇨🇳 中文</p>
+      <div id="langTriggerMount" class="lc-pond-rail-lang"></div>
+    </nav>
+
+    <div class="lc-pond-stage">
+      <header class="lc-pond-topbar" id="pondTopbar" aria-label="Status"></header>
+      <div class="lc-pond-layout">
+        <main class="lc-pond-main" id="pathCol"></main>
+        <aside class="lc-pond-widgets" id="sidePanel" aria-label="Widgets"></aside>
+      </div>
+    </div>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="learn-path.js"></script>
+  <script>
+    AppI18n.applyPage("learn");
+    LCApp.initLangPopover("langTriggerMount");
+    LCApp.initMoreMenu();
+    LCApp.initCoursePicker();
+    LCApp.initStreakPicker();
+    LCApp.initGemsPicker();
+    LCApp.initHeartsPicker();
+    RNFLearnPath.init();
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("learn");
+      LCApp.initMoreMenu();
+      LCApp.initCoursePicker();
+      LCApp.initStreakPicker();
+      LCApp.initGemsPicker();
+      LCApp.initHeartsPicker();
+      RNFLearnPath.init();
+      if (RNFLearnPath.refreshJumpModalCopy) RNFLearnPath.refreshJumpModalCopy();
+    });
+    document.addEventListener("lc:coursechange", function () {
+      RNFLearnPath.init();
+      if (RNFLearnPath.refreshJumpModalCopy) RNFLearnPath.refreshJumpModalCopy();
+      LCApp.initCoursePicker();
+      LCApp.initStreakPicker();
+      LCApp.initGemsPicker();
+      LCApp.initHeartsPicker();
+    });
+    document.addEventListener("lc:heartschange", function () {
+      RNFLearnPath.init();
+      LCApp.initHeartsPicker();
+    });
+  </script>
+</body>
+</html>

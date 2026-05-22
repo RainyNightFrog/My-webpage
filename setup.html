@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="home.title">Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app" data-i18n-page="setup">
+  <div class="lc-bg" aria-hidden="true"></div>
+  <div class="lc-wrap">
+    <header class="lc-header">
+      <a class="lc-logo" href="languages.html">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-logo-text" data-i18n="flow.brandName">Rainy Night Frog</span>
+      </a>
+      <div class="lc-header-end">
+        <div class="lc-score-pill" id="scoreDisplay" aria-hidden="true">
+          <span class="lc-score-badge">🐸</span>
+          <div class="lc-score-body">
+            <span class="lc-score-label" data-i18n="flow.scoreCorrect">答對</span>
+            <div class="lc-score-nums">
+              <span class="lc-score-num" id="scoreNum">0</span>
+              <span class="lc-score-slash">/</span>
+              <span class="lc-score-total" id="scoreTotal">10</span>
+            </div>
+          </div>
+          <div class="lc-energy-dots" id="energyDots"></div>
+        </div>
+        <div id="langTriggerMount"></div>
+      </div>
+    </header>
+
+    <div class="lc-progress-wrap">
+      <div class="lc-progress"><div class="lc-progress-fill" id="progressFill" style="width:12%"></div></div>
+    </div>
+
+    <main class="lc-main lc-setup-main">
+      <!-- ① 哪裡聽說（Duolingo 第 2 屏） -->
+      <div class="lc-step active" id="stepSource">
+        <div class="lc-guide">
+          <div class="lc-mascot">🐸</div>
+          <div class="lc-bubble" data-i18n="flow.sourceQ">你是從哪裡認識 Rainy Night Frog 的？</div>
+        </div>
+        <div class="lc-options lc-options-grid">
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="news">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#94a3b8,#64748b)">📰</span>
+            <span data-i18n="flow.srcNews">新聞報導</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="social">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#818cf8,#4f46e5)">📱</span>
+            <span data-i18n="flow.srcSocial">Facebook / Instagram</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="youtube">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#f87171,#ef4444)">▶</span>
+            <span data-i18n="flow.srcYoutube">YouTube</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="google">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#fbbf24,#f97316)">🔍</span>
+            <span data-i18n="flow.srcGoogle">Google 搜尋</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="tv">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#a78bfa,#6366f1)">📺</span>
+            <span data-i18n="flow.srcTv">電視</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="friends">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#f472b6,#fb7185)">👥</span>
+            <span data-i18n="flow.srcFriends">親友推薦</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="tiktok">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#22d3ee,#06b6d4)">🎵</span>
+            <span data-i18n="flow.srcTiktok">TikTok</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepSource" data-value="other">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#c084fc,#a855f7)">✨</span>
+            <span data-i18n="flow.srcOther">其他</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ② 為什麼要學 -->
+      <div class="lc-step" id="stepWhy">
+        <div class="lc-guide">
+          <div class="lc-mascot">🐸</div>
+          <div class="lc-bubble" data-i18n-goal-q data-i18n="flow.goalQ">對了，你為什麼要學英語呢？</div>
+        </div>
+        <div class="lc-options lc-options-grid">
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="travel">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#38bdf8,#0284c7)">✈️</span>
+            <span data-i18n="flow.goalTravel">為旅遊做準備</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="school">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">📚</span>
+            <span data-i18n="flow.goalSchool">提高學習成績</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="talk">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#f472b6,#db2777)">💬</span>
+            <span data-i18n="flow.goalTalk">方便與人交流</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="time">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#34d399,#059669)">🧠</span>
+            <span data-i18n="flow.goalTime">有效利用時間</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="career">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#fb923c,#ea580c)">💼</span>
+            <span data-i18n="flow.goalCareer">開拓職業前景</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepWhy" data-value="fun">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#facc15,#ca8a04)">🎉</span>
+            <span data-i18n="flow.goalFun">增添生活樂趣</span>
+          </button>
+          <button type="button" class="lc-opt-btn lc-opt-btn--wide" data-onboard-step="stepWhy" data-value="other">
+            <span class="lc-opt-icon" style="background:linear-gradient(135deg,#94a3b8,#64748b)">⋯</span>
+            <span data-i18n="flow.goalOther">其他</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ③ 程度（新手～進階） -->
+      <div class="lc-step" id="stepLevel">
+        <div class="lc-guide">
+          <div class="lc-mascot">📊</div>
+          <div class="lc-bubble" data-i18n-level-q data-i18n="flow.levelQ">你的英語程度如何？</div>
+        </div>
+        <div class="lc-options">
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepLevel" data-level="0">
+            <span class="lc-level-bars"><span class="on"></span><span></span><span></span><span></span><span></span></span>
+            <span data-i18n="flow.lvl0">我是第一次學這門語言</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepLevel" data-level="1">
+            <span class="lc-level-bars"><span class="on"></span><span class="on"></span><span></span><span></span><span></span></span>
+            <span data-i18n="flow.lvl1">我知道一些常用詞彙</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepLevel" data-level="2">
+            <span class="lc-level-bars"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></span>
+            <span data-i18n="flow.lvl2">我能進行基礎對話</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepLevel" data-level="3">
+            <span class="lc-level-bars"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span></span>
+            <span data-i18n="flow.lvl3">我能談論各種話題</span>
+          </button>
+          <button type="button" class="lc-opt-btn" data-onboard-step="stepLevel" data-level="4">
+            <span class="lc-level-bars"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></span>
+            <span data-i18n="flow.lvl4">我能深聊大多數話題</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ④ 學好課程的好處 -->
+      <div class="lc-step" id="stepBenefits">
+        <div class="lc-guide">
+          <div class="lc-mascot">🐸</div>
+          <div class="lc-bubble" data-i18n="flow.benefitsQ">學好這門課程，你就能：</div>
+        </div>
+        <ul class="lc-benefits-list">
+          <li class="lc-benefit-row">
+            <span class="lc-benefit-icon" aria-hidden="true">💬</span>
+            <div>
+              <strong data-i18n="flow.benefitSpeakTitle">自信開口說</strong>
+              <p data-i18n="flow.benefitSpeakDesc">零壓力，開心練習聽力和口語</p>
+            </div>
+          </li>
+          <li class="lc-benefit-row">
+            <span class="lc-benefit-icon" aria-hidden="true">🃏</span>
+            <div>
+              <strong data-i18n="flow.benefitVocabTitle">輕鬆提高詞彙量</strong>
+              <p data-i18n="flow.benefitVocabDesc">掌握日常高頻詞彙和實用短語</p>
+            </div>
+          </li>
+          <li class="lc-benefit-row">
+            <span class="lc-benefit-icon" aria-hidden="true">⏱️</span>
+            <div>
+              <strong data-i18n="flow.benefitHabitTitle">學習成習慣</strong>
+              <p data-i18n="flow.benefitHabitDesc">智能提醒、趣味挑戰與多種功能助你堅持</p>
+            </div>
+          </li>
+        </ul>
+        <p class="lc-step-hint" data-i18n="flow.benefitsTapHint">點選任一項或按「繼續」前往下一步</p>
+        <button type="button" class="lc-btn-primary lc-step-continue" data-i18n="flow.continue">繼續</button>
+      </div>
+
+      <!-- ⑤ 每日目標 -->
+      <div class="lc-step" id="stepDaily">
+        <div class="lc-guide">
+          <div class="lc-mascot">🐸</div>
+          <div class="lc-bubble" data-i18n="flow.dailyGoalQ">來定個每日學習目標吧！</div>
+        </div>
+        <div class="lc-options">
+          <button type="button" class="lc-opt-btn lc-daily-opt" data-onboard-step="stepDaily" data-daily="5">
+            <span data-i18n="flow.daily5">每天 5 分鐘</span>
+            <span class="lc-daily-mode" data-i18n="flow.dailyCasual">休閒模式</span>
+          </button>
+          <button type="button" class="lc-opt-btn lc-daily-opt" data-onboard-step="stepDaily" data-daily="10">
+            <span data-i18n="flow.daily10">每天 10 分鐘</span>
+            <span class="lc-daily-mode" data-i18n="flow.dailyNormal">正常模式</span>
+          </button>
+          <button type="button" class="lc-opt-btn lc-daily-opt" data-onboard-step="stepDaily" data-daily="15">
+            <span data-i18n="flow.daily15">每天 15 分鐘</span>
+            <span class="lc-daily-mode" data-i18n="flow.dailySerious">好學模式</span>
+          </button>
+          <button type="button" class="lc-opt-btn lc-daily-opt" data-onboard-step="stepDaily" data-daily="20">
+            <span data-i18n="flow.daily20">每天 20 分鐘</span>
+            <span class="lc-daily-mode" data-i18n="flow.dailyIntense">密集模式</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ⑥ 從哪裡開始（新手 / 測驗） -->
+      <div class="lc-step" id="stepPath">
+        <div class="lc-guide">
+          <div class="lc-mascot">🧭</div>
+          <div class="lc-bubble" data-i18n="flow.pathQ">來看看該從哪裡開始吧！</div>
+        </div>
+        <div class="lc-path-grid">
+          <button type="button" class="lc-path-card path-a" data-onboard-step="stepPath" data-path="basics">
+            <span class="path-icon">📗</span>
+            <div>
+              <h4 data-i18n="flow.pathBasics">從最基礎的內容開始</h4>
+              <p data-i18n="flow.pathBasicsDesc">從最簡單的單元學起，一步一步建立信心</p>
+            </div>
+          </button>
+          <button type="button" class="lc-path-card path-b" data-onboard-step="stepPath" data-path="test">
+            <span class="path-icon">🧭</span>
+            <div>
+              <h4 data-i18n="flow.pathTest">評估我的程度</h4>
+              <p data-i18n="flow.pathTestDesc">讓 AI 推薦適合你的起點</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ⑦ 鼓勵語 -->
+      <div class="lc-step" id="stepMotiv">
+        <div class="lc-motiv-stage">
+          <div class="lc-motiv-frog" data-frog-logo aria-hidden="true"></div>
+          <p class="lc-motiv-text" data-i18n="flow.motivPitch">所以，Rainy Night Frog 讓你邊學邊玩，動力滿滿！</p>
+        </div>
+        <button type="button" class="lc-btn-primary lc-step-continue" data-i18n="flow.continue">繼續</button>
+      </div>
+
+      <!-- ⑧ 載入中 -->
+      <div class="lc-step" id="stepLoading">
+        <div class="lc-loading-stage">
+          <div class="lc-loading-frog" data-frog-logo aria-hidden="true"></div>
+          <p class="lc-loading-title" data-i18n="flow.loadingText">載入中…</p>
+          <p class="lc-loading-tip" data-i18n="flow.loadingTip">每天 15 分鐘就可以學習一種語言了…</p>
+        </div>
+      </div>
+
+      <!-- 個人檔案流程（練習結束後） -->
+      <div class="lc-step" id="stepAge">
+        <h2 class="lc-age-title" data-i18n="flow.ageQ">你的年齡是……</h2>
+        <label class="lc-age-field">
+          <span class="lc-age-label" data-i18n="flow.ageLabel">年齡</span>
+          <input type="number" class="lc-age-input" id="ageInput" min="5" max="120" inputmode="numeric" autocomplete="bday-year" />
+        </label>
+        <p class="lc-age-privacy" id="agePrivacy"></p>
+        <div class="lc-age-divider"><span data-i18n="flow.ageOr">或者</span></div>
+        <div class="lc-age-social">
+          <button type="button" class="lc-age-social-btn lc-age-google" id="btnGoogle">
+            <span class="lc-age-social-icon" aria-hidden="true">G</span>
+            <span>Google</span>
+          </button>
+          <button type="button" class="lc-age-social-btn lc-age-facebook" id="btnFacebook">
+            <span class="lc-age-social-icon fb" aria-hidden="true">f</span>
+            <span>Facebook</span>
+          </button>
+        </div>
+        <p class="lc-age-legal" data-i18n="flow.ageLoginLegal">登入即視為你已接受我們的服務條款與隱私政策。</p>
+        <p class="lc-age-recaptcha" data-i18n="flow.ageRecaptcha">此流程僅供學習進度保存，無需連接第三方帳號。</p>
+      </div>
+
+      <div class="lc-step" id="stepSignup">
+        <h2 class="lc-signup-title" data-i18n="flow.profileCreate">創建檔案</h2>
+        <form class="lc-signup-form" id="signupForm" novalidate>
+          <label class="lc-signup-field">
+            <input type="text" class="lc-signup-input" id="profileName" autocomplete="name" data-i18n-placeholder="flow.signupName" placeholder="姓名（選填）" />
+          </label>
+          <label class="lc-signup-field">
+            <input type="email" class="lc-signup-input" id="profileEmail" autocomplete="email" required data-i18n-placeholder="flow.signupEmail" placeholder="信箱" />
+          </label>
+          <label class="lc-signup-field lc-signup-pass-wrap">
+            <input type="password" class="lc-signup-input" id="profilePassword" autocomplete="new-password" required minlength="6" data-i18n-placeholder="flow.signupPassword" placeholder="密碼" />
+            <button type="button" class="lc-signup-eye" id="btnTogglePass" aria-label="Show password">👁</button>
+          </label>
+          <button type="submit" class="lc-btn-primary lc-signup-submit" id="btnCreateAccount" disabled data-i18n="flow.signupCreateAccount">創建帳戶</button>
+        </form>
+        <div class="lc-age-divider"><span data-i18n="flow.ageOr">或者</span></div>
+        <div class="lc-age-social">
+          <button type="button" class="lc-age-social-btn lc-age-google" id="btnSignupGoogle">
+            <span class="lc-age-social-icon" aria-hidden="true">G</span>
+            <span>Google</span>
+          </button>
+          <button type="button" class="lc-age-social-btn lc-age-facebook" id="btnSignupFacebook">
+            <span class="lc-age-social-icon fb" aria-hidden="true">f</span>
+            <span>Facebook</span>
+          </button>
+        </div>
+        <p class="lc-age-legal" data-i18n="flow.ageLoginLegal">登入即視為你已接受我們的服務條款與隱私政策。</p>
+        <p class="lc-age-recaptcha" data-i18n="flow.ageRecaptcha">此流程僅供學習進度保存，無需連接第三方帳號。</p>
+      </div>
+    </main>
+
+    <div class="lc-footer-bar">
+      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">跳過</button>
+      <button type="button" class="lc-btn-primary" id="btnContinue" disabled data-i18n="flow.continue">繼續</button>
+    </div>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="setup-page.js"></script>
+  <script>
+    AppI18n.applyPage("setup");
+    LCApp.initLangPopover("langTriggerMount");
+    LCApp.initScoreWidget(10);
+    if (window.RNFSetup) RNFSetup.init();
+    if (window.RNFFrogLogo) RNFFrogLogo.mount();
+  </script>
+</body>
+</html>

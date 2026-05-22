@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="home.title">Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app" data-i18n-page="languages">
+  <div class="lc-bg" aria-hidden="true"></div>
+  <div class="lc-wrap">
+    <header class="lc-header">
+      <a class="lc-logo" href="home.html">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-logo-text" data-i18n="flow.brandName">Rainy Night Frog</span>
+      </a>
+      <div id="langTriggerMount"></div>
+    </header>
+
+    <div class="lc-progress-wrap">
+      <div class="lc-progress"><div class="lc-progress-fill" id="progressFill" style="width:15%"></div></div>
+    </div>
+
+    <main class="lc-main">
+      <h1 class="lc-title" data-i18n="flow.wantLearn">我想學…</h1>
+
+      <div class="lc-course-grid">
+        <a class="lc-course-card c-en" href="setup.html" data-learn="en">
+          <span class="lang-full" data-i18n="flow.langFullEn">English</span>
+          <span class="name" data-i18n="flow.courseEn">英語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"2670"}'>2670 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-es" href="setup.html" data-learn="es">
+          <span class="lang-full" data-i18n="flow.langFullEs">Spanish</span>
+          <span class="name" data-i18n="flow.courseEs">西班牙語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"580"}'>580 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-fr" href="setup.html" data-learn="fr">
+          <span class="lang-full" data-i18n="flow.langFullFr">French</span>
+          <span class="name" data-i18n="flow.courseFr">法語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"420"}'>420 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-ja" href="setup.html" data-learn="ja">
+          <span class="lang-full" data-i18n="flow.langFullJa">Japanese</span>
+          <span class="name" data-i18n="flow.courseJa">日語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"390"}'>390 萬學習者</span>
+        </a>
+        <button type="button" class="lc-course-card c-zh" data-chinese-picker aria-haspopup="dialog">
+          <span class="lang-full" data-i18n="flow.langFullZh">Chinese</span>
+          <span class="name" data-i18n="flow.courseZh">中文</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"510"}'>510 萬學習者</span>
+          <span class="lc-course-card-chevron" aria-hidden="true">›</span>
+        </button>
+        <a class="lc-course-card c-de" href="setup.html" data-learn="de">
+          <span class="lang-full" data-i18n="flow.langFullDe">German</span>
+          <span class="name" data-i18n="flow.courseDe">德語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"280"}'>280 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-ko" href="setup.html" data-learn="ko">
+          <span class="lang-full" data-i18n="flow.langFullKo">Korean</span>
+          <span class="name" data-i18n="flow.courseKo">韓語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"210"}'>210 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-it" href="setup.html" data-learn="it">
+          <span class="lang-full" data-i18n="flow.langFullIt">Italian</span>
+          <span class="name" data-i18n="flow.courseIt">義大利語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"165"}'>165 萬學習者</span>
+        </a>
+        <a class="lc-course-card c-pt" href="setup.html" data-learn="pt">
+          <span class="lang-full" data-i18n="flow.langFullPt">Portuguese</span>
+          <span class="name" data-i18n="flow.coursePt">葡萄牙語</span>
+          <span class="learners" data-i18n="flow.learners" data-i18n-vars='{"n":"198"}'>198 萬學習者</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <div class="lc-zh-picker" id="zhPicker" hidden>
+    <div class="lc-zh-picker-backdrop" data-zh-picker-close></div>
+    <div class="lc-zh-picker-panel" role="dialog" aria-labelledby="zhPickerTitle" aria-modal="true">
+      <button type="button" class="lc-zh-picker-close" data-zh-picker-close aria-label="Close">✕</button>
+      <h2 class="lc-zh-picker-title" id="zhPickerTitle" data-i18n="flow.pickChineseTitle">選擇中文</h2>
+      <p class="lc-zh-picker-hint" data-i18n="flow.pickChineseHint">你想用繁體還是簡體中文來學習？</p>
+      <div class="lc-zh-picker-options">
+        <button type="button" class="lc-zh-variant lc-zh-variant--trad" data-zh-variant="zhHant">
+          <span class="lc-zh-variant-flag" aria-hidden="true">繁</span>
+          <span class="lc-zh-variant-text">
+            <span class="lc-zh-variant-name" data-i18n="flow.pickChineseTrad">繁體中文</span>
+          </span>
+        </button>
+        <button type="button" class="lc-zh-variant lc-zh-variant--simp" data-zh-variant="zhHans">
+          <span class="lc-zh-variant-flag" aria-hidden="true">简</span>
+          <span class="lc-zh-variant-text">
+            <span class="lc-zh-variant-name" data-i18n="flow.pickChineseSimp">简体中文</span>
+          </span>
+        </button>
+      </div>
+      <button type="button" class="lc-zh-picker-cancel" data-zh-picker-close data-i18n="flow.pickChineseCancel">返回</button>
+    </div>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script>
+    AppI18n.applyPage("languages");
+    LCApp.initLangPopover("langTriggerMount");
+
+    var zhPicker = document.getElementById("zhPicker");
+
+    function openZhPicker() {
+      if (!zhPicker) return;
+      zhPicker.hidden = false;
+      document.body.classList.add("lc-zh-picker-open");
+      var first = zhPicker.querySelector("[data-zh-variant]");
+      if (first) first.focus();
+    }
+
+    function closeZhPicker() {
+      if (!zhPicker) return;
+      zhPicker.hidden = true;
+      document.body.classList.remove("lc-zh-picker-open");
+    }
+
+    function refreshZhPickerCopy() {
+      if (!zhPicker) return;
+      zhPicker.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n");
+        if (key) el.textContent = AppI18n.t(key);
+      });
+    }
+
+    function startChineseOnboarding(variant) {
+      if (variant && LCApp.setChineseLearnVariant) {
+        LCApp.setChineseLearnVariant(variant);
+      } else if (LCApp.setLearnTarget) {
+        LCApp.setLearnTarget("zh");
+      }
+      try {
+        sessionStorage.setItem("rnf_setup_flow", "course");
+      } catch (e) {}
+      try {
+        if (localStorage.getItem("rnf_onboard_done") === "1") {
+          location.href = "lesson.html";
+          return;
+        }
+      } catch (e2) {}
+      location.href = "setup.html";
+    }
+
+    var zhBtn = document.querySelector("[data-chinese-picker]");
+    if (zhBtn) {
+      zhBtn.addEventListener("click", function () {
+        var ui = AppI18n.getLang();
+        if (ui === "zhHant" || ui === "zhHans") {
+          startChineseOnboarding(ui);
+        } else {
+          openZhPicker();
+        }
+      });
+    }
+
+    if (zhPicker) {
+      zhPicker.querySelectorAll("[data-zh-variant]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          startChineseOnboarding(btn.getAttribute("data-zh-variant"));
+        });
+      });
+      zhPicker.querySelectorAll("[data-zh-picker-close]").forEach(function (btn) {
+        btn.addEventListener("click", closeZhPicker);
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && zhPicker && !zhPicker.hidden) closeZhPicker();
+      });
+    }
+
+    function startCourseOnboarding(code) {
+      if (code === "zh") {
+        startChineseOnboarding(null);
+        return;
+      }
+      if (code && LCApp.setLearnTarget) {
+        LCApp.setLearnTarget(code);
+      }
+      try {
+        sessionStorage.setItem("rnf_setup_flow", "course");
+      } catch (e) {}
+      try {
+        if (localStorage.getItem("rnf_onboard_done") === "1") {
+          location.href = "lesson.html";
+          return;
+        }
+      } catch (e) {}
+      location.href = "setup.html";
+    }
+
+    document.querySelectorAll("a[data-learn]").forEach(function (card) {
+      card.addEventListener("click", function (e) {
+        e.preventDefault();
+        startCourseOnboarding(card.getAttribute("data-learn"));
+      });
+    });
+
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("languages");
+      refreshZhPickerCopy();
+    });
+  </script>
+</body>
+</html>

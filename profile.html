@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="flow.profilePageTitle">個人檔案 — Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app lc-learn-page lc-profile-page" data-i18n-page="profile">
+  <div class="lc-bg" aria-hidden="true"></div>
+
+  <div class="lc-learn-shell">
+    <nav class="lc-learn-nav" aria-label="Main">
+      <a class="lc-learn-brand" href="home.html">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-learn-brand-text" data-i18n="flow.brandShort">RNF</span>
+      </a>
+      <ul class="lc-learn-menu">
+        <li>
+          <a class="lc-learn-link" href="learn.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🏠</span>
+            <span data-i18n="flow.navLearn">學習</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-learn-link" href="leaderboard.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🛡️</span>
+            <span data-i18n="flow.navLeaderboard">排行榜</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-learn-link" href="quests.html">
+            <span class="lc-learn-link-icon lc-nav-chest-icon" aria-hidden="true"></span>
+            <span data-i18n="flow.navQuests">特別任務</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-learn-link" href="shop.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">💎</span>
+            <span data-i18n="flow.navShop">寶石小店</span>
+          </a>
+        </li>
+        <li>
+          <a class="lc-learn-link active" href="profile.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🐸</span>
+            <span data-i18n="flow.navProfile">個人檔案</span>
+          </a>
+        </li>
+        <li class="lc-learn-more-wrap">
+          <button type="button" class="lc-learn-link lc-learn-more-btn" data-nav-more aria-expanded="false" aria-haspopup="menu">
+            <span class="lc-learn-link-icon lc-more-icon" aria-hidden="true">⋯</span>
+            <span data-i18n="flow.navMore">更多</span>
+          </button>
+        </li>
+      </ul>
+      <p class="lc-learn-lang" data-learn-lang-label>🇺🇸 英語</p>
+      <div id="langTriggerMount" class="lc-learn-lang-mount"></div>
+    </nav>
+
+    <div class="lc-learn-body lc-profile-body">
+      <main class="lc-profile-main" id="profileMain"></main>
+      <aside class="lc-profile-side" id="profileSide" aria-label="Social"></aside>
+    </div>
+  </div>
+
+  <div class="lc-avatar-modal" id="avatarModal" hidden>
+    <div class="lc-avatar-modal-card" role="dialog" aria-labelledby="avatarModalTitle">
+      <div class="lc-avatar-previews" aria-hidden="true">
+        <span class="lc-avatar-preview sm p-pink">🐸</span>
+        <span class="lc-avatar-preview lg p-blue active">🐸</span>
+        <span class="lc-avatar-preview sm p-gold">🐸</span>
+      </div>
+      <h2 id="avatarModalTitle" data-i18n="flow.avatarModalTitle">製作專屬虛擬頭像！</h2>
+      <button type="button" class="lc-btn-primary lc-avatar-start" id="btnAvatarStart" data-i18n="flow.learnStart">開始</button>
+      <button type="button" class="lc-avatar-later" id="btnAvatarLater" data-i18n="flow.avatarLater">下次再說</button>
+    </div>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="profile-page.js"></script>
+  <script>
+    AppI18n.applyPage("profile");
+    LCApp.initLangPopover("langTriggerMount");
+    LCApp.initMoreMenu();
+    LCApp.initCoursePicker();
+    LCApp.initStreakPicker();
+    LCApp.initGemsPicker();
+    LCApp.initHeartsPicker();
+    RNFProfile.init();
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("profile");
+      LCApp.initMoreMenu();
+      LCApp.initCoursePicker();
+      LCApp.initStreakPicker();
+    LCApp.initGemsPicker();
+    LCApp.initHeartsPicker();
+      RNFProfile.init();
+    });
+    document.addEventListener("lc:coursechange", function () {
+      RNFProfile.init();
+      LCApp.initCoursePicker();
+      LCApp.initStreakPicker();
+    LCApp.initGemsPicker();
+    LCApp.initHeartsPicker();
+    });
+  </script>
+</body>
+</html>

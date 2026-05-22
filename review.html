@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="review.title">內容審核</title>
+  <style>
+    :root {
+      --bg-page: #f4f3f0;
+      --bg-panel: #faf9f7;
+      --bg-report: #fffcf8;
+      --border: #e2ddd4;
+      --border-focus: #6b7f6a;
+      --text: #2c2a26;
+      --text-muted: #6b6560;
+      --accent: #4a5d4a;
+      --accent-hover: #3d4f3d;
+      --shadow: 0 1px 3px rgba(44, 42, 38, 0.06);
+      --radius: 10px;
+      --font-sans: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+      --font-report: "Georgia", "PMingLiU", "Songti TC", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .page-header p {
+      margin-top: 0.35rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .page-header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .page-header-top > div:first-child {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .lang-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .lang-bar label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0;
+    }
+
+    .lang-bar select {
+      padding: 0.4rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      background: #fff;
+      color: #1a1a2e;
+    }
+
+    .lang-bar select option {
+      color: #1a1a2e;
+      background-color: #ffffff;
+    }
+
+    .nav-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-family: var(--font-sans);
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+
+    /* 主版面：左輸入、右報告 */
+    .workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(280px, 36%) 1fr;
+      gap: 1.25rem;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    /* ── 左側：輸入區 ── */
+    .input-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+      min-height: 420px;
+    }
+
+    .input-panel label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-panel textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 280px;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      line-height: 1.65;
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-panel textarea::placeholder {
+      color: #a8a29e;
+    }
+
+    .input-panel textarea:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(74, 93, 74, 0.12);
+    }
+
+    .input-panel .actions {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.7rem 1.25rem;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-submit:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .settings {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings .field {
+      margin-bottom: 0.75rem;
+    }
+
+    .settings .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings select,
+    .settings input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+
+    .settings select:focus,
+    .settings input:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(74, 93, 74, 0.1);
+    }
+
+    .settings-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.45;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .status-badge {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .status-badge.loading {
+      background: #ede9e3;
+      color: var(--text-muted);
+    }
+
+    .status-badge.ok {
+      background: #e6f4ea;
+      color: #276749;
+    }
+
+    .status-badge.err {
+      background: #fde8e8;
+      color: #9b2c2c;
+    }
+
+    /* ── 右側：審核報告 ── */
+    .report-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-report);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-height: 420px;
+      overflow: hidden;
+    }
+
+    .report-panel__header {
+      flex-shrink: 0;
+      padding: 1rem 1.35rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 252, 248, 0.9);
+    }
+
+    .report-panel__header h2 {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .report-panel__body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.35rem 1.5rem 1.75rem;
+      font-family: var(--font-report);
+      font-size: 1.0625rem;
+      line-height: 1.75;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 報告內文排版（長文閱讀） */
+    .report-panel__body p {
+      margin-bottom: 1em;
+    }
+
+    .report-panel__body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .report-panel__body h3 {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1.5em 0 0.5em;
+      color: var(--text);
+    }
+
+    .report-panel__body h3:first-child {
+      margin-top: 0;
+    }
+
+    .report-panel__body ul {
+      margin: 0.5em 0 1em 1.25em;
+    }
+
+    .report-panel__body li {
+      margin-bottom: 0.35em;
+    }
+
+    .report-empty {
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      font-style: normal;
+    }
+
+    .report-summary {
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      padding: 0.75rem 1rem;
+      background: #f0f4ef;
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .error-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+    }
+
+    .error-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .error-item:last-child {
+      border-bottom: none;
+    }
+
+    .error-type {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: #eef2ed;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-original,
+    .error-correction {
+      font-size: 0.9375rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .error-original em,
+    .error-correction em {
+      font-style: normal;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .error-explanation {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .report-corrected {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .report-corrected h3 {
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-corrected blockquote {
+      font-size: 1rem;
+      line-height: 1.7;
+      padding-left: 1rem;
+      border-left: 3px solid var(--border);
+      color: var(--text);
+    }
+
+    .json-block {
+      margin-top: 1.5rem;
+      font-family: var(--font-sans);
+    }
+
+    .json-block summary {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .json-block pre {
+      margin-top: 0.75rem;
+      padding: 1rem;
+      background: #2c2a26;
+      color: #e8e4df;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .report-error {
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      color: #9b2c2c;
+      padding: 0.75rem 1rem;
+      background: #fff5f5;
+      border-radius: 8px;
+      border-left: 3px solid #e53e3e;
+    }
+
+    .no-errors {
+      font-family: var(--font-sans);
+      color: #276749;
+      padding: 0.75rem 1rem;
+      background: #f0fff4;
+      border-radius: 8px;
+    }
+
+    /* ── 即時練習區 ── */
+    .practice-section {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      background: #f8f6f2;
+      padding: 1.25rem 1.35rem 1.5rem;
+      max-height: 42vh;
+      overflow-y: auto;
+    }
+
+    .practice-section[hidden] {
+      display: none;
+    }
+
+    .practice-section__header h3 {
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .practice-section__header p {
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .practice-card {
+      font-family: var(--font-sans);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .practice-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .practice-card__num {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    .practice-card__prompt {
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      margin-bottom: 0.65rem;
+    }
+
+    .practice-card__prompt .blank {
+      display: inline-block;
+      min-width: 4rem;
+      border-bottom: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      padding: 0 0.15rem;
+    }
+
+    .practice-card__hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .practice-input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .practice-input:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(74, 93, 74, 0.1);
+    }
+
+    .practice-options {
+      list-style: none;
+      margin: 0 0 0.5rem;
+      padding: 0;
+    }
+
+    .practice-options li {
+      margin-bottom: 0.35rem;
+    }
+
+    .practice-options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .practice-options label:hover {
+      background: #f4f3f0;
+    }
+
+    .practice-check {
+      padding: 0.45rem 0.9rem;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .practice-check:hover {
+      background: var(--accent-hover);
+    }
+
+    .practice-feedback {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      line-height: 1.45;
+      padding: 0.5rem 0.65rem;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .practice-feedback.visible {
+      display: block;
+    }
+
+    .practice-feedback.correct {
+      background: #f0fff4;
+      color: #276749;
+    }
+
+    .practice-feedback.wrong {
+      background: #fff5f5;
+      color: #9b2c2c;
+    }
+
+    .practice-empty {
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* 小螢幕：上下排列 */
+    @media (max-width: 768px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .input-panel,
+      .report-panel {
+        min-height: 320px;
+      }
+
+      .report-panel__body {
+        min-height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header" id="pageHeader">
+      <div class="page-header-top">
+        <div>
+          <h1 data-i18n="review.title">內容審核</h1>
+          <p data-i18n="review.subtitle">輸入文字後送出，由 AI 依所選語言規則檢查語法並回傳 JSON。</p>
+          <a class="nav-link" href="home.html" data-i18n="review.linkHome">← 返回首頁</a>
+          <a class="nav-link" href="index.html" data-i18n="review.linkCalc">數字計算器</a>
+        </div>
+        <div id="langMount" class="lang-mount"></div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <!-- 左：輸入區塊 -->
+      <section class="input-panel" aria-labelledby="input-label">
+        <div class="settings">
+          <div class="field">
+            <label for="provider" data-i18n="review.labelProvider">API 服務</label>
+            <select id="provider" name="provider">
+              <option value="gemini">Google Gemini</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="apiKey" data-i18n="review.labelApiKey">API 金鑰</label>
+            <input
+              type="password"
+              id="apiKey"
+              name="apiKey"
+              data-i18n-placeholder="review.placeholderApiKey"
+              placeholder="貼上 Gemini 或 OpenAI API Key"
+              autocomplete="off"
+            />
+            <p class="settings-hint" data-i18n="review.settingsHint">金鑰僅保存在本機瀏覽器（sessionStorage），不會上傳至其他伺服器。OpenAI 若遇 CORS 錯誤，請改選 Gemini 或使用本機代理。</p>
+          </div>
+        </div>
+
+        <label id="input-label" for="content" data-i18n="review.labelContent">待審內容</label>
+        <textarea
+          id="content"
+          name="content"
+          placeholder="例如：He go to school yesterday and buyed a apple."
+          spellcheck="true"
+        ></textarea>
+        <div class="actions">
+          <button type="button" class="btn-submit" id="submitBtn" data-i18n="review.btnSubmit">送出審核</button>
+        </div>
+      </section>
+
+      <!-- 右：審核報告顯示區 -->
+      <aside class="report-panel" aria-labelledby="report-label">
+        <div class="report-panel__header">
+          <h2 id="report-label"><span data-i18n="review.reportTitle">審核報告</span> <span class="status-badge" id="reportStatus" hidden></span></h2>
+        </div>
+        <div class="report-panel__body" id="reportBody">
+          <p class="report-empty" data-i18n="review.reportEmpty">尚無審核報告。輸入內容並送出審核後，結果將顯示於此。</p>
+        </div>
+        <section class="practice-section" id="practiceSection" hidden aria-labelledby="practice-label">
+          <div class="practice-section__header">
+            <h3 id="practice-label" data-i18n="review.practiceTitle">即時練習</h3>
+            <p data-i18n="review.practiceDesc">依本次審核找到的錯誤點自動產生 3 題，可立即作答並對答案。</p>
+          </div>
+          <div id="practiceList"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script>
+    (function () {
+      var STORAGE_KEY = "grammar_review_api_key";
+      var STORAGE_PROVIDER = "grammar_review_provider";
+
+      var contentEl = document.getElementById("content");
+      var submitBtn = document.getElementById("submitBtn");
+      var providerEl = document.getElementById("provider");
+      var apiKeyEl = document.getElementById("apiKey");
+      var reportBodyEl = document.getElementById("reportBody");
+      var reportStatusEl = document.getElementById("reportStatus");
+      var practiceSectionEl = document.getElementById("practiceSection");
+      var practiceListEl = document.getElementById("practiceList");
+      var pageHeader = document.getElementById("pageHeader");
+      var lastSourceText = "";
+      var lastReportData = null;
+
+      function getGrammarPrompt() {
+        return AppI18n.getGrammarPrompt(AppI18n.getLang());
+      }
+
+      function refreshContentPlaceholder() {
+        var cfg = AppI18n.getGrammarConfig();
+        if (!contentEl.dataset.userEdited) {
+          contentEl.placeholder = cfg.samplePlaceholder;
+        }
+      }
+
+      AppI18n.createLangSelector(pageHeader, {
+        mount: "langMount",
+        position: "append",
+        page: "review",
+        callback: function () {
+          AppI18n.applyPage("review");
+          refreshContentPlaceholder();
+          if (lastReportData) {
+            renderReport(lastReportData);
+          }
+        },
+      });
+      AppI18n.applyPage("review");
+      refreshContentPlaceholder();
+
+      contentEl.addEventListener("input", function () {
+        contentEl.dataset.userEdited = "1";
+      });
+
+      function loadSettings() {
+        var savedKey = sessionStorage.getItem(STORAGE_KEY);
+        var savedProvider = sessionStorage.getItem(STORAGE_PROVIDER);
+        if (savedKey) apiKeyEl.value = savedKey;
+        if (savedProvider) providerEl.value = savedProvider;
+      }
+
+      function saveSettings() {
+        sessionStorage.setItem(STORAGE_KEY, apiKeyEl.value.trim());
+        sessionStorage.setItem(STORAGE_PROVIDER, providerEl.value);
+      }
+
+      function setStatus(text, type) {
+        reportStatusEl.hidden = !text;
+        reportStatusEl.textContent = text || "";
+        reportStatusEl.className = "status-badge" + (type ? " " + type : "");
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function extractJson(text) {
+        var trimmed = text.trim();
+        var fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (fence) trimmed = fence[1].trim();
+        return JSON.parse(trimmed);
+      }
+
+      function renderReport(data) {
+        lastReportData = data;
+        var html = "";
+
+        if (data.summary) {
+          html +=
+            '<div class="report-summary"><strong>' +
+            escapeHtml(AppI18n.t("review.summary")) +
+            "</strong>" +
+            escapeHtml(data.summary) +
+            "</div>";
+        }
+
+        var count = typeof data.error_count === "number" ? data.error_count : (data.errors || []).length;
+
+        if (count === 0 || !(data.errors && data.errors.length)) {
+          html += '<p class="no-errors">' + escapeHtml(AppI18n.t("review.noErrors")) + "</p>";
+        } else {
+          html +=
+            "<h3>" +
+            escapeHtml(AppI18n.format(AppI18n.t("review.issuesFound"), { n: count })) +
+            '</h3><ul class="error-list">';
+          data.errors.forEach(function (err) {
+            html +=
+              '<li class="error-item">' +
+              '<span class="error-type">' +
+              escapeHtml(err.type || "other") +
+              "</span>" +
+              '<p class="error-original"><em>' +
+              escapeHtml(AppI18n.t("review.original")) +
+              "</em> " +
+              escapeHtml(err.original || "—") +
+              "</p>" +
+              '<p class="error-correction"><em>' +
+              escapeHtml(AppI18n.t("review.suggestion")) +
+              "</em> " +
+              escapeHtml(err.correction || "—") +
+              "</p>" +
+              '<p class="error-explanation">' +
+              escapeHtml(err.explanation || "") +
+              "</p></li>";
+          });
+          html += "</ul>";
+        }
+
+        if (data.corrected_text) {
+          html +=
+            '<div class="report-corrected"><h3>' +
+            escapeHtml(AppI18n.t("review.correctedTitle")) +
+            "</h3><blockquote>" +
+            escapeHtml(data.corrected_text) +
+            "</blockquote></div>";
+        }
+
+        html +=
+          '<details class="json-block"><summary>' +
+          escapeHtml(AppI18n.t("review.viewJson")) +
+          "</summary><pre>" +
+          escapeHtml(JSON.stringify(data, null, 2)) +
+          "</pre></details>";
+
+        reportBodyEl.innerHTML = html;
+        renderPractice(data, lastSourceText);
+      }
+
+      function hidePractice() {
+        practiceSectionEl.hidden = true;
+        practiceListEl.innerHTML = "";
+      }
+
+      function normalizeAnswer(s) {
+        return String(s).trim().toLowerCase().replace(/\s+/g, " ");
+      }
+
+      function pickErrorsForPractice(errors) {
+        var list = (errors || []).filter(function (e) {
+          return e.original && e.correction;
+        });
+        if (list.length === 0) return [];
+
+        var picked = [];
+        for (var i = 0; i < 3; i++) {
+          picked.push(list[i % list.length]);
+        }
+        return picked;
+      }
+
+      function buildBlankSentence(sourceText, original) {
+        if (sourceText && original && sourceText.indexOf(original) !== -1) {
+          return sourceText.replace(original, '<span class="blank">______</span>');
+        }
+        return escapeHtml(
+          AppI18n.format(AppI18n.t("review.blankFallback"), { original: original })
+        ).replace("______", '<span class="blank">______</span>');
+      }
+
+      function shuffleArray(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i];
+          a[i] = a[j];
+          a[j] = t;
+        }
+        return a;
+      }
+
+      function buildMcqOptions(targetErr, allErrors) {
+        var correct = targetErr.correction;
+        var distractors = [];
+
+        allErrors.forEach(function (e) {
+          if (e.correction && normalizeAnswer(e.correction) !== normalizeAnswer(correct)) {
+            distractors.push(e.correction);
+          }
+          if (e.original && normalizeAnswer(e.original) !== normalizeAnswer(correct)) {
+            distractors.push(e.original);
+          }
+        });
+
+        if (targetErr.original) {
+          distractors.push(targetErr.original);
+        }
+
+        distractors = distractors.filter(function (d, idx, arr) {
+          return (
+            d &&
+            normalizeAnswer(d) !== normalizeAnswer(correct) &&
+            arr.indexOf(d) === idx
+          );
+        });
+
+        while (distractors.length < 3) {
+          var fake = correct + (distractors.length % 2 === 0 ? "s" : "ed");
+          if (normalizeAnswer(fake) !== normalizeAnswer(correct)) {
+            distractors.push(fake);
+          } else {
+            distractors.push("(" + correct.split(" ").reverse().join(" ") + ")");
+          }
+        }
+
+        return shuffleArray([correct].concat(distractors.slice(0, 3)));
+      }
+
+      function buildPracticeExercises(errors, sourceText) {
+        var picked = pickErrorsForPractice(errors);
+        if (picked.length === 0) return [];
+
+        var types = ["fill", "mcq", "type"];
+        return picked.map(function (err, index) {
+          var type = types[index % types.length];
+          var exercise = {
+            id: index + 1,
+            type: type,
+            answer: err.correction,
+            hint: err.explanation || AppI18n.t("review.practiceHint"),
+            errorType: err.type || "other",
+          };
+
+          if (type === "fill") {
+            exercise.promptHtml = buildBlankSentence(sourceText, err.original);
+            exercise.instruction = AppI18n.format(AppI18n.t("review.fillInstr"), {
+              n: exercise.id,
+            });
+          } else if (type === "mcq") {
+            exercise.instruction = AppI18n.format(AppI18n.t("review.mcqInstr"), {
+              n: exercise.id,
+              orig: err.original,
+            });
+            exercise.options = buildMcqOptions(err, errors);
+          } else {
+            exercise.instruction = AppI18n.format(AppI18n.t("review.typeInstr"), {
+              n: exercise.id,
+              orig: err.original,
+            });
+            exercise.promptHtml = escapeHtml(err.original);
+          }
+
+          return exercise;
+        });
+      }
+
+      function renderPracticeCard(ex) {
+        var html =
+          '<article class="practice-card" data-exercise-id="' +
+          ex.id +
+          '" data-answer="' +
+          escapeHtml(ex.answer) +
+          '" data-type="' +
+          ex.type +
+          '">' +
+          '<div class="practice-card__num">' +
+          escapeHtml(AppI18n.format(AppI18n.t("review.practiceNum"), { n: ex.id })) +
+          " · " +
+          escapeHtml(ex.errorType) +
+          "</div>" +
+          '<p class="practice-card__prompt">' +
+          escapeHtml(ex.instruction) +
+          "</p>";
+
+        if (ex.type === "fill") {
+          html +=
+            '<p class="practice-card__prompt">' +
+            ex.promptHtml +
+            "</p>" +
+            '<input type="text" class="practice-input" placeholder="' +
+            escapeHtml(AppI18n.t("review.inputPhrase")) +
+            '" autocomplete="off" />';
+        } else if (ex.type === "mcq") {
+          html += '<ul class="practice-options">';
+          ex.options.forEach(function (opt, i) {
+            html +=
+              "<li><label>" +
+              '<input type="radio" name="mcq-' +
+              ex.id +
+              '" value="' +
+              escapeHtml(opt) +
+              '" /> ' +
+              escapeHtml(opt) +
+              "</label></li>";
+          });
+          html += "</ul>";
+        } else {
+          html +=
+            '<p class="practice-card__hint">' +
+            escapeHtml(AppI18n.t("review.wrongPhrase")) +
+            ex.promptHtml +
+            "</p>" +
+            '<input type="text" class="practice-input" placeholder="' +
+            escapeHtml(AppI18n.t("review.inputCorrect")) +
+            '" autocomplete="off" />';
+        }
+
+        html +=
+          '<p class="practice-card__hint">' +
+          escapeHtml(AppI18n.t("review.hintLabel")) +
+          escapeHtml(ex.hint) +
+          '</p><button type="button" class="practice-check">' +
+          escapeHtml(AppI18n.t("review.btnCheck")) +
+          "</button>" +
+          '<div class="practice-feedback" role="status"></div></article>';
+
+        return html;
+      }
+
+      function renderPractice(data, sourceText) {
+        var errors = data.errors || [];
+        var hasErrors =
+          (typeof data.error_count === "number" && data.error_count > 0) || errors.length > 0;
+
+        if (!hasErrors) {
+          hidePractice();
+          return;
+        }
+
+        var exercises = buildPracticeExercises(errors, sourceText);
+        if (exercises.length === 0) {
+          practiceSectionEl.hidden = false;
+          practiceListEl.innerHTML =
+            '<p class="practice-empty">' + escapeHtml(AppI18n.t("review.practiceEmpty")) + "</p>";
+          return;
+        }
+
+        practiceListEl.innerHTML = exercises.map(renderPracticeCard).join("");
+        practiceSectionEl.hidden = false;
+      }
+
+      function checkExercise(card) {
+        var answer = card.getAttribute("data-answer");
+        var type = card.getAttribute("data-type");
+        var feedbackEl = card.querySelector(".practice-feedback");
+        var userAnswer = "";
+
+        if (type === "mcq") {
+          var selected = card.querySelector('input[type="radio"]:checked');
+          if (!selected) {
+            feedbackEl.textContent = AppI18n.t("review.pickOption");
+            feedbackEl.className = "practice-feedback visible wrong";
+            return;
+          }
+          userAnswer = selected.value;
+        } else {
+          var input = card.querySelector(".practice-input");
+          userAnswer = input ? input.value : "";
+          if (!userAnswer.trim()) {
+            feedbackEl.textContent = AppI18n.t("review.enterAnswer");
+            feedbackEl.className = "practice-feedback visible wrong";
+            return;
+          }
+        }
+
+        var correct = normalizeAnswer(userAnswer) === normalizeAnswer(answer);
+        feedbackEl.className =
+          "practice-feedback visible " + (correct ? "correct" : "wrong");
+        if (correct) {
+          feedbackEl.textContent = AppI18n.format(AppI18n.t("review.correctFb"), { ans: answer });
+        } else {
+          feedbackEl.textContent = AppI18n.format(AppI18n.t("review.wrongFb"), { ans: answer });
+        }
+      }
+
+      function renderError(message) {
+        hidePractice();
+        reportBodyEl.innerHTML =
+          '<div class="report-error">' + escapeHtml(message) + "</div>";
+      }
+
+      async function callGemini(apiKey, text) {
+        var url =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+          encodeURIComponent(apiKey);
+
+        var res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: getGrammarPrompt() + "\n\n---\nUser text:\n" + text }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        });
+
+        var body = await res.json();
+        if (!res.ok) {
+          var msg = body.error && body.error.message ? body.error.message : res.statusText;
+          throw new Error("Gemini API：" + msg);
+        }
+
+        var parts = body.candidates && body.candidates[0] && body.candidates[0].content && body.candidates[0].content.parts;
+        if (!parts || !parts[0] || !parts[0].text) {
+          throw new Error("Gemini 回傳格式異常，未取得內容。");
+        }
+        return extractJson(parts[0].text);
+      }
+
+      async function callOpenAI(apiKey, text) {
+        var res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + apiKey,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            temperature: 0.2,
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: getGrammarPrompt() },
+              { role: "user", content: text },
+            ],
+          }),
+        });
+
+        var body = await res.json();
+        if (!res.ok) {
+          var msg = body.error && body.error.message ? body.error.message : res.statusText;
+          throw new Error("OpenAI API：" + msg);
+        }
+
+        var content = body.choices && body.choices[0] && body.choices[0].message && body.choices[0].message.content;
+        if (!content) {
+          throw new Error("OpenAI 回傳格式異常，未取得內容。");
+        }
+        return extractJson(content);
+      }
+
+      async function submitReview() {
+        var text = contentEl.value.trim();
+        var apiKey = apiKeyEl.value.trim();
+        var provider = providerEl.value;
+
+        saveSettings();
+
+        if (!text) {
+          alert(AppI18n.t("review.alertEmpty"));
+          return;
+        }
+        if (!apiKey) {
+          alert(AppI18n.t("review.alertNoKey"));
+          apiKeyEl.focus();
+          return;
+        }
+
+        submitBtn.disabled = true;
+        setStatus(AppI18n.t("review.statusLoading"), "loading");
+        hidePractice();
+        lastSourceText = text;
+        lastReportData = null;
+        reportBodyEl.innerHTML =
+          '<p class="report-empty">' + escapeHtml(AppI18n.t("review.reportLoading")) + "</p>";
+
+        try {
+          var data =
+            provider === "openai"
+              ? await callOpenAI(apiKey, text)
+              : await callGemini(apiKey, text);
+
+          renderReport(data);
+          setStatus(AppI18n.t("review.statusOk"), "ok");
+        } catch (err) {
+          var msg = err.message || String(err);
+          if (msg === "Failed to fetch" || msg.indexOf("NetworkError") !== -1) {
+            msg += AppI18n.t("review.corsHint");
+          }
+          renderError(msg);
+          setStatus(AppI18n.t("review.statusErr"), "err");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      submitBtn.addEventListener("click", submitReview);
+      apiKeyEl.addEventListener("change", saveSettings);
+      providerEl.addEventListener("change", saveSettings);
+
+      practiceListEl.addEventListener("click", function (e) {
+        var btn = e.target.closest(".practice-check");
+        if (!btn) return;
+        var card = btn.closest(".practice-card");
+        if (card) checkExercise(card);
+      });
+
+      practiceListEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        var input = e.target.closest(".practice-input");
+        if (!input) return;
+        var card = input.closest(".practice-card");
+        if (card) checkExercise(card);
+      });
+
+      loadSettings();
+    })();
+  </script>
+</body>
+</html>

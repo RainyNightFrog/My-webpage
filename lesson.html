@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="home.title">Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app lc-lesson-page" data-i18n-page="lesson">
+  <div class="lc-bg" aria-hidden="true"></div>
+  <div class="lc-wrap">
+    <header class="lc-header">
+      <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">首頁</a>
+      <div class="lc-header-end">
+        <div class="lc-score-pill" id="scoreDisplay" aria-live="polite">
+          <span class="lc-score-badge" aria-hidden="true">🐸</span>
+          <div class="lc-score-body">
+            <span class="lc-score-label" data-i18n="flow.scoreCorrect">答對</span>
+            <div class="lc-score-nums">
+              <span class="lc-score-num" id="scoreNum">0</span>
+              <span class="lc-score-slash">/</span>
+              <span class="lc-score-total" id="scoreTotal">10</span>
+            </div>
+          </div>
+          <div class="lc-energy-dots" id="energyDots" aria-hidden="true"></div>
+        </div>
+        <div id="langTriggerMount"></div>
+      </div>
+    </header>
+
+    <div class="lc-progress-wrap">
+      <div class="lc-progress"><div class="lc-progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <main class="lc-main" id="quizRoot"></main>
+
+    <div class="lc-footer-bar">
+      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">跳過</button>
+      <button type="button" class="lc-btn-primary" id="btnAction" disabled data-i18n="flow.check">檢查</button>
+    </div>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="zh-vocab-extra.js"></script>
+  <script src="zh-vocab-hard.js"></script>
+  <script src="mascot-pool.js"></script>
+  <script src="question-generator.js"></script>
+  <script src="questions.js"></script>
+  <script src="question-audit.js"></script>
+  <script src="practice-engine.js"></script>
+  <script>
+    var mode = "normal";
+    var params = new URLSearchParams(location.search);
+    if (params.get("mode") === "review") mode = "review";
+    if (params.get("mode") === "jump") mode = "jump";
+    var viewGrade = params.get("view") === "grade";
+
+    AppI18n.applyPage("lesson");
+    LCApp.initLangPopover("langTriggerMount");
+
+    var engine;
+
+    function boot() {
+      if (viewGrade) {
+        LCApp.initScoreWidget(10);
+        document.getElementById("btnSkip").classList.add("lc-hidden");
+        document.getElementById("btnAction").classList.add("lc-hidden");
+        RNFPractice.renderGradeFromStorage(document.getElementById("quizRoot"));
+        document.title =
+          (AppI18n.t("flow.reviewReport") || "Report") + " — Rainy Night Frog";
+        return;
+      }
+      if (!window.RNFPractice || !RNFPractice.PracticeEngine) {
+        document.getElementById("quizRoot").innerHTML =
+          '<div class="lc-complete"><p class="lc-quiz-q">' +
+          (AppI18n.t("flow.lessonLoadError") || "無法載入練習題，請重新整理頁面。") +
+          '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
+          (AppI18n.t("flow.reloadPage") || "重新整理") +
+          "</button></div>";
+        return;
+      }
+      try {
+        engine = new RNFPractice.PracticeEngine({
+          root: document.getElementById("quizRoot"),
+          mode: mode,
+          onProgress: LCApp.setProgress,
+          onScore: LCApp.updateScoreDisplay,
+        });
+        LCApp.initScoreWidget(engine.state.queue.length || 10);
+        LCApp.updateScoreDisplay({
+          correct: 0,
+          total: engine.state.queue.length || 10,
+          lives: engine.state.lives,
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById("quizRoot").innerHTML =
+          '<div class="lc-complete"><p class="lc-quiz-q">' +
+          (AppI18n.t("flow.lessonLoadError") || "無法載入練習題，請重新整理頁面。") +
+          '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
+          (AppI18n.t("flow.reloadPage") || "重新整理") +
+          "</button></div>";
+      }
+      if (mode === "review") {
+        document.title =
+          (AppI18n.t("flow.modeReviewTitle") || "Review") + " — Rainy Night Frog";
+      }
+      if (mode === "jump") {
+        var jumpPart = params.get("part") || sessionStorage.getItem("rnf_jump_test_part") || "";
+        document.title =
+          (AppI18n.t("flow.jumpTestStart") || "Jump test") +
+          (jumpPart ? " · " + jumpPart : "") +
+          " — Rainy Night Frog";
+      }
+    }
+
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("lesson");
+      LCApp.initScoreWidget(engine ? engine.state.queue.length : 10);
+      if (engine)         engine.start(engine.state.mode);
+      if (params.get("audit") === "1" && window.RNFQuestionAudit) {
+        RNFQuestionAudit.runAudit();
+      }
+    });
+
+    boot();
+  </script>
+</body>
+</html>
