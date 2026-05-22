@@ -442,9 +442,18 @@
 
     function positionPop() {
       var r = trigger.getBoundingClientRect();
-      pop.style.top = r.bottom + 10 + "px";
-      pop.style.right = Math.max(12, window.innerWidth - r.right) + "px";
       pop.style.left = "auto";
+      pop.style.right = Math.max(12, window.innerWidth - r.right) + "px";
+      var maxH = Math.min(320, window.innerHeight - 24);
+      pop.style.maxHeight = maxH + "px";
+      pop.style.overflowY = "auto";
+      var below = r.bottom + 10;
+      var popH = pop.offsetHeight || 280;
+      if (below + popH > window.innerHeight - 12) {
+        pop.style.top = Math.max(12, r.top - popH - 10) + "px";
+      } else {
+        pop.style.top = below + "px";
+      }
       var popRect = pop.getBoundingClientRect();
       var arrowRight = popRect.right - (r.left + r.width / 2) - 7;
       pop.style.setProperty(

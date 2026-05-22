@@ -1227,6 +1227,7 @@
     if (!pathCol) return;
 
     if (statsMount) statsMount.innerHTML = renderTopBar(stats);
+    if (global.LCApp && LCApp.syncLearnCourseLabel) LCApp.syncLearnCourseLabel();
 
     pathCol.innerHTML = renderChapterBanner() + renderPondJourney();
 

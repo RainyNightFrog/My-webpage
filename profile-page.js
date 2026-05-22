@@ -472,8 +472,10 @@
 
     if (side) {
       side.innerHTML =
-        renderStatsBar(stats) +
         '<div class="lc-panel-card lc-profile-social-card">' +
+        '<p class="lc-panel-text"><a class="lc-panel-link" href="friends.html">' +
+        t("flow.navFriends") +
+        " →</a></p>" +
         '<div class="lc-profile-tabs">' +
         '<button type="button" class="lc-profile-tab on">' +
         t("flow.profileTabFollowing") +

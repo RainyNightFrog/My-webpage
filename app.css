@@ -12029,3 +12029,286 @@ body[data-i18n-page="setup"] .lc-footer-bar {
   margin-top: 0.5rem;
   text-align: center;
 }
+
+/* Friends page */
+.lc-friends-body {
+  grid-template-columns: 1fr !important;
+}
+
+.lc-friends-main-col {
+  padding: 1rem 1.25rem 2rem;
+  min-width: 0;
+}
+
+.lc-friends-head h1 {
+  font-family: var(--font-brand);
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.lc-friends-sub {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-bottom: 1rem;
+}
+
+.lc-friends-add {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lc-friends-add label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.lc-friends-add-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.lc-friends-add-row input {
+  flex: 1;
+  min-width: 10rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.lc-friends-add-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.lc-friends-add-hint.ok {
+  color: #86efac;
+}
+
+.lc-friends-add-hint.err {
+  color: #fca5a5;
+}
+
+.lc-friends-layout {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  gap: 0.75rem;
+  min-height: min(52vh, 420px);
+}
+
+@media (max-width: 720px) {
+  .lc-friends-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lc-friends-sidebar {
+  padding: 0.5rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  max-height: min(52vh, 420px);
+}
+
+.lc-friends-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.lc-friends-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.lc-friends-item.active,
+.lc-friends-item:hover {
+  border-color: rgba(167, 139, 250, 0.45);
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.lc-friends-avatar {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.lc-friends-name {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.lc-friends-status {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.lc-friends-status.online {
+  color: #4ade80;
+}
+
+.lc-friends-chat {
+  display: flex;
+  flex-direction: column;
+  min-height: min(52vh, 420px);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  overflow: hidden;
+}
+
+.lc-friends-chat--empty {
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.lc-friends-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lc-friends-chat-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.lc-friends-chat-meta strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.lc-friends-remove {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(248, 113, 113, 0.2);
+  color: #fecaca;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.lc-friends-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 200px;
+}
+
+.lc-friends-msg {
+  max-width: 85%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.lc-friends-msg--me {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  color: #fff;
+}
+
+.lc-friends-msg--them {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lc-friends-compose {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.55rem 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lc-friends-compose input {
+  flex: 1;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-family: inherit;
+}
+
+.lc-friends-empty {
+  padding: 1rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+/* Leaderboard friends */
+.lc-lb-friends {
+  margin: 0.85rem 0 1rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+.lc-lb-friends h2 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.lc-lb-friends-sub,
+.lc-lb-friends-empty {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  margin-bottom: 0.45rem;
+}
+
+.lc-lb-friend-badge {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #a5f3fc;
+  background: rgba(56, 189, 248, 0.2);
+  vertical-align: middle;
+}
+
+.lc-lang-popover.open {
+  z-index: 9999;
+}

@@ -227,7 +227,6 @@
     var boardLeft = getUnitsRemaining();
 
     return (
-      renderStats(stats) +
       '<div class="lc-panel-card lc-shop-board-card">' +
       "<h3 class=\"lc-panel-title\">" +
       t("flow.learnBoardTitle") +

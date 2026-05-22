@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="flow.learnPageTitle">冒險島 — Rainy Night Frog</title>
+  <title data-i18n="flow.friendsPageTitle">好友 — Rainy Night Frog</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="app.css">
 </head>
-<body class="lc-app lc-learn-page" data-i18n-page="learn">
+<body class="lc-app lc-learn-page lc-friends-page" data-i18n-page="friends">
   <div class="lc-bg" aria-hidden="true"></div>
 
   <div class="lc-learn-shell">
@@ -18,7 +18,7 @@
       </a>
       <ul class="lc-learn-menu">
         <li>
-          <a class="lc-learn-link active" href="learn.html">
+          <a class="lc-learn-link" href="learn.html">
             <span class="lc-learn-link-icon" aria-hidden="true">🏠</span>
             <span data-i18n="flow.navLearn">學習</span>
           </a>
@@ -48,7 +48,7 @@
           </a>
         </li>
         <li>
-          <a class="lc-learn-link" href="friends.html">
+          <a class="lc-learn-link active" href="friends.html">
             <span class="lc-learn-link-icon" aria-hidden="true">👥</span>
             <span data-i18n="flow.navFriends">好友</span>
           </a>
@@ -70,9 +70,8 @@
           <div id="langTriggerMount" class="lc-learn-lang-mount-top"></div>
         </div>
       </header>
-      <div class="lc-learn-body">
-        <main class="lc-learn-path-col" id="pathCol"></main>
-        <aside class="lc-learn-panel" id="sidePanel" aria-label="Widgets"></aside>
+      <div class="lc-learn-body lc-friends-body">
+        <main class="lc-friends-main-col" id="friendsMain"></main>
       </div>
     </div>
   </div>
@@ -81,52 +80,30 @@
   <script src="i18n.js"></script>
   <script src="avatar-pool.js"></script>
   <script src="player-auth.js"></script>
+  <script src="friends-system.js"></script>
   <script src="app-settings.js"></script>
   <script src="app.js"></script>
   <script src="learn-chrome.js"></script>
-  <script src="friends-system.js"></script>
-  <script src="quest-system.js"></script>
-  <script src="path-progress.js"></script>
-  <script src="adventure-island-progress.js"></script>
-  <script src="leaderboard-data.js"></script>
-  <script src="adventure-island.js"></script>
-  <script src="learn-path.js"></script>
+  <script src="friends-page.js"></script>
   <script>
-    AppI18n.applyPage("learn");
-    if (window.RNFAdventureIsland && !RNFAdventureIsland.guardLearnPage()) {
-      /* redirecting — first 10 questions required */
-    } else {
+    AppI18n.applyPage("friends");
     LCApp.initLearnChrome();
     LCApp.initMoreMenu();
     LCApp.initCoursePicker();
     LCApp.initStreakPicker();
     LCApp.initGemsPicker();
     LCApp.initHeartsPicker();
-    RNFLearnPath.init();
+    RNFFriendsPage.init();
     document.addEventListener("lc:langchange", function () {
-      AppI18n.applyPage("learn");
+      AppI18n.applyPage("friends");
       LCApp.initLearnChrome();
       LCApp.initMoreMenu();
       LCApp.initCoursePicker();
       LCApp.initStreakPicker();
       LCApp.initGemsPicker();
       LCApp.initHeartsPicker();
-      RNFLearnPath.init();
-      if (RNFLearnPath.refreshJumpModalCopy) RNFLearnPath.refreshJumpModalCopy();
+      RNFFriendsPage.init();
     });
-    document.addEventListener("lc:coursechange", function () {
-      RNFLearnPath.init();
-      if (RNFLearnPath.refreshJumpModalCopy) RNFLearnPath.refreshJumpModalCopy();
-      LCApp.initCoursePicker();
-      LCApp.initStreakPicker();
-      LCApp.initGemsPicker();
-      LCApp.initHeartsPicker();
-    });
-    document.addEventListener("lc:heartschange", function () {
-      RNFLearnPath.init();
-      LCApp.initHeartsPicker();
-    });
-    }
   </script>
 </body>
 </html>

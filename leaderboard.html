@@ -54,13 +54,13 @@
           </button>
         </li>
       </ul>
-      <p class="lc-learn-lang" data-learn-lang-label>?��?�� ?��?</p>
-      <div id="langTriggerMount" class="lc-learn-lang-mount"></div>
     </nav>
 
-    <div class="lc-learn-body lc-leaderboard-body">
+    <div class="lc-learn-stage"><header class="lc-learn-topbar" aria-label="Status"><p class="lc-learn-topbar-course" data-learn-lang-label></p><div class="lc-learn-topbar-actions"><div id="learnStatsMount" class="lc-learn-stats-mount"></div><div id="langTriggerMount" class="lc-learn-lang-mount-top"></div></div></header>
+      <div class="lc-learn-body lc-leaderboard-body">
       <main class="lc-leaderboard-main" id="leaderboardMain"></main>
       <aside class="lc-leaderboard-aside" id="leaderboardAside" aria-label="Tips"></aside>
+      </div>
     </div>
   </div>
 
@@ -71,11 +71,13 @@
   <script src="path-progress.js"></script>
   <script src="app-settings.js"></script>
   <script src="app.js"></script>
+  <script src="learn-chrome.js"></script>
+  <script src="friends-system.js"></script>
   <script src="leaderboard-data.js"></script>
   <script src="leaderboard-page.js"></script>
   <script>
     AppI18n.applyPage("leaderboard");
-    LCApp.initLangPopover("langTriggerMount");
+    LCApp.initLearnChrome();
     LCApp.initMoreMenu();
     LCApp.initCoursePicker();
     LCApp.initStreakPicker();
@@ -84,6 +86,7 @@
     RNFLeaderboard.init();
     document.addEventListener("lc:langchange", function () {
       AppI18n.applyPage("leaderboard");
+      LCApp.initLearnChrome();
       LCApp.initMoreMenu();
       LCApp.initCoursePicker();
       LCApp.initStreakPicker();

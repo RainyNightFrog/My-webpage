@@ -134,6 +134,9 @@
       (entry.isMe
         ? ' <span class="lc-lb-you-badge">' + escapeHtml(t("flow.lbYou")) + "</span>"
         : "") +
+      (entry.isFriend
+        ? ' <span class="lc-lb-friend-badge">' + escapeHtml(t("flow.lbFriend")) + "</span>"
+        : "") +
       "</span>" +
       (diff > 0
         ? '<span class="lc-lb-row-gap">' +
@@ -201,6 +204,40 @@
     return html;
   }
 
+  function renderFriendsBoard() {
+    var api = dataApi();
+    if (!api || !api.buildFriendRankings || !global.RNFriends) return "";
+    var friends = RNFriends.loadFriends();
+    if (!friends.length) {
+      return (
+        '<section class="lc-lb-friends">' +
+        "<h2>" +
+        escapeHtml(t("flow.lbFriendsTitle")) +
+        "</h2>" +
+        '<p class="lc-lb-friends-empty">' +
+        escapeHtml(t("flow.lbFriendsEmpty")) +
+        ' <a href="friends.html">' +
+        escapeHtml(t("flow.lbFriendsGoAdd")) +
+        "</a></p></section>"
+      );
+    }
+    var data = api.buildFriendRankings(state.tab);
+    var html =
+      '<section class="lc-lb-friends">' +
+      "<h2>" +
+      escapeHtml(t("flow.lbFriendsTitle")) +
+      "</h2>" +
+      '<p class="lc-lb-friends-sub">' +
+      escapeHtml(t("flow.lbFriendsSub")) +
+      "</p>" +
+      '<ol class="lc-lb-rank-list lc-lb-rank-list--friends">';
+    data.list.forEach(function (entry) {
+      html += renderRow(entry, data.mode, data.me);
+    });
+    html += "</ol></section>";
+    return html;
+  }
+
   function renderMainBoard() {
     var api = dataApi();
     if (!api) {
@@ -222,6 +259,7 @@
       "</span></header>" +
       renderTabs() +
       renderYourCard(data) +
+      renderFriendsBoard() +
       renderPodium(top3, state.tab, data.me) +
       renderRankList(data) +
       "</div>"
@@ -310,8 +348,10 @@
 
     if (global.RNFFrogLogo) RNFFrogLogo.mount();
 
+    if (global.LCApp && LCApp.syncLearnCourseLabel) LCApp.syncLearnCourseLabel();
+
     var langLbl = document.querySelector("[data-learn-lang-label]");
-    if (langLbl && global.LCApp) {
+    if (langLbl && global.LCApp && !LCApp.syncLearnCourseLabel) {
       var target = LCApp.getLearnTarget();
       langLbl.textContent =
         (LANG_FLAGS[target] || "") +

@@ -54,11 +54,10 @@
           </button>
         </li>
       </ul>
-      <p class="lc-learn-lang" data-learn-lang-label>?��?�� ?��?</p>
-      <div id="langTriggerMount" class="lc-learn-lang-mount"></div>
     </nav>
 
-    <div class="lc-learn-body lc-quests-body">
+    <div class="lc-learn-stage"><header class="lc-learn-topbar" aria-label="Status"><p class="lc-learn-topbar-course" data-learn-lang-label></p><div class="lc-learn-topbar-actions"><div id="learnStatsMount" class="lc-learn-stats-mount"></div><div id="langTriggerMount" class="lc-learn-lang-mount-top"></div></div></header>
+      <div class="lc-learn-body lc-quests-body">
       <main class="lc-quests-main" id="questsMain"></main>
       <aside class="lc-quests-side" id="questsSide" aria-label="Stats"></aside>
     </div>
@@ -69,12 +68,14 @@
   <script src="avatar-pool.js"></script>
   <script src="app-settings.js"></script>
   <script src="app.js"></script>
+  <script src="learn-chrome.js"></script>
+  <script src="friends-system.js"></script>
   <script src="quest-system.js"></script>
   <script src="leaderboard-data.js"></script>
   <script src="quests-page.js"></script>
   <script>
     AppI18n.applyPage("quests");
-    LCApp.initLangPopover("langTriggerMount");
+    LCApp.initLearnChrome();
     LCApp.initMoreMenu();
     LCApp.initCoursePicker();
     LCApp.initStreakPicker();

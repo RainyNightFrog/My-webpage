@@ -281,22 +281,12 @@
       bindQuestActions();
     }
     if (side) {
-      side.innerHTML = renderStatsBar(stats) + renderAside();
+      side.innerHTML = renderAside();
     }
 
     if (global.RNFFrogLogo) RNFFrogLogo.mount();
 
-    var langLbl = document.querySelector("[data-learn-lang-label]");
-    if (langLbl && global.LCApp) {
-      langLbl.textContent =
-        (LANG_FLAGS[stats.target] || "") +
-        " " +
-        t(
-          stats.target === "zh"
-            ? "flow.courseZh"
-            : COURSE_KEYS[stats.target] || "flow.courseEn"
-        );
-    }
+    if (global.LCApp && LCApp.syncLearnCourseLabel) LCApp.syncLearnCourseLabel();
     if (global.LCApp && LCApp.initCoursePicker) LCApp.initCoursePicker();
     if (global.LCApp && LCApp.initStreakPicker) LCApp.initStreakPicker();
     if (global.LCApp && LCApp.initGemsPicker) LCApp.initGemsPicker();

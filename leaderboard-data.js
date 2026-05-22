@@ -178,9 +178,17 @@
     return t("flow.lbMetricXp", { n: entry.xp });
   }
 
+  function markFriends(list) {
+    if (!global.RNFriends || !RNFriends.isFriend) return list;
+    list.forEach(function (entry) {
+      entry.isFriend = !entry.isMe && RNFriends.isFriend(entry.id);
+    });
+    return list;
+  }
+
   function buildRankings(mode) {
     var key = metricKey(mode);
-    var list = [getCurrentPlayer()].concat(scaledRivals());
+    var list = markFriends([getCurrentPlayer()].concat(scaledRivals()));
     list.sort(function (a, b) {
       if (b[key] !== a[key]) return b[key] - a[key];
       if (a.isMe) return -1;
@@ -317,10 +325,22 @@
     return Math.max(0, (me[key] || 0) - (entry[key] || 0));
   }
 
+  function buildFriendRankings(mode) {
+    var data = buildRankings(mode);
+    var friends = data.list.filter(function (e) {
+      return e.isFriend;
+    });
+    friends.forEach(function (entry, i) {
+      entry.rank = i + 1;
+    });
+    return { list: friends, me: data.me, mode: data.mode };
+  }
+
   global.RNFLeaderboardData = {
     RIVALS: RIVALS,
     getCurrentPlayer: getCurrentPlayer,
     buildRankings: buildRankings,
+    buildFriendRankings: buildFriendRankings,
     formatMetric: formatMetric,
     getHighlights: getHighlights,
     recordHighlight: recordHighlight,
