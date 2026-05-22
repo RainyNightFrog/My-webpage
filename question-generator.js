@@ -654,9 +654,9 @@
       avatar: mascotC.emoji,
       avatarClass: mascotC.theme,
       prompt: {
-        hant: "點選正確的英文詞語",
-        hans: "点选正确的英文词语",
-        en: "Pick the correct English word",
+        hant: "點選正確的" + courseLabel(course) + "詞語",
+        hans: "点选正确的" + courseLabel(course).replace(/語/g, "语") + "词语",
+        en: "Pick the correct " + courseLabelEn(course) + " word",
       },
       promptLine: chineseCue(item),
       speakLine: chineseCue(item),
@@ -728,6 +728,21 @@
       it: "義大利語",
       pt: "葡萄牙語",
       zh: "中文",
+    };
+    return map[code] || code;
+  }
+
+  function courseLabelEn(code) {
+    var map = {
+      ko: "Korean",
+      ja: "Japanese",
+      en: "English",
+      es: "Spanish",
+      fr: "French",
+      de: "German",
+      it: "Italian",
+      pt: "Portuguese",
+      zh: "Chinese",
     };
     return map[code] || code;
   }

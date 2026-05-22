@@ -304,6 +304,8 @@
       id: "q008",
       type: "word_bank",
       badge: "phrase",
+      level: "beginner",
+      courses: ["zh"],
       prompt: { hant: "用中文排出問句", hans: "用中文排出问句", en: "Form the question in Chinese" },
       promptLine: { hant: "🔊 Where is the station?", hans: "🔊 Where is the station?", en: "🔊 Where is the station?" },
       words: [
@@ -1090,20 +1092,35 @@
     return "hant";
   }
 
-  /** 題目詞彙／選項用：學英語等外語課一律顯示英文，不受網站簡體中文影響 */
-  function getContentLocaleKey() {
-    var course = getLearnTarget();
-    if (course === "zh") {
-      return getLocaleKey();
-    }
-    return "en";
+  function looksLikeEnglish(s) {
+    var x = (s || "").trim();
+    if (!x) return false;
+    return /^[A-Za-z0-9\s'".,?!;:()\-–—…]+$/.test(x);
+  }
+
+  /** 學日語／韓語等：選項與詞塊顯示目標語言，不用 en 欄的英文釋義 */
+  function tTargetField(obj) {
+    if (!obj) return "";
+    if (obj.foreign) return obj.foreign;
+    if (obj.hant && obj.hant === obj.hans && obj.hant === obj.en) return obj.hant;
+    if (obj.hant && !looksLikeEnglish(obj.hant)) return obj.hant;
+    if (obj.hans && !looksLikeEnglish(obj.hans)) return obj.hans;
+    if (obj.en && !looksLikeEnglish(obj.en)) return obj.en;
+    return obj.hant || obj.hans || obj.en || obj.foreign || "";
   }
 
   function tField(obj) {
     if (!obj) return "";
-    var k = getContentLocaleKey();
-    if (obj[k]) return obj[k];
-    return obj.en || obj.hant || obj.hans || "";
+    var course = getLearnTarget();
+    if (course === "zh") {
+      var zk = getLocaleKey();
+      if (obj[zk]) return obj[zk];
+      return obj.hant || obj.hans || obj.en || "";
+    }
+    if (course === "en") {
+      return obj.en || obj.foreign || obj.hant || obj.hans || "";
+    }
+    return tTargetField(obj);
   }
 
   /** 介面文案（標題、配對題說明）依網站語言 */
@@ -1119,7 +1136,8 @@
     if (!obj) return "";
     if (course === "zh") return tField(obj);
     if (side === "left") {
-      return obj.hant || obj.en || obj.hans || "";
+      if (course === "en") return obj.en || obj.hant || obj.hans || "";
+      return tTargetField(obj) || obj.hant || obj.hans || obj.en || "";
     }
     var ui = getLocaleKey();
     if (ui === "zhHans") return obj.hans || obj.hant || "";
@@ -1135,7 +1153,7 @@
   }
 
   var _fullBankCache = null;
-  var _fullBankCacheVersion = 35;
+  var _fullBankCacheVersion = 38;
   var MIN_CHOICE_OPTIONS = 5;
 
   function dedupeEmojiPickQuestion(q, course) {
@@ -1387,6 +1405,12 @@
       if (global.RNFQuestionGen && RNFQuestionGen.generateAll) {
         _fullBankCache = _fullBankCache.concat(RNFQuestionGen.generateAll());
       }
+      if (global.RNFLiteracyBank && RNFLiteracyBank.BANK) {
+        _fullBankCache = _fullBankCache.concat(RNFLiteracyBank.BANK);
+      }
+      if (global.RNFEnLiteracyBank && RNFEnLiteracyBank.BANK) {
+        _fullBankCache = _fullBankCache.concat(RNFEnLiteracyBank.BANK);
+      }
       _fullBankCache = _fullBankCache.filter(function (q) {
         return validateQuestionIntegrity(q).length === 0;
       });
@@ -1479,22 +1503,38 @@
     return isSpoilerLearnForeignQuestion(q);
   }
 
-  /** 學英語卻出現「用中文寫」、粵語題等錯誤方向題 */
-  function isMisdirectedEnWordBank(q) {
-    if (!q || getLearnTarget() !== "en") return false;
-    if (q.type !== "word_bank") return false;
-    if (isCantoneseQuestion(q)) return true;
+  /** 「用中文排列」等僅適用中文課的 word_bank */
+  function isZhDirectedWordBank(q) {
+    if (!q || q.type !== "word_bank") return false;
+    if (q.variant === "translate_chip") return false;
     var h = q.prompt && q.prompt.hans;
     var t = q.prompt && q.prompt.hant;
-    return (
-      (h && h.indexOf("用中文") >= 0) ||
-      (t && t.indexOf("用中文") >= 0)
-    );
+    var e = q.prompt && q.prompt.en;
+    if ((h && h.indexOf("用中文") >= 0) || (t && t.indexOf("用中文") >= 0)) {
+      return true;
+    }
+    if (e && /in Chinese/i.test(e)) return true;
+    if (e && /Chinese/i.test(e) && /form|arrange|write/i.test(e)) return true;
+    return false;
+  }
+
+  /** 學英語卻出現「用中文寫」、學日語卻出現中文排列題等 */
+  function isMisdirectedWordBank(q, course) {
+    course = course || getLearnTarget();
+    if (!q || q.type !== "word_bank") return false;
+    if (isCantoneseQuestion(q)) return true;
+    if (course !== "zh" && isZhDirectedWordBank(q)) return true;
+    if (course === "en" && isZhDirectedWordBank(q)) return true;
+    return false;
+  }
+
+  function isMisdirectedEnWordBank(q) {
+    return isMisdirectedWordBank(q, "en");
   }
 
   function isMisdirectedEnChipQuestion(q) {
     return (
-      isMisdirectedEnWordBank(q) &&
+      isMisdirectedWordBank(q, "en") &&
       q.variant === "translate_chip"
     );
   }
@@ -1637,7 +1677,7 @@
         if (reviewCourse === "zh" && isCantoneseQuestion(q)) return false;
         if (reviewCourse === "zh" && isCircularZhTextChoice(q)) return false;
         if (isSpoilerTextChoice(q)) return false;
-        if (isMisdirectedEnChipQuestion(q)) return false;
+        if (isMisdirectedWordBank(q, reviewCourse)) return false;
         return questionMatchesCourse(q, reviewCourse);
       });
       while (out.length < size) {
@@ -1661,7 +1701,7 @@
       if (isCantoneseQuestion(q)) return false;
       if (course === "zh" && isCircularZhTextChoice(q)) return false;
       if (isSpoilerTextChoice(q)) return false;
-      if (isMisdirectedEnWordBank(q)) return false;
+      if (isMisdirectedWordBank(q, course)) return false;
       return true;
     });
     if (beginner) {
@@ -1681,7 +1721,7 @@
         if (isCantoneseQuestion(q)) return false;
         if (course === "zh" && isCircularZhTextChoice(q)) return false;
         if (isSpoilerTextChoice(q)) return false;
-        if (isMisdirectedEnWordBank(q)) return false;
+        if (isMisdirectedWordBank(q, course)) return false;
         return true;
       });
       if (beginner) {
@@ -1773,7 +1813,10 @@
     isCantoneseQuestion: isCantoneseQuestion,
     mistakeKey: mistakeKey,
     tField: tField,
+    tTargetField: tTargetField,
     tUiField: tUiField,
+    isMisdirectedWordBank: isMisdirectedWordBank,
+    isZhDirectedWordBank: isZhDirectedWordBank,
     tMatchLabel: tMatchLabel,
     matchSideDisplayText: matchSideDisplayText,
     cueTextForLearnForeign: cueTextForLearnForeign,

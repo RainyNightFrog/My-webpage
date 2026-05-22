@@ -103,7 +103,10 @@
     if (q.type === "match_pairs" && q.prompt) return uiTf(q.prompt);
     if (q.type === "text_choice" && q.prompt) return uiTf(q.prompt);
     if (q.type === "true_false" && q.prompt) return uiTf(q.prompt);
-    return tf(q.prompt);
+    if (q.type === "word_bank" && q.prompt) return uiTf(q.prompt);
+    if (q.type === "fill_pick" && q.prompt) return uiTf(q.prompt);
+    if (q.type === "listen_pick" && q.prompt) return uiTf(q.prompt);
+    return uiTf(q.prompt) || tf(q.prompt);
   }
 
   function isWriteSentenceQuestion(q) {
@@ -1724,8 +1727,13 @@
         : tf(sl);
     }
     if (!q.promptLine) return "";
-    var pl = q.promptLine;
-    return stripAudioPrefix(pl.en || pl.hant || pl.hans || "");
+    return stripAudioPrefix(
+      getLearnCourse() === "zh"
+        ? (global.RNFQuestions && RNFQuestions.tUiField
+            ? RNFQuestions.tUiField(q.promptLine)
+            : tf(q.promptLine))
+        : translatePromptText(q)
+    );
   }
 
   /** 學英語排列句：泡泡不顯示英文全文，只播語音 */
@@ -1790,7 +1798,7 @@
         ? RNFQuestions.tUiField(textObj)
         : tf(textObj);
     }
-    return textObj.en || textObj.hant || textObj.hans || "";
+    return tf(textObj);
   }
 
   PracticeEngine.prototype.renderWriteSentence = function (q) {
