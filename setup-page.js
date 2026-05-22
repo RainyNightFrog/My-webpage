@@ -127,6 +127,9 @@
       updateFooter();
 
       var id = stepIds[stepIndex];
+      if (id === "stepMotiv") {
+        renderMotivPitch();
+      }
       if (id === "stepLoading") {
         loadingTimer = setTimeout(finishCourse, 2400);
       }
@@ -183,6 +186,13 @@
         sessionStorage.removeItem("rnf_setup_flow");
       } catch (e2) {}
       location.href = back;
+    }
+
+    function renderMotivPitch() {
+      var el = document.getElementById("motivPitchText");
+      if (el && AppI18n.pickMotivPitch) {
+        el.textContent = AppI18n.pickMotivPitch();
+      }
     }
 
     function renderAgePrivacy() {
@@ -352,6 +362,9 @@
       AppI18n.applyPage("setup");
       renderAgePrivacy();
       updateFooter();
+      if (stepIds[stepIndex] === "stepMotiv") {
+        renderMotivPitch();
+      }
     });
 
     bindPickers();

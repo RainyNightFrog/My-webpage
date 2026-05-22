@@ -350,6 +350,20 @@
         dailySerious: "好學模式",
         dailyIntense: "密集模式",
         motivPitch: "所以，Rainy Night Frog 讓你邊學邊玩，動力滿滿！",
+        motivPitches: [
+          "所以，Rainy Night Frog 讓你邊學邊玩，動力滿滿！",
+          "每天進步一點點，就是最棒的禮物！",
+          "錯得越多，離流利就越近——繼續加油！",
+          "你已經踏出第一步，堅持下去就贏了！",
+          "學語言像玩遊戲，下一關等著你解鎖！",
+          "十五分鐘的堅持，比天賦更可靠。",
+          "今天的努力，是明天能聽懂的那句問候。",
+          "別怕慢，只怕停——Rainy Night Frog 陪你一路走。",
+          "每選一題，大腦就在升級，超厲害！",
+          "連勝也許會中斷，熱情可以再接上——繼續吧！",
+          "把學習變成習慣，世界會對你更大聲說話。",
+          "相信自己：下一題就是你擅長的那一題！",
+        ],
         loadingText: "載入中…",
         loadingTip:
           "每天 15 分鐘就可以學習一種語言了，花 15 分鐘刷社交網站又能學到什麼呢？",
@@ -419,12 +433,28 @@
         greatJob: "表現很棒，保持節奏！",
         keepGoing: "再練幾輪就會更熟練。",
         matchAllFirst: "請先完成所有配對再檢查。",
-        matchHint: "請配對全部 {n} 組，完成後會自動進入下一題",
+        matchHint: "請配對全部 {n} 組（每組選一左一右），完成後會自動進入下一題",
+        matchResultPerfect: "全部配對正確！太棒了！",
+        matchEncouragePartial: "完成了！對了 {correct} / {total} 組，沒關係，下一題繼續加油！",
+        encourageLines: [
+          "沒事！繼續努力！",
+          "沒關係，下一題會更好！",
+          "已經很接近了，加油！",
+          "別灰心，再來一題！",
+          "一步一步來，你可以的！",
+        ],
+        praiseLines: [
+          "答對了！",
+          "太棒了！",
+          "做得好！",
+          "很棒，保持節奏！",
+        ],
         pickPairs: "選擇配對",
         listenSlow: "慢速播放",
         bubbleHoverHint: "點擊喇叭可重聽；選詞後按檢查",
         listenArrangeHint: "點擊喇叭聽句子，再排列詞語",
         scoreCorrect: "答對",
+        livesRemaining: "剩餘機會",
         reviewReport: "回顧答題成績",
         gradeTitle: "查看你的成績單！",
         gradeHint: "點擊下方方塊，瀏覽每一題的作答結果",
@@ -867,6 +897,20 @@
         dailySerious: "Serious",
         dailyIntense: "Intense",
         motivPitch: "Rainy Night Frog makes learning feel like play—stay motivated!",
+        motivPitches: [
+          "Rainy Night Frog makes learning feel like play—stay motivated!",
+          "A little progress every day adds up to something huge.",
+          "Every mistake is one step closer to fluency—keep going!",
+          "You already took the first step. Stay with it—you've got this.",
+          "Learning a language is like leveling up. Next stage unlocked soon!",
+          "Fifteen minutes of focus beats talent without practice.",
+          "Today's effort is tomorrow's \"I understand!\" moment.",
+          "Don't fear going slow—fear stopping. We're with you.",
+          "Each answer trains your brain. You're doing great.",
+          "Streaks can pause; your curiosity doesn't have to—continue!",
+          "Turn study into a habit, and the world gets easier to talk to.",
+          "Believe it: the next question might be your favorite one yet.",
+        ],
         loadingText: "Loading…",
         loadingTip:
           "Fifteen minutes a day is enough to learn a language. What do you gain from fifteen minutes of scrolling?",
@@ -935,12 +979,28 @@
         greatJob: "Great work—keep it up!",
         keepGoing: "A few more rounds and it'll stick.",
         matchAllFirst: "Match all pairs before checking.",
-        matchHint: "Match all {n} pairs — the next question loads when you finish",
+        matchHint: "Match all {n} pairs (one left + one right each). Next question loads when done.",
+        matchResultPerfect: "Perfect — every pair matched!",
+        matchEncouragePartial: "Done! {correct} / {total} correct. It's okay — keep going on the next one!",
+        encourageLines: [
+          "It's okay! Keep going!",
+          "No worries — next one's yours!",
+          "You're getting closer!",
+          "Don't give up — try the next one!",
+          "Step by step — you've got this!",
+        ],
+        praiseLines: [
+          "Correct!",
+          "Great job!",
+          "Well done!",
+          "Nice — keep it up!",
+        ],
         pickPairs: "Select matching pairs",
         listenSlow: "Play slowly",
         bubbleHoverHint: "Tap the speaker to replay; pick a word, then check",
         listenArrangeHint: "Tap the speaker to hear the sentence, then arrange the words",
         scoreCorrect: "Correct",
+        livesRemaining: "Lives left",
         reviewReport: "Review your answers",
         gradeTitle: "Your report card",
         gradeHint: "Tap a tile below to see each question",
@@ -1864,6 +1924,7 @@
         matchAllFirst: "すべてペアにしてから確認してください。",
         pickPairs: "ペアを選ぶ",
         scoreCorrect: "正解",
+        livesRemaining: "残りチャンス",
         reviewReport: "解答を振り返る",
         gradeTitle: "成績表を見る",
         gradeHint: "下のマスをタップして各問題を確認",
@@ -2165,6 +2226,33 @@
     return format(text, vars);
   }
 
+  function pickMotivPitch() {
+    var lang = getLang();
+    var list = getNested(messages[lang], "flow.motivPitches");
+    if (!list || !list.length) {
+      list = getNested(messages[DEFAULT_LANG], "flow.motivPitches");
+    }
+    if (!list || !list.length) return t("flow.motivPitch");
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function pickEncourageLine(ok) {
+    var lang = getLang();
+    var list = getNested(messages[lang], ok ? "flow.praiseLines" : "flow.encourageLines");
+    if (!list || !list.length) {
+      list = getNested(messages[DEFAULT_LANG], ok ? "flow.praiseLines" : "flow.encourageLines");
+    }
+    if (!list || !list.length) {
+      return ok ? t("flow.correctFbShort") : t("flow.wrongEncourage");
+    }
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function matchEncourageMessage(correct, total) {
+    if (correct >= total) return t("flow.matchResultPerfect");
+    return t("flow.matchEncouragePartial", { correct: correct, total: total });
+  }
+
   function getGrammarPrompt(lang) {
     lang = lang || getLang();
     var cfg = grammarConfig[lang] || grammarConfig[DEFAULT_LANG];
@@ -2352,6 +2440,9 @@
     setLangFromLearn: setLangFromLearn,
     learnLangMap: learnLangMap,
     t: t,
+    pickMotivPitch: pickMotivPitch,
+    pickEncourageLine: pickEncourageLine,
+    matchEncourageMessage: matchEncourageMessage,
     format: format,
     getGrammarPrompt: getGrammarPrompt,
     getGrammarConfig: getGrammarConfig,

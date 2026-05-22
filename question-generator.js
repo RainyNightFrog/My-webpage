@@ -73,7 +73,7 @@
       { foreign: "愛してる", meaning: L("我愛你", "我爱你", "I love you"), emoji: "❤️", icon: "love" },
       { foreign: "お腹すいた", meaning: L("我餓了", "我饿了", "hungry"), emoji: "🍽️", icon: "hungry" },
       { foreign: "疲れた", meaning: L("我累了", "我累了", "tired"), emoji: "😴", icon: "tired" },
-      { foreign: "さようなら", meaning: L("再見", "再见", "goodbye"), emoji: "👋", icon: "bye" },
+      { foreign: "さようなら", meaning: L("再見", "再见", "goodbye"), emoji: "🫡", icon: "bye" },
     ],
     en: [
       { foreign: "hello", meaning: L("你好", "你好", "hello"), emoji: "👋", icon: "hello" },
@@ -96,13 +96,13 @@
       { foreign: "how much", meaning: L("多少錢", "多少钱", "how much"), emoji: "💰", icon: "price" },
       { foreign: "restroom", meaning: L("洗手間", "洗手间", "restroom"), emoji: "🚻", icon: "restroom" },
       { foreign: "subway", meaning: L("地鐵", "地铁", "subway"), emoji: "🚇", icon: "metro" },
-      { foreign: "goodbye", meaning: L("再見", "再见", "goodbye"), emoji: "👋", icon: "bye" },
+      { foreign: "goodbye", meaning: L("再見", "再见", "goodbye"), emoji: "🫡", icon: "bye" },
       { foreign: "yes", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "no", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
       { foreign: "family", meaning: L("家人", "家人", "family"), emoji: "👨‍👩‍👧", icon: "family" },
       { foreign: "frog", meaning: L("青蛙", "青蛙", "frog"), emoji: "🐸", icon: "frog" },
       { foreign: "night", meaning: L("夜晚", "夜晚", "night"), emoji: "🌙", icon: "night" },
-      { foreign: "library", meaning: L("圖書館", "图书馆", "library"), emoji: "📚", icon: "library" },
+      { foreign: "library", meaning: L("圖書館", "图书馆", "library"), emoji: "🏛️", icon: "library" },
       { foreign: "hospital", meaning: L("醫院", "医院", "hospital"), emoji: "🏥", icon: "hospital" },
     ],
     es: [
@@ -124,12 +124,12 @@
       { foreign: "delicioso", meaning: L("好吃", "好吃", "delicious"), emoji: "😋", icon: "yummy" },
       { foreign: "¿cuánto cuesta?", meaning: L("多少錢？", "多少钱？", "how much?"), emoji: "💰", icon: "price" },
       { foreign: "baño", meaning: L("洗手間", "洗手间", "restroom"), emoji: "🚻", icon: "restroom" },
-      { foreign: "adiós", meaning: L("再見", "再见", "goodbye"), emoji: "👋", icon: "bye" },
+      { foreign: "adiós", meaning: L("再見", "再见", "goodbye"), emoji: "🫡", icon: "bye" },
       { foreign: "sí", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "no", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
       { foreign: "familia", meaning: L("家人", "家人", "family"), emoji: "👨‍👩‍👧", icon: "family" },
       { foreign: "casa", meaning: L("房子", "房子", "house"), emoji: "🏠", icon: "house" },
-      { foreign: "perro", meaning: L("狗", "狗", "dog"), emoji: "🐶", icon: "dog2" },
+      { foreign: "noche", meaning: L("夜晚", "夜晚", "night"), emoji: "🌙", icon: "night" },
     ],
     fr: [
       { foreign: "bonjour", meaning: L("你好", "你好", "hello"), emoji: "👋", icon: "hello" },
@@ -143,7 +143,7 @@
       { foreign: "chat", meaning: L("貓", "猫", "cat"), emoji: "🐱", icon: "cat" },
       { foreign: "chien", meaning: L("狗", "狗", "dog"), emoji: "🐶", icon: "dog" },
       { foreign: "livre", meaning: L("書", "书", "book"), emoji: "📚", icon: "book" },
-      { foreign: "au revoir", meaning: L("再見", "再见", "goodbye"), emoji: "👋", icon: "bye" },
+      { foreign: "au revoir", meaning: L("再見", "再见", "goodbye"), emoji: "🫡", icon: "bye" },
       { foreign: "oui", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "non", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
       { foreign: "famille", meaning: L("家人", "家人", "family"), emoji: "👨‍👩‍👧", icon: "family" },
@@ -162,7 +162,7 @@
       { foreign: "Katze", meaning: L("貓", "猫", "cat"), emoji: "🐱", icon: "cat" },
       { foreign: "Hund", meaning: L("狗", "狗", "dog"), emoji: "🐶", icon: "dog" },
       { foreign: "Buch", meaning: L("書", "书", "book"), emoji: "📚", icon: "book" },
-      { foreign: "Tschüss", meaning: L("再見", "再见", "bye"), emoji: "👋", icon: "bye" },
+      { foreign: "Tschüss", meaning: L("再見", "再见", "bye"), emoji: "🫡", icon: "bye" },
       { foreign: "Ja", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "Nein", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
       { foreign: "Familie", meaning: L("家人", "家人", "family"), emoji: "👨‍👩‍👧", icon: "family" },
@@ -180,7 +180,7 @@
       { foreign: "gatto", meaning: L("貓", "猫", "cat"), emoji: "🐱", icon: "cat" },
       { foreign: "cane", meaning: L("狗", "狗", "dog"), emoji: "🐶", icon: "dog" },
       { foreign: "libro", meaning: L("書", "书", "book"), emoji: "📚", icon: "book" },
-      { foreign: "arrivederci", meaning: L("再見", "再见", "goodbye"), emoji: "👋", icon: "bye" },
+      { foreign: "arrivederci", meaning: L("再見", "再见", "goodbye"), emoji: "🫡", icon: "bye" },
       { foreign: "sì", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "no", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
     ],
@@ -196,7 +196,7 @@
       { foreign: "gato", meaning: L("貓", "猫", "cat"), emoji: "🐱", icon: "cat" },
       { foreign: "cachorro", meaning: L("狗", "狗", "dog"), emoji: "🐶", icon: "dog" },
       { foreign: "livro", meaning: L("書", "书", "book"), emoji: "📚", icon: "book" },
-      { foreign: "tchau", meaning: L("再見", "再见", "bye"), emoji: "👋", icon: "bye" },
+      { foreign: "tchau", meaning: L("再見", "再见", "bye"), emoji: "🫡", icon: "bye" },
       { foreign: "sim", meaning: L("是", "是", "yes"), emoji: "✅", icon: "yes" },
       { foreign: "não", meaning: L("不是", "不是", "no"), emoji: "❌", icon: "no" },
     ],
@@ -271,15 +271,58 @@
   }
 
   function pickOther(items, exclude, n) {
-    var pool = items.filter(function (x) {
-      return x.icon !== exclude.icon;
-    });
+    var usedEmoji = {};
+    usedEmoji[exclude.emoji || ""] = true;
     var out = [];
+    var pool = items.filter(function (x) {
+      return x && x.icon !== exclude.icon;
+    });
     while (out.length < n && pool.length) {
-      var i = Math.floor(Math.random() * pool.length);
-      out.push(pool.splice(i, 1)[0]);
+      var candidates = pool.filter(function (x) {
+        return !usedEmoji[x.emoji || ""];
+      });
+      if (!candidates.length) break;
+      var pick = candidates[Math.floor(Math.random() * candidates.length)];
+      usedEmoji[pick.emoji || ""] = true;
+      out.push(pick);
+      pool = pool.filter(function (x) {
+        return x.icon !== pick.icon;
+      });
     }
     return out;
+  }
+
+  function ensureUniqueEmojiOptions(options, all, course, correctItem) {
+    var seen = {};
+    var kept = [];
+    var correctOpt = null;
+    options.forEach(function (o) {
+      if (o && o.correct) correctOpt = o;
+    });
+    function tryPush(o) {
+      if (!o) return;
+      var em = o.emoji || "";
+      if (!em || seen[em]) return;
+      seen[em] = true;
+      kept.push(o);
+    }
+    if (correctOpt) tryPush(correctOpt);
+    options.forEach(function (o) {
+      if (o && !o.correct) tryPush(o);
+    });
+    var vocab = all || [];
+    var tries = 0;
+    while (kept.length < EXTRA_CHOICES + 1 && tries < vocab.length * 2) {
+      tries += 1;
+      var it = vocab[Math.floor(Math.random() * vocab.length)];
+      if (!it || it.icon === correctItem.icon || seen[it.emoji || ""]) continue;
+      tryPush({
+        emoji: it.emoji || "❓",
+        cardArt: it.icon,
+        label: emojiOptionLabel(course, it),
+      });
+    }
+    return kept;
   }
 
   function buildMeaningOptions(correctItem, wrongItems) {
@@ -358,6 +401,7 @@
     var options = [
       {
         emoji: item.emoji,
+        cardArt: item.icon,
         label: emojiOptionLabel(course, item),
         correct: true,
       },
@@ -366,9 +410,11 @@
       if (!w) return;
       options.push({
         emoji: w.emoji || "❓",
+        cardArt: w.icon,
         label: emojiOptionLabel(course, w),
       });
     });
+    options = ensureUniqueEmojiOptions(options, all, course, item);
     return {
       id: nextId(course + "_ep"),
       type: "emoji_pick",
@@ -549,7 +595,8 @@
                 en: "Pick the correct Chinese word",
               },
         promptLine: promptLine,
-        speakLine: chineseCue(item),
+        speakLine: englishCue(item),
+        speakLang: "en-US",
         words: words,
         answer: [wOk],
       };

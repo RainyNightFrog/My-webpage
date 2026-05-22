@@ -49,6 +49,20 @@
     return uiIsZhHans() ? t("flow.wrongEncourageHans") : t("flow.wrongEncourage");
   }
 
+  function pickEncourageLine(ok) {
+    if (global.AppI18n && AppI18n.pickEncourageLine) {
+      return AppI18n.pickEncourageLine(ok);
+    }
+    return ok ? t("flow.correctFbShort") : wrongEncourageText();
+  }
+
+  function matchEncourageMessage(correct, total) {
+    if (global.AppI18n && AppI18n.matchEncourageMessage) {
+      return AppI18n.matchEncourageMessage(correct, total);
+    }
+    return wrongEncourageText();
+  }
+
   function lastChanceWarningText() {
     return uiIsZhHans() ? t("flow.lastChanceWarningHans") : t("flow.lastChanceWarning");
   }
@@ -79,6 +93,16 @@
 
   function writeSentencePrompt() {
     return uiIsZhHans() ? t("flow.writeSentenceHans") : t("flow.writeSentence");
+  }
+
+  function promptTextForQuestion(q) {
+    if (!q) return "";
+    if (q.type === "translate_choice") return pickCorrectPrompt();
+    if (isWriteSentenceQuestion(q)) return writeSentencePrompt();
+    if (isTranslateChipQuestion(q)) return uiTf(q.prompt);
+    if (q.type === "match_pairs" && q.prompt) return uiTf(q.prompt);
+    if (q.type === "text_choice" && q.prompt) return uiTf(q.prompt);
+    return tf(q.prompt);
   }
 
   function isWriteSentenceQuestion(q) {
@@ -501,11 +525,15 @@
       saveHearts(capped);
       return capped;
     }
-    if (mode === "normal") {
+    if (mode === "normal" || mode === "review") {
       saveHearts(MAX_HEARTS);
       return MAX_HEARTS;
     }
     return loadHearts();
+  }
+
+  function refillHeartsForNewLesson(mode) {
+    return initLessonHearts(mode || "normal");
   }
 
   function profileStorageKey() {
@@ -794,7 +822,7 @@
       '<span class="lc-lesson-result-icon ok" aria-hidden="true">✓</span>' +
       '<div class="lc-lesson-result-text">' +
       '<p class="lc-lesson-result-praise">' +
-      getTranslateCorrectPraise(q) +
+      (getTranslateCorrectPraise(q) || pickEncourageLine(true)) +
       "</p>" +
       '<button type="button" class="lc-lesson-result-report">' +
       "🚩 " +
@@ -1107,7 +1135,7 @@
       '<div class="lc-lesson-encourage-duo">' +
       '<div class="lc-lesson-encourage-mascot" data-frog-logo aria-hidden="true"></div>' +
       '<div class="lc-lesson-encourage-bubble">' +
-      wrongEncourageText() +
+      pickEncourageLine(false) +
       "</div></div>" +
       '<button type="button" class="lc-btn-primary lc-lesson-result-cta lc-lesson-result-cta--green" id="btnAction">' +
       t("flow.continue") +
@@ -1230,17 +1258,7 @@
           }) +
           "</p>"
         : "";
-    var promptText = isTranslate
-      ? pickCorrectPrompt()
-      : isWriteSentence
-        ? writeSentencePrompt()
-        : isTranslateChip
-          ? uiTf(q.prompt)
-          : q.type === "match_pairs" && q.prompt
-            ? uiTf(q.prompt)
-            : q.type === "text_choice" && q.prompt
-              ? uiTf(q.prompt)
-              : tf(q.prompt);
+    var promptText = promptTextForQuestion(q);
 
     var html =
       '<div class="lc-step active' +
@@ -1253,7 +1271,11 @@
       '">' +
       counter +
       badge;
-    var headerSpeak = !isTranslate && !isListenPick && questionSpeakText(q);
+    var headerSpeak =
+      !isTranslate &&
+      !isListenPick &&
+      !isTranslateChip &&
+      questionSpeakText(q);
     if (headerSpeak) {
       html +=
         '<p class="lc-quiz-q lc-quiz-q--speak">' +
@@ -1295,7 +1317,101 @@
     this.maybeAutoSpeak(q);
   };
 
+  /** 切換網站語言：只更新介面文案，不重抽題目、不重置進度 */
+  PracticeEngine.prototype.refreshLocale = function () {
+    var q = this.current();
+    if (!q || !this.root) return;
+    var step = this.root.querySelector(".lc-step[data-qid]");
+    if (!step || step.getAttribute("data-qid") !== q.id) return;
+
+    var promptEl = this.root.querySelector(".lc-quiz-q");
+    if (promptEl) {
+      var speakBtn = promptEl.querySelector(".lc-quiz-speak");
+      var text = promptTextForQuestion(q);
+      if (speakBtn) {
+        promptEl.textContent = text;
+        promptEl.appendChild(speakBtn);
+        speakBtn.setAttribute("aria-label", t("flow.guidePlayAudio"));
+      } else {
+        promptEl.textContent = text;
+      }
+    }
+
+    var counter = this.root.querySelector(".lc-q-counter");
+    if (counter) {
+      counter.textContent = t("flow.questionOf", {
+        current: this.state.index + 1,
+        total: this.state.queue.length,
+      });
+    }
+
+    var badge = this.root.querySelector(".lc-quiz-badge");
+    if (badge && q.badge) {
+      badge.textContent = "✨ " + badgeLabel(q.badge);
+    }
+
+    var audioHint = this.root.querySelector(".lc-bubble-audio-hint");
+    if (audioHint) audioHint.textContent = t("flow.listenArrangeHint");
+
+    var bubbleHint = this.root.querySelector(".lc-bubble-hint");
+    if (bubbleHint) bubbleHint.textContent = t("flow.bubbleHoverHint");
+
+    if (q.type === "translate_choice") {
+      var trLine = this.root.querySelector(".lc-guide-translate .lc-bubble-line");
+      if (trLine) trLine.textContent = translatePromptText(q);
+    }
+
+    if (q.type === "text_choice") {
+      var cueLine = this.root.querySelector(".lc-guide-text .lc-bubble-line");
+      if (cueLine) {
+        var cue = textChoiceBubbleText(q);
+        if (cue) cueLine.textContent = cue;
+      }
+    }
+
+    if (q.type === "word_bank" && !isTranslateChipQuestion(q)) {
+      var wbLine = this.root.querySelector(".lc-guide-write .lc-bubble-line");
+      if (wbLine) {
+        wbLine.textContent =
+          getLearnCourse() === "zh"
+            ? global.RNFQuestions && RNFQuestions.tUiField
+              ? RNFQuestions.tUiField(q.promptLine)
+              : tf(q.promptLine)
+            : translatePromptText(q);
+      }
+    }
+
+    if (q.type === "match_pairs") {
+      var matchHint = this.root.querySelector(".lc-match-hint");
+      if (matchHint) {
+        matchHint.textContent = t("flow.matchHint", { n: q.pairs.length });
+      }
+    }
+
+    if (q.type === "listen_pick") {
+      var slowBtn = this.root.querySelector(".lc-listen-btn--slow");
+      if (slowBtn) slowBtn.setAttribute("aria-label", t("flow.listenSlow"));
+    }
+
+    this.root.querySelectorAll(".lc-bubble-speak, .lc-quiz-speak, .lc-listen-btn--main").forEach(
+      function (btn) {
+        btn.setAttribute("aria-label", t("flow.guidePlayAudio"));
+      }
+    );
+
+    if (this.btnAction && !this._footerBar) {
+      var label = this.state.checked ? t("flow.continue") : t("flow.check");
+      this.setAction(!this.btnAction.disabled, label);
+    }
+  };
+
   PracticeEngine.prototype.renderEmojiPick = function (q) {
+    if (RNFQuestions.dedupeEmojiPickQuestion) {
+      try {
+        var epCourse = sessionStorage.getItem("learn_target") || "en";
+        q = RNFQuestions.dedupeEmojiPickQuestion(q, epCourse);
+      } catch (e) {}
+    }
     var opts = RNFQuestions.shuffle(q.options);
     var html = '<div class="lc-pick-grid lc-pick-grid--vivid lc-pick-grid--icon-only">';
     opts.forEach(function (opt, i) {
@@ -1453,7 +1569,8 @@
 
     this._matchState = {
       total: q.pairs.length,
-      matched: {},
+      correctCount: 0,
+      pairsDone: 0,
       pendingLeft: null,
       pendingRight: null,
     };
@@ -1556,10 +1673,17 @@
 
   function wordBankSpeakText(q) {
     if (!q) return "";
+    if (shouldSpeakKeyForeignOnly(q)) {
+      var kw = keyForeignFromQuestion(q);
+      if (kw) return kw;
+    }
     if (q.speakLine) {
       var sl = q.speakLine;
       if (getLearnCourse() !== "zh") {
         return stripAudioPrefix(sl.en || sl.hant || sl.hans || "");
+      }
+      if (sl.en && /^[A-Za-z0-9]/.test(sl.en) && sl.en === sl.hant && sl.en === sl.hans) {
+        return stripAudioPrefix(sl.en);
       }
       return global.RNFQuestions && RNFQuestions.tUiField
         ? RNFQuestions.tUiField(sl)
@@ -1680,10 +1804,78 @@
   function quotedFromPrompt(q, useUiPrompt) {
     var prompt = useUiPrompt ? uiTf(q.prompt) : tf(q.prompt);
     if (!prompt) return "";
-    var m = prompt.match(/[「『]([^」』]+)[」』]/);
-    if (m) return m[1];
-    m = prompt.match(/['"]([^'"]+)['"]/);
-    return m ? m[1] : "";
+    return extractQuotedKeyword(prompt);
+  }
+
+  function extractQuotedKeyword(text) {
+    if (!text) return "";
+    var m = text.match(/[「『]([^」』]+)[」』]/);
+    if (m) return m[1].trim();
+    m = text.match(/['"]([^'"]+)['"]/);
+    return m ? m[1].trim() : "";
+  }
+
+  function promptLineDisplayText(q) {
+    if (!q || !q.promptLine) return "";
+    var pl = q.promptLine;
+    if (typeof pl === "string") return pl;
+    var course = getLearnCourse();
+    if (course === "zh") {
+      return (
+        tf({ hant: pl.hant, hans: pl.hans, en: pl.hant }) ||
+        tf({ hant: pl.hans, hans: pl.hans, en: pl.hans }) ||
+        tf(pl)
+      );
+    }
+    if (global.RNFQuestions && RNFQuestions.cueTextForLearnForeign) {
+      return RNFQuestions.cueTextForLearnForeign(pl);
+    }
+    return pl.hans || pl.hant || pl.en || "";
+  }
+
+  /** 題幹裡夾英文提示（如 意思是「moon」的詞）→ 只朗讀引號內英文 */
+  function keyForeignFromQuestion(q) {
+    if (!q) return "";
+    if (q.speakLine && q.speakLine.en) {
+      var enOnly = (q.speakLine.en || "").trim();
+      var hant = (q.speakLine.hant || "").trim();
+      var hans = (q.speakLine.hans || "").trim();
+      if (
+        enOnly &&
+        /^[A-Za-z0-9]/.test(enOnly) &&
+        enOnly === hant &&
+        enOnly === hans
+      ) {
+        return enOnly;
+      }
+    }
+    var disp = "";
+    if (q.bubbleLine) {
+      disp =
+        global.RNFQuestions && RNFQuestions.tUiField
+          ? RNFQuestions.tUiField(q.bubbleLine)
+          : tf(q.bubbleLine);
+    } else if (q.promptLine) {
+      disp = promptLineDisplayText(q);
+    }
+    if (!disp && q.prompt) {
+      disp = uiTf(q.prompt) || tf(q.prompt);
+    }
+    var kw = extractQuotedKeyword(disp);
+    if (kw) return kw;
+    if (q.promptLine && q.promptLine.en && /^[A-Za-z]/.test(q.promptLine.en)) {
+      return q.promptLine.en.trim();
+    }
+    return "";
+  }
+
+  function shouldSpeakKeyForeignOnly(q) {
+    if (!q || getLearnCourse() !== "zh") return false;
+    if (isTranslateChipQuestion(q)) return true;
+    if (q.type === "text_choice" || q.type === "fill_pick") {
+      return !!keyForeignFromQuestion(q);
+    }
+    return false;
   }
 
   /** 選詞題泡泡：學英語時只顯示中文詞，不從英文題幹抽出 goodbye 等答案 */
@@ -1712,6 +1904,10 @@
 
   function textChoiceSpeakText(q) {
     if (!q || q.type !== "text_choice") return "";
+    if (shouldSpeakKeyForeignOnly(q)) {
+      var kw = keyForeignFromQuestion(q);
+      if (kw) return kw;
+    }
     if (q.speakLine && getLearnCourse() !== "zh") {
       return translatePromptText({ promptLine: q.speakLine });
     }
@@ -1721,6 +1917,10 @@
 
   function questionSpeakText(q) {
     if (!q) return "";
+    if (shouldSpeakKeyForeignOnly(q)) {
+      var key = keyForeignFromQuestion(q);
+      if (key) return key;
+    }
     if (q.type === "listen_pick" && q.audioText) return tf(q.audioText);
     if (q.type === "text_choice") return textChoiceSpeakText(q);
     if (isTranslateChipQuestion(q)) return translatePromptText(q);
@@ -1752,6 +1952,9 @@
 
   function questionSpeakLang(q) {
     var course = getLearnCourse();
+    if (shouldSpeakKeyForeignOnly(q) && keyForeignFromQuestion(q)) {
+      return q.speakLang || "en-US";
+    }
     if (
       course !== "zh" &&
       q &&
@@ -1970,12 +2173,8 @@
     var st = this._matchState;
     if (!st) return;
 
-    function matchedCount() {
-      return Object.keys(st.matched).length;
-    }
-
     function updateCheckEnabled() {
-      self.setAction(matchedCount() === st.total);
+      self.setAction(st.pairsDone >= st.total);
     }
 
     function clearPending() {
@@ -1986,61 +2185,54 @@
       });
     }
 
-    function settleMatched(leftEl, rightEl, pairId) {
-      st.matched[pairId] = true;
+    function maybeFinishRound() {
+      if (st.pairsDone < st.total || self.state.checked) return;
+      window.setTimeout(function () {
+        if (!self._matchState || self.state.checked || st.pairsDone < st.total) {
+          return;
+        }
+        self.finishMatchPairsRound(q);
+      }, 650);
+    }
+
+    function lockPair(leftEl, rightEl, correct) {
+      st.pairsDone += 1;
+      if (correct) st.correctCount += 1;
       [leftEl, rightEl].forEach(function (el) {
-        el.classList.remove("match-glow", "pending");
+        el.classList.remove("match-glow", "pending", "wrong-pick");
         el.classList.add("matched");
+        if (!correct) el.classList.add("matched-wrong");
       });
+      clearPending();
       updateCheckEnabled();
-      if (matchedCount() === st.total && !self.state.checked) {
-        window.setTimeout(function () {
-          if (
-            self.state.checked ||
-            !self._matchState ||
-            matchedCount() !== st.total
-          ) {
-            return;
-          }
-          self.checkAnswer();
-        }, 550);
-      }
+      maybeFinishRound();
     }
 
     function tryPair() {
       if (!st.pendingLeft || !st.pendingRight) return;
+      var leftEl = st.pendingLeft.el;
+      var rightEl = st.pendingRight.el;
       var ok = st.pendingLeft.pairId === st.pendingRight.pairId;
+      st.pendingLeft = null;
+      st.pendingRight = null;
       if (ok) {
-        var leftEl = st.pendingLeft.el;
-        var rightEl = st.pendingRight.el;
-        var pairId = st.pendingLeft.pairId;
-        st.pendingLeft = null;
-        st.pendingRight = null;
         [leftEl, rightEl].forEach(function (el) {
           el.classList.remove("pending");
           el.classList.add("match-glow");
         });
-        settleMatched(leftEl, rightEl, pairId);
         setTimeout(function () {
           [leftEl, rightEl].forEach(function (el) {
             el.classList.remove("match-glow");
           });
-        }, 520);
+          lockPair(leftEl, rightEl, true);
+        }, 420);
         return;
       }
-      st.pendingLeft.el.classList.add("wrong-pick");
-      st.pendingRight.el.classList.add("wrong-pick");
+      leftEl.classList.add("wrong-pick");
+      rightEl.classList.add("wrong-pick");
       setTimeout(function () {
-        if (st.pendingLeft && st.pendingLeft.el) {
-          st.pendingLeft.el.classList.remove("wrong-pick", "pending");
-        }
-        if (st.pendingRight && st.pendingRight.el) {
-          st.pendingRight.el.classList.remove("wrong-pick", "pending");
-        }
-        clearPending();
-      }, 450);
-      st.pendingLeft = null;
-      st.pendingRight = null;
+        lockPair(leftEl, rightEl, false);
+      }, 480);
     }
 
     this.root.querySelectorAll(".lc-match-btn").forEach(function (btn) {
@@ -2126,10 +2318,83 @@
     });
   };
 
+  PracticeEngine.prototype.finishMatchPairsRound = function (q) {
+    if (!q || this.state.checked || !this._matchState) return;
+    var st = this._matchState;
+    var ok = st.correctCount === st.total;
+
+    this.state.checked = true;
+    this.state.answered += 1;
+    if (ok) {
+      this.state.correct += 1;
+      this.state.streak += 1;
+      this.state.xp += XP_PER_CORRECT + (this.state.streak >= 3 ? XP_STREAK_BONUS : 0);
+      removeMistake(q);
+    } else {
+      this.state.streak = 0;
+      saveMistake(q);
+      if (this.state.lives > 0) this.state.lives -= 1;
+      saveHearts(this.state.lives);
+      if (global.document && document.dispatchEvent) {
+        document.dispatchEvent(new CustomEvent("lc:heartschange"));
+      }
+    }
+
+    this.recordResult(q, ok, false);
+    this.publishScore(ok);
+
+    this.root.querySelectorAll(".lc-match-btn").forEach(function (b) {
+      b.disabled = true;
+    });
+
+    if (!ok && this.state.mode === "jump" && this.state.lives <= 0) {
+      this.renderJumpTestFail();
+      return;
+    }
+
+    this.showMatchResultFooter(ok, st.correctCount, st.total);
+  };
+
+  PracticeEngine.prototype.showMatchResultFooter = function (ok, correctN, totalN) {
+    if (ok) {
+      this.showTranslateCorrectFooter(this.current());
+      return;
+    }
+    var self = this;
+    var bar = this._footerBar || document.querySelector(".lc-footer-bar");
+    if (!bar) return;
+
+    document.body.classList.remove("lc-lesson-result-correct");
+    document.body.classList.add("lc-lesson-result-encourage");
+    bar.classList.add("lc-footer-bar--result");
+
+    bar.innerHTML =
+      '<div class="lc-lesson-result-bar lc-lesson-result-bar--encourage">' +
+      '<div class="lc-lesson-encourage-duo">' +
+      '<div class="lc-lesson-encourage-mascot" data-frog-logo aria-hidden="true"></div>' +
+      '<div class="lc-lesson-encourage-bubble">' +
+      matchEncourageMessage(correctN, totalN) +
+      "</div></div>" +
+      '<button type="button" class="lc-btn-primary lc-lesson-result-cta lc-lesson-result-cta--green" id="btnAction">' +
+      t("flow.continue") +
+      "</button></div>";
+
+    if (global.RNFFrogLogo) RNFFrogLogo.mount(bar);
+
+    this.btnAction = document.getElementById("btnAction");
+    this.btnSkip = null;
+    if (this.btnAction) {
+      this.btnAction.onclick = function () {
+        document.body.classList.remove("lc-lesson-result-encourage");
+        self.advance();
+      };
+    }
+  };
+
   PracticeEngine.prototype.isCorrect = function (q) {
     if (q.type === "match_pairs") {
       if (!this._matchState) return false;
-      return Object.keys(this._matchState.matched).length === this._matchState.total;
+      return this._matchState.correctCount === this._matchState.total;
     }
     if (q.type === "word_bank") {
       if (this._bankOrder.length !== q.answer.length) return false;
@@ -2155,10 +2420,13 @@
         return;
       }
     } else if (q.type === "match_pairs") {
-      if (!this.isCorrect(q)) {
+      if (!this._matchState || this._matchState.pairsDone < this._matchState.total) {
         alert(t("flow.matchAllFirst"));
         return;
       }
+      if (this.state.checked) return;
+      this.finishMatchPairsRound(q);
+      return;
     } else if (!this._selection) {
       alert(t("flow.pickOption"));
       return;
@@ -2298,10 +2566,6 @@
     if (!ok && q.type !== "word_bank" && q.type !== "match_pairs") {
       this.root.querySelectorAll("[data-correct]").forEach(function (b) {
         b.classList.add("correct-pick");
-      });
-    } else if (q.type === "match_pairs" && !ok) {
-      self.root.querySelectorAll(".lc-match-btn:not(.matched)").forEach(function (b) {
-        b.classList.add("wrong-pick");
       });
     }
 

@@ -1259,28 +1259,28 @@
     if (fill) fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
   }
 
-  function initScoreWidget(total) {
+  function initScoreWidget(total, livesOverride) {
     var dots = document.getElementById("energyDots");
-    var lessonHearts =
+    var lessonPage =
       document.body && document.body.classList.contains("lc-lesson-page");
-    if (dots && !dots.children.length) {
-      dots.classList.toggle("lc-lesson-hearts", lessonHearts);
-      for (var i = 0; i < 5; i++) {
-        var pip = document.createElement("span");
-        if (lessonHearts) {
-          pip.className = "lc-lesson-heart on";
-          pip.textContent = "❤️";
-          pip.setAttribute("aria-hidden", "true");
-        } else {
+    if (dots) {
+      dots.classList.remove("lc-lesson-hearts");
+      if (!dots.querySelector(".lc-energy-pip")) {
+        dots.innerHTML = "";
+        for (var i = 0; i < 5; i++) {
+          var pip = document.createElement("span");
           pip.className = "lc-energy-pip on";
+          pip.setAttribute("aria-hidden", "true");
+          dots.appendChild(pip);
         }
-        dots.appendChild(pip);
       }
     }
     var lives = 5;
-    if (lessonHearts) {
-      var stats = getLearnStats();
-      lives = stats.hearts;
+    if (lessonPage) {
+      lives =
+        livesOverride != null && livesOverride !== undefined
+          ? livesOverride
+          : getLearnStats().hearts;
     }
     updateScoreDisplay({ correct: 0, total: total || 10, lives: lives });
   }
@@ -1294,20 +1294,23 @@
     if (totalEl && stats.total != null) totalEl.textContent = String(stats.total);
     var dots = document.getElementById("energyDots");
     if (dots && stats.lives != null) {
-      var hearts = dots.querySelectorAll(".lc-lesson-heart");
-      if (hearts.length) {
-        for (var h = 0; h < hearts.length; h++) {
-          hearts[h].classList.toggle("on", h < stats.lives);
-          hearts[h].classList.toggle("off", h >= stats.lives);
-        }
-      } else {
-        var pips = dots.querySelectorAll(".lc-energy-pip");
-        if (!pips.length) initScoreWidget(stats.total);
+      var pips = dots.querySelectorAll(".lc-energy-pip");
+      if (!pips.length) {
+        initScoreWidget(stats.total, stats.lives);
         pips = dots.querySelectorAll(".lc-energy-pip");
-        for (var i = 0; i < pips.length; i++) {
-          pips[i].classList.toggle("on", i < stats.lives);
-        }
       }
+      for (var i = 0; i < pips.length; i++) {
+        pips[i].classList.toggle("on", i < stats.lives);
+        pips[i].classList.toggle("off", i >= stats.lives);
+      }
+      var livesN = Math.max(0, Math.min(5, stats.lives));
+      dots.setAttribute(
+        "aria-label",
+        (global.AppI18n ? AppI18n.t("flow.livesRemaining") : "Lives") +
+          ": " +
+          livesN +
+          "/5"
+      );
     }
     if (stats.bump) {
       root.classList.remove("lc-score-bump");

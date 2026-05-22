@@ -504,22 +504,6 @@
       ],
     },
     {
-      id: "q021",
-      type: "text_choice",
-      badge: "grammar",
-      level: "beginner",
-      courses: ["en"],
-      prompt: { hant: "哪個形容詞可修飾「frog」？", hans: "哪个形容词可修饰「frog」？", en: "Which adjective fits frog?" },
-      promptLine: { hant: "青蛙", hans: "青蛙", en: "frog" },
-      speakLine: { hant: "青蛙", hans: "青蛙", en: "frog" },
-      speakLang: "zh-CN",
-      options: [
-        { label: { hant: "rainy", hans: "rainy", en: "rainy" }, correct: true },
-        { label: { hant: "rain", hans: "rain", en: "rain" } },
-        { label: { hant: "raining", hans: "raining", en: "raining" } },
-      ],
-    },
-    {
       id: "q022",
       type: "true_false",
       badge: "daily",
@@ -792,9 +776,72 @@
     return null;
   }
 
+  function matchSideDisplayText(pair, course, side) {
+    if (!pair) return "";
+    if (course === "zh") {
+      return side === "left" ? tField(pair.left) : tField(pair.right);
+    }
+    if (side === "left") {
+      return pair.left.hant || pair.left.en || pair.left.hans || "";
+    }
+    return tMatchLabel(pair.right, course, "right");
+  }
+
+  function pickUniqueVocabForMatch(list, course, count) {
+    var shuffled = shuffle(list.slice());
+    var picked = [];
+    var usedIcon = {};
+    var usedLeft = {};
+    var usedRight = {};
+    var i;
+    for (i = 0; i < shuffled.length && picked.length < count; i++) {
+      var item = shuffled[i];
+      if (!item || !item.icon || usedIcon[item.icon]) continue;
+      var leftKey =
+        course === "zh"
+          ? tField(item.meaning)
+          : (item.foreign || "").toLowerCase();
+      var rightKey =
+        course === "zh"
+          ? (item.foreign || "").toLowerCase()
+          : tField(item.meaning);
+      if (!leftKey || !rightKey || usedLeft[leftKey] || usedRight[rightKey]) {
+        continue;
+      }
+      usedIcon[item.icon] = true;
+      usedLeft[leftKey] = true;
+      usedRight[rightKey] = true;
+      picked.push(item);
+    }
+    return picked;
+  }
+
+  function dedupeMatchPairs(pairs, course) {
+    if (!pairs || !pairs.length) return [];
+    var out = [];
+    var usedLeft = {};
+    var usedRight = {};
+    var usedPairId = {};
+    pairs.forEach(function (pair) {
+      if (!pair) return;
+      var pid = pair.pairId || "";
+      var lk = matchSideDisplayText(pair, course, "left").toLowerCase();
+      var rk = matchSideDisplayText(pair, course, "right").toLowerCase();
+      if (!lk || !rk) return;
+      if (usedPairId[pid] || usedLeft[lk] || usedRight[rk]) return;
+      usedPairId[pid] = true;
+      usedLeft[lk] = true;
+      usedRight[rk] = true;
+      out.push(pair);
+    });
+    return out;
+  }
+
   function createMatchQuestion(set, count) {
     var n = count || MATCH_PAIR_COUNT;
-    var pool = set.pool.length >= n ? shuffle(set.pool).slice(0, n) : set.pool.slice();
+    var course = getLearnTarget();
+    var pool = dedupeMatchPairs(shuffle(set.pool), course);
+    if (pool.length > n) pool = pool.slice(0, n);
     matchSeq += 1;
     return {
       id: "match_" + set.setId + "_" + matchSeq,
@@ -875,9 +922,9 @@
         en: "Match English ↔ Chinese",
       },
       es: {
-        hant: "配對西班牙文與英文",
-        hans: "配对西班牙文与英文",
-        en: "Match Spanish ↔ English",
+        hant: "配對西班牙文與中文",
+        hans: "配对西班牙文与中文",
+        en: "Match Spanish ↔ Chinese",
       },
       ja: {
         hant: "配對日文與中文",
@@ -961,7 +1008,10 @@
       return item.tier !== "hard";
     });
     if (pool.length < 5) pool = list.slice();
-    var picked = shuffle(pool).slice(0, MATCH_PAIR_COUNT);
+    var picked = pickUniqueVocabForMatch(pool, course, MATCH_PAIR_COUNT);
+    if (picked.length < MATCH_PAIR_COUNT) {
+      picked = pickUniqueVocabForMatch(list.slice(), course, MATCH_PAIR_COUNT);
+    }
     var pairs = picked.map(function (item, i) {
       var pairId = "bg_" + course + "_" + (item.icon || i);
       if (course === "zh") {
@@ -994,7 +1044,7 @@
       courses: [course],
       setId: "beginner_vocab",
       prompt: matchPromptForCourse(course),
-      pairs: pairs,
+      pairs: dedupeMatchPairs(pairs, course),
     };
   }
 
@@ -1085,11 +1135,60 @@
   }
 
   var _fullBankCache = null;
-  var _fullBankCacheVersion = 28;
+  var _fullBankCacheVersion = 33;
   var MIN_CHOICE_OPTIONS = 5;
 
+  function dedupeEmojiPickQuestion(q, course) {
+    if (!q || q.type !== "emoji_pick" || !(q.options && q.options.length)) {
+      return q;
+    }
+    var copy = JSON.parse(JSON.stringify(q));
+    var seen = {};
+    var kept = [];
+    var correctOpt = null;
+    copy.options.forEach(function (o) {
+      if (o && o.correct) correctOpt = o;
+    });
+    function tryPush(o) {
+      if (!o) return;
+      var em = o.emoji || "";
+      if (!em || seen[em]) return;
+      seen[em] = true;
+      kept.push(o);
+    }
+    if (correctOpt) tryPush(correctOpt);
+    copy.options.forEach(function (o) {
+      if (o && !o.correct) tryPush(o);
+    });
+    var vocab =
+      global.RNFQuestionGen && RNFQuestionGen.VOCAB
+        ? RNFQuestionGen.VOCAB[course] || []
+        : [];
+    var tries = 0;
+    while (kept.length < MIN_CHOICE_OPTIONS && tries < vocab.length * 3) {
+      tries += 1;
+      var it = vocab[Math.floor(Math.random() * vocab.length)];
+      if (!it || !it.emoji || seen[it.emoji]) continue;
+      if (correctOpt && it.icon === correctOpt.cardArt) continue;
+      tryPush({
+        emoji: it.emoji,
+        cardArt: it.icon,
+        label:
+          course === "zh"
+            ? { hant: it.meaning.hant, hans: it.meaning.hans, en: it.meaning.en }
+            : { hant: it.foreign, hans: it.foreign, en: it.foreign },
+      });
+    }
+    copy.options = kept;
+    return copy;
+  }
+
   function expandQuestionChoices(q, course) {
-    if (!q || !global.RNFQuestionGen || !RNFQuestionGen.VOCAB) return q;
+    if (!q) return q;
+    if (q.type === "emoji_pick") {
+      q = dedupeEmojiPickQuestion(q, course);
+    }
+    if (!global.RNFQuestionGen || !RNFQuestionGen.VOCAB) return q;
     var vocab = RNFQuestionGen.VOCAB[course] || [];
     if (!vocab.length) return q;
 
@@ -1121,7 +1220,10 @@
       return copyW;
     }
 
-    if (!q.options || q.options.length >= MIN_CHOICE_OPTIONS) return q;
+    if (!q.options || q.options.length >= MIN_CHOICE_OPTIONS) {
+      if (q.type === "emoji_pick") return dedupeEmojiPickQuestion(q, course);
+      return q;
+    }
 
     /* 靜態選擇題勿用詞表亂塞無關選項 */
     if (q.type === "text_choice" && q.id && q.id.indexOf("gen_") !== 0) {
@@ -1130,9 +1232,13 @@
 
     var copy = JSON.parse(JSON.stringify(q));
     var used = {};
+    var usedEmoji = {};
     copy.options.forEach(function (opt) {
       if (opt.label) {
         used[tField(opt.label)] = true;
+      }
+      if (copy.type === "emoji_pick" && opt.emoji) {
+        usedEmoji[opt.emoji] = true;
       }
     });
 
@@ -1144,10 +1250,15 @@
           ? tField(it.meaning) || it.foreign
           : it.foreign || tField(it.meaning);
       if (used[key]) continue;
+      if (copy.type === "emoji_pick") {
+        if (!it.emoji || usedEmoji[it.emoji]) continue;
+        usedEmoji[it.emoji] = true;
+      }
       used[key] = true;
       if (copy.type === "emoji_pick") {
         copy.options.push({
           emoji: it.emoji,
+          cardArt: it.icon,
           label:
             course === "zh"
               ? { hant: it.meaning.hant, hans: it.meaning.hans, en: it.meaning.en }
@@ -1172,6 +1283,9 @@
           label: { hant: it.foreign, hans: it.foreign, en: it.foreign },
         });
       }
+    }
+    if (copy.type === "emoji_pick") {
+      return dedupeEmojiPickQuestion(copy, course);
     }
     return copy;
   }
@@ -1199,6 +1313,40 @@
         if (o.correct) n += 1;
       });
       if (n !== 1) issues.push("correct_count:" + n);
+      if (q.type === "emoji_pick") {
+        var seenEmoji = {};
+        (q.options || []).forEach(function (o) {
+          var em = o.emoji || "";
+          if (!em) return;
+          if (seenEmoji[em]) issues.push("dup_emoji:" + em);
+          seenEmoji[em] = true;
+        });
+      }
+      var seenOpt = {};
+      (q.options || []).forEach(function (o) {
+        if (!o.label) return;
+        var key = tField(o.label).toLowerCase();
+        if (!key) return;
+        if (seenOpt[key]) issues.push("dup_option:" + key);
+        seenOpt[key] = true;
+      });
+    }
+    if (q.type === "match_pairs" && q.pairs) {
+      var course =
+        (q.courses && q.courses[0]) ||
+        (q.course) ||
+        getLearnTarget();
+      var seenL = {};
+      var seenR = {};
+      q.pairs.forEach(function (p) {
+        var lk = matchSideDisplayText(p, course, "left").toLowerCase();
+        var rk = matchSideDisplayText(p, course, "right").toLowerCase();
+        if (lk && seenL[lk]) issues.push("dup_match_left:" + lk);
+        if (rk && seenR[rk]) issues.push("dup_match_right:" + rk);
+        if (lk) seenL[lk] = true;
+        if (rk) seenR[rk] = true;
+      });
+      if (q.pairs.length < 3) issues.push("match_too_few");
     }
     if (q.type === "true_false" && q.correct !== true && q.correct !== false) {
       issues.push("true_false");
@@ -1627,9 +1775,11 @@
     tField: tField,
     tUiField: tUiField,
     tMatchLabel: tMatchLabel,
+    matchSideDisplayText: matchSideDisplayText,
     cueTextForLearnForeign: cueTextForLearnForeign,
     isSpoilerLearnForeignQuestion: isSpoilerLearnForeignQuestion,
     validateQuestionIntegrity: validateQuestionIntegrity,
+    dedupeEmojiPickQuestion: dedupeEmojiPickQuestion,
     questionMatchesCourse: questionMatchesCourse,
     shuffle: shuffle,
   };

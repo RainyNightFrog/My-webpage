@@ -23,7 +23,7 @@
               <span class="lc-score-total" id="scoreTotal">10</span>
             </div>
           </div>
-          <div class="lc-energy-dots" id="energyDots" aria-hidden="true"></div>
+          <div class="lc-energy-dots" id="energyDots" role="img" aria-label="5/5"></div>
         </div>
         <div id="langTriggerMount"></div>
       </div>
@@ -89,11 +89,12 @@
           onProgress: LCApp.setProgress,
           onScore: LCApp.updateScoreDisplay,
         });
-        LCApp.initScoreWidget(engine.state.queue.length || 10);
+        var lessonLives = engine.state.lives;
+        LCApp.initScoreWidget(engine.state.queue.length || 10, lessonLives);
         LCApp.updateScoreDisplay({
           correct: 0,
           total: engine.state.queue.length || 10,
-          lives: engine.state.lives,
+          lives: lessonLives,
         });
       } catch (err) {
         console.error(err);
@@ -119,8 +120,10 @@
 
     document.addEventListener("lc:langchange", function () {
       AppI18n.applyPage("lesson");
-      LCApp.initScoreWidget(engine ? engine.state.queue.length : 10);
-      if (engine)         engine.start(engine.state.mode);
+      if (engine) {
+        LCApp.initScoreWidget(engine.state.queue.length, engine.state.lives);
+        engine.refreshLocale();
+      }
       if (params.get("audit") === "1" && window.RNFQuestionAudit) {
         RNFQuestionAudit.runAudit();
       }

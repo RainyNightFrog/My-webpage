@@ -39,6 +39,16 @@
       if (n !== 1) issues.push("need_one_correct_option:" + n);
     }
 
+    if (q.type === "emoji_pick") {
+      var seenEmoji = {};
+      (q.options || []).forEach(function (o) {
+        var em = o.emoji || "";
+        if (!em) return;
+        if (seenEmoji[em]) issues.push("duplicate_emoji:" + em);
+        seenEmoji[em] = true;
+      });
+    }
+
     if (q.type === "true_false" && q.correct !== true && q.correct !== false) {
       issues.push("true_false_missing_correct");
     }
@@ -74,6 +84,29 @@
         var pl = norm(q.promptLine.en || q.promptLine.hans || q.promptLine.hant);
         if (pl && pl === correct) issues.push("spoiler_promptLine_equals_answer");
       }
+      var seenOpt = {};
+      (q.options || []).forEach(function (o) {
+        var key = norm(labelText(o.label));
+        if (!key) return;
+        if (seenOpt[key]) issues.push("duplicate_option:" + key);
+        seenOpt[key] = true;
+      });
+    }
+
+    if (q.type === "match_pairs" && q.pairs && global.RNFQuestions) {
+      var course =
+        (q.courses && q.courses[0]) || (q.course) || "en";
+      var seenL = {};
+      var seenR = {};
+      q.pairs.forEach(function (p) {
+        var lk = norm(RNFQuestions.matchSideDisplayText(p, course, "left"));
+        var rk = norm(RNFQuestions.matchSideDisplayText(p, course, "right"));
+        if (lk && seenL[lk]) issues.push("duplicate_match_left:" + lk);
+        if (rk && seenR[rk]) issues.push("duplicate_match_right:" + rk);
+        if (lk) seenL[lk] = true;
+        if (rk) seenR[rk] = true;
+      });
+      if (q.pairs.length < 3) issues.push("match_too_few_pairs");
     }
 
     if (global.RNFQuestions && RNFQuestions.isCantoneseQuestion) {

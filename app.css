@@ -485,45 +485,22 @@ body.lc-app {
   background: linear-gradient(180deg, #fcd34d, #fb7185);
 }
 
-.lc-lesson-page .lc-score-body,
-.lc-lesson-page .lc-score-badge {
-  display: none;
-}
-
 .lc-lesson-page .lc-score-pill {
-  padding: 0.25rem 0.35rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  gap: 0.4rem;
+  padding: 0.38rem 0.6rem 0.38rem 0.42rem;
 }
 
 .lc-lesson-page .lc-energy-dots {
-  border-left: none;
-  padding-left: 0;
-  margin-left: 0;
-  gap: 0.2rem;
+  gap: 0.22rem;
+  padding-left: 0.32rem;
+  margin-left: 0.12rem;
 }
 
-.lc-lesson-hearts .lc-energy-pip {
-  display: none;
-}
-
-.lc-lesson-heart {
-  font-size: 1.4rem;
-  line-height: 1;
-  filter: grayscale(1) brightness(0.4);
-  opacity: 0.35;
-  transition: filter 0.2s, opacity 0.2s, transform 0.2s;
-}
-
-.lc-lesson-heart.on {
-  filter: none;
-  opacity: 1;
-}
-
-.lc-lesson-heart.off {
-  filter: grayscale(1) brightness(0.35);
-  opacity: 0.28;
+.lc-energy-pip.off {
+  opacity: 0.22;
+  filter: grayscale(0.85) brightness(0.55);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Main content */
@@ -4186,6 +4163,11 @@ body.lc-lesson-last-chance .lc-progress-wrap {
 
 .lc-match-btn.matched .lc-match-txt {
   text-shadow: none;
+}
+
+.lc-match-btn.matched-wrong {
+  border-color: rgba(251, 113, 133, 0.45);
+  background: rgba(251, 113, 133, 0.12);
 }
 
 .lc-match-btn.wrong-pick {
