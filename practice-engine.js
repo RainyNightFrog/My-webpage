@@ -2724,7 +2724,7 @@
         if (!self._fromStorage && self.state.queue && self.state.queue.length) {
           self.renderComplete();
         } else {
-          location.href = "home.html";
+          location.href = "learn.html";
         }
       });
     }
@@ -3234,12 +3234,30 @@
     this.onProgress(100);
   };
 
+  function saveLessonFinishForHub(state, acc) {
+    try {
+      sessionStorage.setItem(
+        "rnf_lesson_just_finished",
+        JSON.stringify({
+          correct: state.correct,
+          answered: state.answered,
+          total: state.queue ? state.queue.length : 0,
+          xp: state.xp,
+          acc: acc,
+          ts: Date.now(),
+        })
+      );
+    } catch (e) {}
+  }
+
   PracticeEngine.prototype.renderCompleteSummary = function () {
     var s = this.state;
     var acc =
       s.answered > 0 ? Math.round((s.correct / s.answered) * 100) : 0;
     var mistakes = loadMistakes();
     var self = this;
+
+    saveLessonFinishForHub(s, acc);
 
     this.root.innerHTML =
       '<div class="lc-complete">' +
@@ -3268,19 +3286,22 @@
       "</span></div>" +
       "</div>" +
       '<div class="lc-complete-actions">' +
-      '<button type="button" class="lc-btn-primary lc-btn-block" id="btnViewGrade">' +
-      t("flow.reviewReport") +
-      "</button>" +
+      '<a class="lc-btn-primary lc-btn-block lc-btn-learn-hub" href="learn.html">' +
+      t("flow.backToLearnHub") +
+      "</a>" +
+      '<a class="lc-btn-primary lc-btn-block" href="lesson.html">' +
+      t("flow.continuePractice") +
+      "</a>" +
       (mistakes.length
-        ? '<a class="lc-btn-primary lc-btn-block" href="lesson.html?mode=review">' +
+        ? '<a class="lc-btn-ghost lc-btn-block" href="lesson.html?mode=review">' +
           t("flow.reviewMistakes") +
           " (" +
           mistakes.length +
           ")</a>"
         : "") +
-      '<a class="lc-btn-primary lc-btn-block" href="lesson.html">' +
-      t("flow.continuePractice") +
-      "</a>" +
+      '<button type="button" class="lc-btn-ghost lc-btn-block" id="btnViewGrade">' +
+      t("flow.reviewReport") +
+      "</button>" +
       '<a class="lc-btn-ghost lc-btn-block" href="review.html">' +
       t("flow.goReview") +
       "</a>" +

@@ -288,6 +288,98 @@
     return Math.max(0, need - done);
   }
 
+  function consumeLessonFinishPayload() {
+    try {
+      var raw = sessionStorage.getItem("rnf_lesson_just_finished");
+      if (!raw) return null;
+      sessionStorage.removeItem("rnf_lesson_just_finished");
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function hasUserProfile() {
+    try {
+      return localStorage.getItem("rnf_profile_created") === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function renderLessonRecapWidget(data) {
+    if (!data) return "";
+    var total = data.total || data.answered || 10;
+    return (
+      '<div class="lc-panel-card lc-pond-widget lc-pond-widget--recap">' +
+      '<p class="lc-pond-recap-kicker">✨ ' +
+      t("flow.lessonDoneRecapTitle") +
+      "</p>" +
+      '<p class="lc-pond-recap-stat">' +
+      t("flow.lessonDoneRecapSub", {
+        correct: data.correct || 0,
+        total: total,
+        acc: data.acc != null ? data.acc : 0,
+        xp: data.xp || 0,
+      }) +
+      "</p>" +
+      '<a class="lc-panel-cta lc-pond-recap-cta" href="lesson.html">' +
+      t("flow.lessonDoneRecapCta") +
+      "</a></div>"
+    );
+  }
+
+  function renderHubExploreGrid() {
+    var links = [
+      { href: "shop.html", icon: "💎", key: "flow.hubQuickShop" },
+      { href: "quests.html", icon: "🎁", key: "flow.hubQuickQuests" },
+      { href: "profile.html", icon: "🐸", key: "flow.hubQuickProfile" },
+      { href: "leaderboard.html", icon: "🛡️", key: "flow.hubQuickLeaderboard" },
+      { href: "guide.html", icon: "📖", key: "flow.hubQuickGuide" },
+      { href: "languages.html", icon: "🌍", key: "flow.wantLearn" },
+    ];
+    var items = "";
+    links.forEach(function (lnk) {
+      items +=
+        '<a class="lc-hub-quick" href="' +
+        lnk.href +
+        '"><span class="lc-hub-quick-icon" aria-hidden="true">' +
+        lnk.icon +
+        '</span><span class="lc-hub-quick-lbl">' +
+        t(lnk.key) +
+        "</span></a>";
+    });
+    return (
+      '<div class="lc-panel-card lc-pond-widget lc-pond-widget--hub">' +
+      '<h3 class="lc-panel-title">' +
+      t("flow.hubExploreTitle") +
+      "</h3>" +
+      '<div class="lc-hub-quick-grid">' +
+      items +
+      "</div></div>"
+    );
+  }
+
+  function renderHubProfileCard() {
+    if (hasUserProfile()) return "";
+    return (
+      '<div class="lc-panel-card lc-pond-widget lc-pond-widget--profile">' +
+      '<h3 class="lc-panel-title">' +
+      t("flow.hubProfileTitle") +
+      "</h3>" +
+      '<p class="lc-panel-text">' +
+      t("flow.hubProfileDesc") +
+      "</p>" +
+      '<div class="lc-hub-profile-actions">' +
+      '<a class="lc-panel-cta" href="setup.html?flow=profile">' +
+      t("flow.hubProfileCta") +
+      "</a>" +
+      '<a class="lc-panel-link lc-hub-profile-login" href="setup.html?flow=profile">' +
+      t("flow.hubProfileLogin") +
+      "</a></div></div>"
+    );
+  }
+
   function renderTopBar(stats) {
     return global.LCApp && LCApp.renderLearnStatsBar
       ? LCApp.renderLearnStatsBar(stats).replace(
@@ -297,7 +389,7 @@
       : "";
   }
 
-  function renderSidePanel(stats) {
+  function renderSidePanel(stats, lessonRecap) {
     var dailyPct = stats.dailyGoal
       ? Math.min(100, Math.round((stats.dailyXp / stats.dailyGoal) * 100))
       : 0;
@@ -306,6 +398,9 @@
     var boardLeft = getBoardUnitsLeft();
 
     return (
+      renderLessonRecapWidget(lessonRecap) +
+      renderHubExploreGrid() +
+      renderHubProfileCard() +
       '<div class="lc-panel-card lc-panel-super lc-learn-super-card lc-pond-widget">' +
       '<div class="lc-learn-super-inner">' +
       '<div class="lc-learn-super-copy">' +
@@ -474,7 +569,9 @@
 
     pathCol.innerHTML = renderChapterBanner() + renderPondJourney();
 
-    if (sidePanel) sidePanel.innerHTML = renderSidePanel(stats);
+    if (sidePanel) {
+      sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
+    }
 
     if (global.RNFFrogLogo) RNFFrogLogo.mount();
 
