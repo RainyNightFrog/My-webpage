@@ -574,7 +574,7 @@
         "</span></div>";
     });
     return (
-      '<div class="lc-pond-buddies" aria-label="' +
+      '<div class="lc-pond-buddies lc-pond-buddies--strip" aria-label="' +
       t("flow.islandBuddiesTitle") +
       '">' +
       '<p class="lc-pond-buddies-kicker">' +
@@ -658,22 +658,71 @@
     }, 5500);
   }
 
+  var ISLAND_PROFESSIONS = [
+    {
+      minLevel: 1,
+      icon: "🌱",
+      nameKey: "flow.professionApprentice",
+      descKey: "flow.professionApprenticeDesc",
+    },
+    {
+      minLevel: 3,
+      icon: "🧭",
+      nameKey: "flow.professionScout",
+      descKey: "flow.professionScoutDesc",
+    },
+    {
+      minLevel: 6,
+      icon: "⚔️",
+      nameKey: "flow.professionKnight",
+      descKey: "flow.professionKnightDesc",
+    },
+    {
+      minLevel: 10,
+      icon: "🔮",
+      nameKey: "flow.professionSage",
+      descKey: "flow.professionSageDesc",
+    },
+    {
+      minLevel: 15,
+      icon: "👑",
+      nameKey: "flow.professionLegend",
+      descKey: "flow.professionLegendDesc",
+    },
+  ];
+
+  function getProfessionForLevel(level) {
+    var pick = ISLAND_PROFESSIONS[0];
+    for (var i = 0; i < ISLAND_PROFESSIONS.length; i++) {
+      if (level >= ISLAND_PROFESSIONS[i].minLevel) pick = ISLAND_PROFESSIONS[i];
+    }
+    return pick;
+  }
+
   function renderIslandHud() {
     if (!global.RNFIslandProgress || !RNFIslandProgress.getSummary) return "";
     var sum = RNFIslandProgress.getSummary();
-    var xpPer =
-      global.RNFIslandProgress.XP_PER_LEVEL || 80;
+    var xpPer = global.RNFIslandProgress.XP_PER_LEVEL || 80;
     var inLevel = sum.stats.xpEarned % xpPer;
     var pct = Math.round((inLevel / xpPer) * 100);
+    var prof = getProfessionForLevel(sum.level);
     return (
       '<div class="lc-island-hud" role="status">' +
       '<div class="lc-island-hud-row">' +
+      '<div class="lc-island-hud-identity">' +
+      '<span class="lc-island-hud-prof-icon" aria-hidden="true">' +
+      prof.icon +
+      "</span>" +
+      '<div class="lc-island-hud-titles">' +
       '<span class="lc-island-hud-lv">' +
       t("flow.islandHudLevel", { n: sum.level }) +
       "</span>" +
-      '<span class="lc-island-hud-tag">' +
-      t("flow.islandTagline") +
-      "</span></div>" +
+      '<span class="lc-island-hud-prof">' +
+      t(prof.nameKey) +
+      "</span></div></div>" +
+      '<p class="lc-island-hud-prof-desc">' +
+      t(prof.descKey) +
+      "</p></div>" +
       '<div class="lc-island-hud-bar" aria-hidden="true">' +
       '<div class="lc-island-hud-fill" style="width:' +
       pct +
@@ -696,7 +745,7 @@
     var accent = unit.banner || "moon";
     var tierLbl = unit.tierLabelKey ? t(unit.tierLabelKey) : "";
     return (
-      '<header class="lc-pond-chapter lc-pond-chapter--' +
+      '<header class="lc-pond-chapter lc-pond-chapter--compact lc-pond-chapter--' +
       accent +
       '">' +
       renderIslandHud() +
@@ -716,11 +765,8 @@
       '<span aria-hidden="true">📖</span> ' +
       t("flow.learnGuide") +
       "</a></div>" +
-      '<p class="lc-pond-island-name">' +
-      t("flow.adventureIslandName") +
-      "</p>" +
-      '<div class="lc-pond-chapter-hero">' +
-      '<div class="lc-pond-chapter-hero-main">' +
+      '<div class="lc-pond-chapter-headline">' +
+      '<div class="lc-pond-chapter-headline-main">' +
       renderCheerTitle(0) +
       '<p class="lc-pond-chapter-topic">' +
       '<span class="lc-pond-chapter-topic-lbl">' +
@@ -730,9 +776,8 @@
       "</p>" +
       '<p class="lc-pond-chapter-sub">' +
       t(unit.subKey || "flow.pondChapterSub") +
-      "</p></div>" +
+      "</p></div></div>" +
       renderChapterBuddies() +
-      "</div>" +
       renderChapterTips() +
       "</header>"
     );
@@ -1183,7 +1228,7 @@
 
     if (statsMount) statsMount.innerHTML = renderTopBar(stats);
 
-    pathCol.innerHTML = renderPondJourney() + renderChapterBanner();
+    pathCol.innerHTML = renderChapterBanner() + renderPondJourney();
 
     if (sidePanel) {
       sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
