@@ -14,7 +14,7 @@
       <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">首頁</a>
       <div class="lc-header-end">
         <div class="lc-score-pill" id="scoreDisplay" aria-live="polite">
-          <span class="lc-score-badge" aria-hidden="true">?��</span>
+          <span class="lc-score-badge" id="lessonScoreBadge" aria-hidden="true">⭐</span>
           <div class="lc-score-body">
             <span class="lc-score-label" data-i18n="flow.scoreCorrect">答對</span>
             <div class="lc-score-nums">
@@ -74,15 +74,60 @@
     if (params.get("mode") === "listen") mode = "listen";
     if (params.get("mode") === "match") mode = "match";
     if (params.get("mode") === "story") mode = "story";
-    if (window.RNFPathProgress && RNFPathProgress.bindLessonFromUrl) {
-      RNFPathProgress.bindLessonFromUrl(params);
+    var hasPathLesson =
+      params.has("node") ||
+      params.has("stage") ||
+      params.get("view") === "grade" ||
+      (params.get("mode") && params.get("mode") !== "normal");
+    if (window.RNFPathProgress) {
+      if (!hasPathLesson && RNFPathProgress.clearLessonContext) {
+        RNFPathProgress.clearLessonContext();
+      }
+      if (hasPathLesson && RNFPathProgress.bindLessonFromUrl) {
+        RNFPathProgress.bindLessonFromUrl(params);
+      }
     }
     var viewGrade = params.get("view") === "grade";
 
     AppI18n.applyPage("lesson");
     LCApp.initLangPopover("langTriggerMount");
 
+    function updateLessonScoreBadge() {
+      var el = document.getElementById("lessonScoreBadge");
+      if (!el || !global.LCApp || !LCApp.courseMeta) return;
+      el.textContent = LCApp.courseMeta(LCApp.getLearnTarget()).flag || "⭐";
+    }
+    updateLessonScoreBadge();
+
     var engine;
+
+    function showLessonBootError(err) {
+      var root = document.getElementById("quizRoot");
+      if (!root) return;
+      var msg = AppI18n.t("flow.lessonLoadError");
+      root.innerHTML =
+        '<div class="lc-complete"><p class="lc-quiz-q">' +
+        msg +
+        '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
+        AppI18n.t("flow.reloadPage") +
+        "</button></div>";
+      if (err && console.error) console.error(err);
+    }
+
+    function ensureQuizVisible() {
+      var root = document.getElementById("quizRoot");
+      if (!root || !engine) return false;
+      if (root.querySelector(".lc-step, .lc-complete, .lc-grade-report")) return true;
+      if (engine.state.queue && engine.state.queue.length) {
+        try {
+          engine.renderCurrent();
+        } catch (e) {
+          showLessonBootError(e);
+          return false;
+        }
+      }
+      return !!root.querySelector(".lc-step, .lc-complete");
+    }
 
     function boot() {
       if (viewGrade) {
@@ -91,59 +136,68 @@
         document.getElementById("btnAction").classList.add("lc-hidden");
         RNFPractice.renderGradeFromStorage(document.getElementById("quizRoot"));
         document.title =
-          (AppI18n.t("flow.reviewReport") || "Report") + " ??Rainy Night Frog";
+          (AppI18n.t("flow.reviewReport") || "Report") + "  · Rainy Night Frog";
+        return;
+      }
+      if (!window.RNFQuestions || !RNFQuestions.buildSession) {
+        showLessonBootError(new Error("RNFQuestions missing"));
         return;
       }
       if (!window.RNFPractice || !RNFPractice.PracticeEngine) {
-        document.getElementById("quizRoot").innerHTML =
-          '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "?��?載入練�?題�?請�??�整?��??��?) +
-          '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "?�新?��?") +
-          "</button></div>";
+        showLessonBootError(new Error("RNFPractice missing"));
         return;
       }
       try {
+        if (window.RNFPathProgress && RNFPathProgress.clearLessonContext) {
+          RNFPathProgress.clearLessonContext();
+        }
         engine = new RNFPractice.PracticeEngine({
           root: document.getElementById("quizRoot"),
           mode: mode,
           onProgress: LCApp.setProgress,
           onScore: LCApp.updateScoreDisplay,
         });
+        if (!engine.state.queue || !engine.state.queue.length) {
+          showLessonBootError(new Error("empty queue"));
+          return;
+        }
         var lessonLives = engine.state.lives;
-        LCApp.initScoreWidget(engine.state.queue.length || 10, lessonLives);
+        LCApp.initScoreWidget(engine.state.queue.length, lessonLives);
         LCApp.updateScoreDisplay({
           correct: 0,
-          total: engine.state.queue.length || 10,
+          total: engine.state.queue.length,
           lives: lessonLives,
         });
+        if (!ensureQuizVisible()) {
+          showLessonBootError(new Error("quiz not rendered"));
+          return;
+        }
         if (window.RNFPracticeBackpack && RNFPracticeBackpack.init) {
-          RNFPracticeBackpack.init(engine);
+          try {
+            RNFPracticeBackpack.init(engine);
+          } catch (bpErr) {
+            if (console.warn) console.warn(bpErr);
+          }
         }
       } catch (err) {
-        console.error(err);
-        document.getElementById("quizRoot").innerHTML =
-          '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "?��?載入練�?題�?請�??�整?��??��?) +
-          '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "?�新?��?") +
-          "</button></div>";
+        showLessonBootError(err);
       }
       if (mode === "review") {
         document.title =
-          (AppI18n.t("flow.modeReviewTitle") || "Review") + " ??Rainy Night Frog";
+          (AppI18n.t("flow.modeReviewTitle") || "Review") + "  · Rainy Night Frog";
       }
       if (mode === "jump") {
         var jumpPart = params.get("part") || sessionStorage.getItem("rnf_jump_test_part") || "";
         document.title =
           (AppI18n.t("flow.jumpTestStart") || "Jump test") +
           (jumpPart ? " · " + jumpPart : "") +
-          " ??Rainy Night Frog";
+          "  · Rainy Night Frog";
       }
     }
 
     document.addEventListener("lc:langchange", function () {
       AppI18n.applyPage("lesson");
+      updateLessonScoreBadge();
       if (engine) {
         LCApp.initScoreWidget(engine.state.queue.length, engine.state.lives);
         engine.refreshLocale();

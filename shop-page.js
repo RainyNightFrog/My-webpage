@@ -35,8 +35,17 @@
   function getUnitsRemaining() {
     if (!global.LCApp) return 9;
     var done = LCApp.getUnitsCompleted ? LCApp.getUnitsCompleted() : 0;
-    var need = global.RNFLeaderboard ? RNFLeaderboard.UNLOCK_UNITS : 10;
-    return Math.max(0, need - done);
+    if (typeof done !== "number" || isNaN(done)) done = 0;
+    var need = 10;
+    if (
+      global.RNFLeaderboard &&
+      typeof RNFLeaderboard.UNLOCK_UNITS === "number" &&
+      !isNaN(RNFLeaderboard.UNLOCK_UNITS)
+    ) {
+      need = RNFLeaderboard.UNLOCK_UNITS;
+    }
+    var left = need - done;
+    return isNaN(left) ? need : Math.max(0, left);
   }
 
   function renderStats(stats) {

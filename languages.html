@@ -143,6 +143,9 @@
       } catch (e) {}
       try {
         if (localStorage.getItem("rnf_onboard_done") === "1") {
+          if (window.RNFPathProgress && RNFPathProgress.clearLessonContext) {
+            RNFPathProgress.clearLessonContext();
+          }
           location.href = "lesson.html";
           return;
         }
@@ -189,6 +192,9 @@
       } catch (e) {}
       try {
         if (localStorage.getItem("rnf_onboard_done") === "1") {
+          if (window.RNFPathProgress && RNFPathProgress.clearLessonContext) {
+            RNFPathProgress.clearLessonContext();
+          }
           location.href = "lesson.html";
           return;
         }

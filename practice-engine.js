@@ -802,7 +802,27 @@
         this.state.queue = this.state.queue.slice(0, SESSION_SIZE);
       }
     }
+    if (!this.state.queue || !this.state.queue.length) {
+      this.renderEmptySession();
+      return;
+    }
     this.renderCurrent();
+  };
+
+  PracticeEngine.prototype.renderEmptySession = function () {
+    this.resetLessonFooter();
+    if (!this.root) return;
+    this.root.innerHTML =
+      '<div class="lc-complete">' +
+      '<p class="lc-quiz-q">' +
+      escapeHtml(t("flow.lessonLoadError")) +
+      '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
+      escapeHtml(t("flow.reloadPage")) +
+      "</button></div>";
+    this.setAction(false);
+    if (this.btnSkip) this.btnSkip.classList.add("lc-hidden");
+    this.onProgress(0);
+    this.publishScore(false);
   };
 
   PracticeEngine.prototype._bindFooter = function (opts) {
@@ -1268,10 +1288,17 @@
   };
 
   PracticeEngine.prototype.renderCurrent = function () {
-    var self = this;
     var q = this.current();
+    if (!this.state.queue || !this.state.queue.length) {
+      this.renderEmptySession();
+      return;
+    }
     if (!q) {
-      this.renderComplete();
+      if (this.state.index > 0) {
+        this.renderComplete();
+      } else {
+        this.renderEmptySession();
+      }
       return;
     }
     try {
@@ -1394,8 +1421,12 @@
     }
 
     this.root.innerHTML = html;
-    this.wireInteractions(q);
-    this.maybeAutoSpeak(q);
+    try {
+      this.wireInteractions(q);
+      this.maybeAutoSpeak(q);
+    } catch (wireErr) {
+      if (global.console && console.error) console.error(wireErr);
+    }
   };
 
   /** 切換網站語言：只更新介面文案，不重抽題目、不重置進度 */

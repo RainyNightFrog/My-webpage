@@ -8422,9 +8422,9 @@ button.lc-hearts-pop-row {
   font-size: 1.05rem;
   font-weight: 800;
   margin-bottom: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: none;
+  letter-spacing: 0.02em;
 }
 
 .lc-shop-row {
@@ -8589,20 +8589,24 @@ button.lc-hearts-pop-row {
 
 .lc-shop-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
   gap: 0.85rem;
+  align-items: stretch;
 }
 
 .lc-shop-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   text-align: center;
   padding: 1.1rem 0.85rem;
+  min-height: 228px;
+  height: 100%;
   border-radius: 18px;
   border: 2px solid rgba(255, 255, 255, 0.15);
   background: rgba(15, 23, 42, 0.65);
   transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .lc-shop-card:hover {
@@ -8676,20 +8680,27 @@ button.lc-hearts-pop-row {
 .lc-shop-card-icon {
   font-size: 2.25rem;
   margin-bottom: 0.5rem;
+  align-self: center;
 }
 
 .lc-shop-card-title {
   font-size: 1rem;
   font-weight: 800;
   margin-bottom: 0.35rem;
+  line-height: 1.3;
+  min-height: 2.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lc-shop-card-desc {
   font-size: 0.75rem;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--text-soft);
   margin-bottom: 0.5rem;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 3.2em;
 }
 
 .lc-shop-card-owned,
@@ -8705,10 +8716,12 @@ button.lc-hearts-pop-row {
   font-weight: 800;
   color: #fde68a;
   margin-bottom: 0.55rem;
+  min-height: 1.25rem;
 }
 
 .lc-shop-card-btn {
   width: 100%;
+  margin-top: auto;
   padding: 0.55rem 0.75rem;
   border-radius: 999px;
   border: none;

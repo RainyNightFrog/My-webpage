@@ -974,9 +974,10 @@
       RNFQuestionGen.VOCAB &&
       RNFQuestionGen.VOCAB[course];
     if (vocab && vocab.length >= MATCH_PAIR_COUNT) {
-      return createBeginnerMatchQuestion(course);
+      var fromVocab = createBeginnerMatchQuestion(course);
+      if (fromVocab) return fromVocab;
     }
-    if (beginner) {
+    if (beginner && vocab && vocab.length >= MATCH_PAIR_COUNT) {
       return createBeginnerMatchQuestion(course);
     }
     return randomMatchQuestion();
@@ -1005,7 +1006,7 @@
   function createBeginnerMatchQuestion(course) {
     var list =
       global.RNFQuestionGen && RNFQuestionGen.VOCAB && RNFQuestionGen.VOCAB[course];
-    if (!list || list.length < 5) return randomMatchQuestion();
+    if (!list || list.length < MATCH_PAIR_COUNT) return null;
     var pool = list.filter(function (item) {
       return item.tier !== "hard";
     });
@@ -1057,12 +1058,33 @@
       RNFQuestionGen.VOCAB &&
       RNFQuestionGen.VOCAB[course];
     if (vocab && vocab.length >= MATCH_PAIR_COUNT) {
-      return createBeginnerMatchQuestion(course);
+      var beginnerQ = createBeginnerMatchQuestion(course);
+      if (beginnerQ) return beginnerQ;
     }
     var sets = matchSetsForCourse(course);
-    if (!sets.length) return createBeginnerMatchQuestion(course);
-    var set = sets[Math.floor(Math.random() * sets.length)];
-    return createMatchQuestion(set, MATCH_PAIR_COUNT);
+    if (sets.length) {
+      var set = sets[Math.floor(Math.random() * sets.length)];
+      return createMatchQuestion(set, MATCH_PAIR_COUNT);
+    }
+    if (course !== "en") {
+      var enSets = matchSetsForCourse("en");
+      if (enSets.length) {
+        return createMatchQuestion(
+          enSets[Math.floor(Math.random() * enSets.length)],
+          MATCH_PAIR_COUNT
+        );
+      }
+      if (
+        global.RNFQuestionGen &&
+        RNFQuestionGen.VOCAB &&
+        RNFQuestionGen.VOCAB.en &&
+        RNFQuestionGen.VOCAB.en.length >= MATCH_PAIR_COUNT
+      ) {
+        var enBeginner = createBeginnerMatchQuestion("en");
+        if (enBeginner) return enBeginner;
+      }
+    }
+    return null;
   }
 
   function resolveQuestionRef(ref) {

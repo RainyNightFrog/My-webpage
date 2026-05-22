@@ -361,6 +361,7 @@
   }
 
   global.RNFLeaderboard = {
+    UNLOCK_UNITS: 10,
     init: init,
     setTab: function (tab) {
       state.tab = tab;
