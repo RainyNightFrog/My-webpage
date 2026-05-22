@@ -9152,6 +9152,10 @@ button.lc-pond-rail-link {
   align-items: center;
 }
 
+.lc-setup-flow-profile .lc-setup-main .lc-step:not(#stepAge):not(#stepSignup) {
+  display: none !important;
+}
+
 .lc-setup-main .lc-guide {
   width: 100%;
   max-width: 520px;

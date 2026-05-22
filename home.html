@@ -1411,7 +1411,7 @@
 
         <div class="cta-row">
           <a class="btn-primary" href="languages.html" data-i18n="home.btnStart">立即開始</a>
-          <a class="btn-island home-island-cta" id="btnAdventureIsland" href="learn.html" hidden data-i18n="home.btnAdventureIsland">進入冒險島</a>
+          <a class="btn-island home-island-cta" id="btnAdventureIsland" href="learn.html" hidden><span class="btn-island-label" data-i18n="home.btnAdventureIsland">進入冒險島</span></a>
           <a class="btn-secondary" href="explore.html" data-i18n="home.btnTools">探索工具箱</a>
         </div> 
 
@@ -1540,9 +1540,22 @@
       initHomeLangPicker();
       updateA11y();
 
+      function islandBtnLabel() {
+        var label = AppI18n.t("home.btnAdventureIsland");
+        if (!label || label === "home.btnAdventureIsland") {
+          label = AppI18n.t("flow.btnEnterAdventureIsland");
+        }
+        if (!label || label === "flow.btnEnterAdventureIsland") {
+          label = "進入冒險島";
+        }
+        return label;
+      }
+
       function refreshAdventureIslandCta() {
         var btn = document.getElementById("btnAdventureIsland");
         if (!btn || !window.RNFAdventureIsland) return;
+        var labelEl = btn.querySelector(".btn-island-label");
+        if (labelEl) labelEl.textContent = islandBtnLabel();
         if (RNFAdventureIsland.isUnlocked()) {
           btn.hidden = false;
         } else {
@@ -1555,6 +1568,7 @@
       document.addEventListener("lc:langchange", function () {
         AppI18n.applyPage("home");
         updateA11y();
+        refreshAdventureIslandCta();
       });
 
       var scrollEl = document.getElementById("langScroll");

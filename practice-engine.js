@@ -3399,7 +3399,7 @@
           sessionStorage.setItem("rnf_profile_return", "lesson.html");
           sessionStorage.setItem("rnf_setup_flow", "profile");
         } catch (e) {}
-        location.href = "setup.html?flow=profile";
+        location.href = "auth.html?mode=register";
       };
     }
     this.onProgress(100);

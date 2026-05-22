@@ -62,6 +62,9 @@
       logo.setAttribute("href", "languages.html");
     }
 
+    document.body.classList.toggle("lc-setup-flow-profile", flow === "profile");
+    document.body.classList.toggle("lc-setup-flow-course", flow === "course");
+
     function progressPct() {
       return 10 + ((stepIndex + 1) / stepIds.length) * 85;
     }
@@ -399,7 +402,19 @@
     bindAutoContinueSteps();
     bindProfile();
     renderAgePrivacy();
-    showStep(0);
+
+    document.querySelectorAll(".lc-setup-main .lc-step").forEach(function (el) {
+      el.classList.remove("active");
+    });
+
+    var startIdx = 0;
+    if (flow === "profile") {
+      try {
+        var stepQ = new URLSearchParams(location.search).get("step");
+        if (stepQ === "signup") startIdx = 1;
+      } catch (eStart) {}
+    }
+    showStep(startIdx);
   }
 
   global.RNFSetup = { init: initSetupPage, getFlow: getFlow };
