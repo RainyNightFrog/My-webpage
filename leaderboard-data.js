@@ -84,6 +84,12 @@
   }
 
   function getPathProgressScore() {
+    if (global.RNFIslandProgress && RNFIslandProgress.getProgressScore) {
+      return RNFIslandProgress.getProgressScore();
+    }
+    if (global.RNFPathProgress && RNFPathProgress.getPathProgressScore) {
+      return RNFPathProgress.getPathProgressScore();
+    }
     if (!global.RNFPathProgress || !RNFPathProgress.loadProgress) return 0;
     var p = RNFPathProgress.loadProgress();
     var nodes = (p.doneIds && p.doneIds.length) || 0;
@@ -92,7 +98,7 @@
   }
 
   function getProgressScore() {
-    return getUnitsDone() * 12 + getPathProgressScore();
+    return getUnitsDone() * 8 + getPathProgressScore();
   }
 
   function getAvatarEmoji() {

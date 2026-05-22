@@ -6,9 +6,26 @@
   var GEM_JUMP_FAIL = 3;
   var GEM_CHALLENGE = 3;
   var GEM_CHEST = 4;
+  var MAX_STAGE = 5;
+  var MAX_PART = 3;
 
   var CHALLENGE_MIN_ACC = 60;
   var DRILL_MIN_ACC = 50;
+
+  var NODE_REWARDS = {
+    star: { gems: 1, xp: 10, difficulty: 0 },
+    listen: { gems: 2, xp: 8, difficulty: 1 },
+    practice: { gems: 2, xp: 12, difficulty: 2 },
+    quiz: { gems: 2, xp: 14, difficulty: 2 },
+    vocab: { gems: 2, xp: 11, difficulty: 1 },
+    flash: { gems: 2, xp: 10, difficulty: 2 },
+    match: { gems: 2, xp: 12, difficulty: 3 },
+    chest: { gems: 4, xp: 6, difficulty: 0 },
+    story: { gems: 1, xp: 10, difficulty: 2 },
+    bonus: { gems: 5, xp: 18, difficulty: 1 },
+    trophy: { gems: 5, xp: 22, difficulty: 5, boss: true },
+    raid: { gems: 8, xp: 28, difficulty: 8, boss: true },
+  };
 
   var STAGES = [
     {
@@ -37,6 +54,24 @@
       banner: "violet",
       sceneClass: "lc-pond-scene--s3",
       guideSection: 3,
+    },
+    {
+      stage: 4,
+      tier: 4,
+      topicKey: "flow.pathStage4Topic",
+      subKey: "flow.pathStage4Sub",
+      banner: "ember",
+      sceneClass: "lc-pond-scene--s4",
+      guideSection: 4,
+    },
+    {
+      stage: 5,
+      tier: 5,
+      topicKey: "flow.pathStage5Topic",
+      subKey: "flow.pathStage5Sub",
+      banner: "gold",
+      sceneClass: "lc-pond-scene--s5",
+      guideSection: 5,
     },
   ];
 
@@ -117,58 +152,169 @@
     return STAGES[0];
   }
 
+  function scaleNodeReward(type, stage, part) {
+    var base = NODE_REWARDS[type] || NODE_REWARDS.star;
+    var mult = 1 + (stage - 1) * 0.14 + (part - 1) * 0.07;
+    return {
+      gems: Math.max(1, Math.round(base.gems * mult)),
+      xp: Math.max(6, Math.round(base.xp * mult)),
+      difficulty: base.difficulty + (stage - 1) * 2 + (part - 1),
+      boss: !!base.boss,
+    };
+  }
+
+  function mkNode(id, type, stage, part, extra) {
+    extra = extra || {};
+    var r = scaleNodeReward(type, stage, part);
+    var n = {
+      id: id,
+      type: type,
+      playKey: extra.playKey,
+      gemHint: extra.gemHint,
+      jumpStyle: extra.jumpStyle,
+      showTip: extra.showTip,
+      targetPart: extra.targetPart,
+      targetStage: extra.targetStage,
+      gemReward: r.gems,
+      xpReward: r.xp,
+      xpHint: r.xp,
+      difficulty: r.difficulty,
+      boss: r.boss,
+    };
+    return n;
+  }
+
+  function buildMeadowNodes(sid, stage, part) {
+    var jumpTargetPart = Math.min(MAX_PART, part + 1);
+    var jumpTargetStage = part >= MAX_PART ? Math.min(MAX_STAGE, stage + 1) : stage;
+    return [
+      mkNode(sid + "-jump1", "jump", stage, part, {
+        jumpStyle: "blue",
+        showTip: true,
+        targetPart: jumpTargetPart,
+        targetStage: jumpTargetStage,
+        gemHint: "jump",
+      }),
+      mkNode(sid + "-l1", "star", stage, part, { playKey: "flow.pathPlayLesson" }),
+      mkNode(sid + "-vocab", "vocab", stage, part, { playKey: "flow.pathPlayVocab" }),
+      mkNode(sid + "-listen", "listen", stage, part, { playKey: "flow.pathPlayListen" }),
+      mkNode(sid + "-drill1", "practice", stage, part, { playKey: "flow.pathPlayDrill" }),
+      mkNode(sid + "-chest1", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-match", "match", stage, part, { playKey: "flow.pathPlayMatch" }),
+      mkNode(sid + "-flash", "flash", stage, part, { playKey: "flow.pathPlayFlash" }),
+      mkNode(sid + "-l2", "star", stage, part, { playKey: "flow.pathPlayLesson" }),
+      mkNode(sid + "-boss1", "trophy", stage, part, {
+        gemHint: "challenge",
+        playKey: "flow.pathPlayBoss",
+      }),
+      mkNode(sid + "-quiz", "quiz", stage, part, { playKey: "flow.pathPlayQuiz" }),
+      mkNode(sid + "-bonus", "bonus", stage, part, {
+        gemHint: "bonus",
+        playKey: "flow.pathPlayBonus",
+      }),
+    ];
+  }
+
+  function buildForestNodes(sid, stage, part) {
+    return [
+      mkNode(sid + "-listen3", "listen", stage, part, { playKey: "flow.pathPlayListen" }),
+      mkNode(sid + "-drill3", "practice", stage, part, { playKey: "flow.pathPlayDrill" }),
+      mkNode(sid + "-match2", "match", stage, part, { playKey: "flow.pathPlayMatch" }),
+      mkNode(sid + "-story", "story", stage, part, { playKey: "flow.pathPlayStory" }),
+      mkNode(sid + "-chest3", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-vocab2", "vocab", stage, part, { playKey: "flow.pathPlayVocab" }),
+      mkNode(sid + "-mini", "trophy", stage, part, {
+        gemHint: "challenge",
+        playKey: "flow.pathPlayMiniBoss",
+      }),
+      mkNode(sid + "-quiz2", "quiz", stage, part, { playKey: "flow.pathPlayQuiz" }),
+    ];
+  }
+
+  function buildCoralNodes(sid, stage, part) {
+    var jumpTargetPart = Math.min(MAX_PART, part + 1);
+    var jumpTargetStage = part >= MAX_PART ? Math.min(MAX_STAGE, stage + 1) : stage;
+    return [
+      mkNode(sid + "-jump2", "jump", stage, part, {
+        jumpStyle: "pink",
+        showTip: part < MAX_PART,
+        targetPart: jumpTargetPart,
+        targetStage: jumpTargetStage,
+        gemHint: "jump",
+      }),
+      mkNode(sid + "-story2", "story", stage, part, { playKey: "flow.pathPlayStory" }),
+      mkNode(sid + "-drill2", "practice", stage, part, { playKey: "flow.pathPlayDrill" }),
+      mkNode(sid + "-chest2", "chest", stage, part, {
+        gemHint: "chest",
+        playKey: "flow.pathPlayChest",
+      }),
+      mkNode(sid + "-l3", "star", stage, part, { playKey: "flow.pathPlayLesson" }),
+      mkNode(sid + "-raid", "raid", stage, part, {
+        gemHint: "challenge",
+        playKey: "flow.pathPlayRaid",
+      }),
+      mkNode(sid + "-listen2", "listen", stage, part, { playKey: "flow.pathPlayListen" }),
+      mkNode(sid + "-boss2", "trophy", stage, part, {
+        gemHint: "challenge",
+        playKey: "flow.pathPlayBoss",
+      }),
+      mkNode(sid + "-l4", "star", stage, part, { playKey: "flow.pathPlayLesson" }),
+      mkNode(sid + "-flash2", "flash", stage, part, { playKey: "flow.pathPlayFlash" }),
+    ];
+  }
+
   function buildNodeBlueprint(stage, part) {
     var sid = "s" + stage + "p" + part;
+    var meadowMascot = stage <= 1 ? "🐸" : stage <= 3 ? "🦉" : "🐉";
+    var forestMascot = stage <= 2 ? "🦊" : "🐼";
     return [
       {
         zone: "lc-pond-zone--meadow",
-        nodes: [
-          {
-            id: sid + "-jump1",
-            type: "jump",
-            jumpStyle: "blue",
-            showTip: true,
-            targetPart: part + 2,
-            targetStage: stage,
-            gemHint: "jump",
-          },
-          { id: sid + "-l1", type: "star", playKey: "flow.pathPlayLesson" },
-          { id: sid + "-listen", type: "listen", playKey: "flow.pathPlayListen", xpHint: 8 },
-          { id: sid + "-drill1", type: "practice", playKey: "flow.pathPlayDrill" },
-          { id: sid + "-chest1", type: "chest", gemHint: "chest", playKey: "flow.pathPlayChest" },
-          { id: sid + "-match", type: "match", playKey: "flow.pathPlayMatch", xpHint: 6 },
-          { id: sid + "-l2", type: "star", playKey: "flow.pathPlayLesson" },
-          { id: sid + "-boss1", type: "trophy", gemHint: "challenge", playKey: "flow.pathPlayBoss" },
-          { id: sid + "-quiz", type: "quiz", playKey: "flow.pathPlayQuiz" },
-          { id: sid + "-bonus", type: "bonus", gemHint: "bonus", playKey: "flow.pathPlayBonus" },
-        ],
-        mascot: stage === 1 ? "🐸" : stage === 2 ? "🦉" : "🐉",
+        nodes: buildMeadowNodes(sid, stage, part),
+        mascot: meadowMascot,
+      },
+      { divider: "flow.learnSectionForest" },
+      {
+        zone: "lc-pond-zone--forest",
+        nodes: buildForestNodes(sid, stage, part),
+        mascot: forestMascot,
       },
       { divider: "flow.learnSectionFriends" },
       {
         zone: "lc-pond-zone--coral",
-        nodes: [
-          {
-            id: sid + "-jump2",
-            type: "jump",
-            jumpStyle: "pink",
-            showTip: true,
-            targetPart: part + 1,
-            targetStage: Math.min(3, stage + 1),
-            gemHint: "jump",
-          },
-          { id: sid + "-story", type: "story", playKey: "flow.pathPlayStory", xpHint: 10 },
-          { id: sid + "-drill2", type: "practice", playKey: "flow.pathPlayDrill" },
-          { id: sid + "-chest2", type: "chest", gemHint: "chest", playKey: "flow.pathPlayChest" },
-          { id: sid + "-l3", type: "star", playKey: "flow.pathPlayLesson" },
-          { id: sid + "-raid", type: "raid", gemHint: "challenge", playKey: "flow.pathPlayRaid" },
-          { id: sid + "-listen2", type: "listen", playKey: "flow.pathPlayListen" },
-          { id: sid + "-boss2", type: "trophy", gemHint: "challenge", playKey: "flow.pathPlayBoss" },
-          { id: sid + "-l4", type: "star", playKey: "flow.pathPlayLesson" },
-        ],
+        nodes: buildCoralNodes(sid, stage, part),
         mascot: "🦆",
       },
     ];
+  }
+
+  function findNodeById(layout, nodeId) {
+    if (!nodeId) return null;
+    for (var i = 0; i < layout.length; i++) {
+      var block = layout[i];
+      if (!block.nodes) continue;
+      for (var j = 0; j < block.nodes.length; j++) {
+        if (block.nodes[j].id === nodeId) return block.nodes[j];
+      }
+    }
+    return null;
+  }
+
+  function getPassThresholds(ctx) {
+    var diff =
+      (ctx && typeof ctx.difficulty === "number" ? ctx.difficulty : 0) +
+      (ctx && ctx.tier ? (ctx.tier - 1) * 2 : 0);
+    return {
+      challenge: Math.min(88, CHALLENGE_MIN_ACC + Math.floor(diff * 2.2)),
+      drill: Math.min(78, DRILL_MIN_ACC + Math.floor(diff * 1.8)),
+      story: Math.min(72, 48 + Math.floor(diff * 1.5)),
+    };
   }
 
   function flattenPlayable(layout) {
@@ -202,7 +348,7 @@
   }
 
   function applyProgressToLayout(layout, progress) {
-    var lessonIndex = progress.nodeIndex;
+    var playableIndex = 0;
     layout.forEach(function (block) {
       if (block.divider) return;
       if (!block.nodes) return;
@@ -215,9 +361,9 @@
           copy.state = "current";
           return copy;
         }
-        if (lessonIndex < progress.nodeIndex) {
+        if (playableIndex < progress.nodeIndex) {
           copy.state = "done";
-        } else if (lessonIndex === progress.nodeIndex) {
+        } else if (playableIndex === progress.nodeIndex) {
           copy.state = "current";
           copy.href = lessonUrlForNode(copy, progress);
           if (copy.type === "chest" && progress.chestClaimed[copy.id]) {
@@ -227,7 +373,7 @@
         } else {
           copy.state = "locked";
         }
-        lessonIndex++;
+        playableIndex++;
         return copy;
       });
     });
@@ -244,7 +390,14 @@
       progress.stage +
       "&part=" +
       progress.part;
-    if (node.type === "practice" || node.type === "quiz") q += "&mode=drill";
+    if (
+      node.type === "practice" ||
+      node.type === "quiz" ||
+      node.type === "flash" ||
+      node.type === "vocab"
+    ) {
+      q += "&mode=drill";
+    }
     if (node.type === "trophy" || node.type === "raid") q += "&mode=challenge";
     if (node.type === "chest" || node.type === "bonus") q += "&mode=chest";
     if (node.type === "listen") q += "&mode=listen";
@@ -285,6 +438,7 @@
     if (mode === "listen") pathType = "listen";
     if (mode === "match") pathType = "match";
     if (mode === "story") pathType = "story";
+    if (pathType === "flash" || pathType === "vocab") pathType = pathType;
     if (params.get("mode") === "jump") pathType = "jump";
     return {
       pathType: pathType,
@@ -324,6 +478,11 @@
       });
       return parsed;
     }
+    var layout = buildNodeBlueprint(
+      parsed.stage || progress.stage,
+      parsed.part || progress.part
+    );
+    var node = findNodeById(layout, parsed.nodeId);
     setLessonContext({
       pathType: parsed.pathType,
       mode: parsed.mode,
@@ -331,6 +490,10 @@
       stage: parsed.stage || progress.stage,
       part: parsed.part || progress.part,
       tier: meta.tier,
+      difficulty: node ? node.difficulty : meta.tier - 1,
+      gemReward: node ? node.gemReward : 0,
+      xpReward: node ? node.xpReward : 10,
+      nodeType: node ? node.type : parsed.pathType,
     });
     return parsed;
   }
@@ -373,9 +536,9 @@
     progress.nodeIndex = Math.min(max, progress.nodeIndex + 1);
     if (progress.nodeIndex >= max) {
       progress.part += 1;
-      if (progress.part > 2) {
+      if (progress.part > MAX_PART) {
         progress.part = 1;
-        progress.stage = Math.min(3, progress.stage + 1);
+        progress.stage = Math.min(MAX_STAGE, progress.stage + 1);
       }
       progress.nodeIndex = 1;
       progress.doneIds = [];
@@ -411,89 +574,165 @@
     } catch (e) {}
   }
 
+  function defaultXpForType(pathType) {
+    var base = NODE_REWARDS[pathType] || NODE_REWARDS.star;
+    return base.xp;
+  }
+
   function onLessonComplete(payload) {
     payload = payload || {};
     var progress = loadProgress();
     var layout = buildNodeBlueprint(progress.stage, progress.part);
     var ctx = getLessonContext() || {};
+    var node = findNodeById(layout, ctx.nodeId);
     var acc = payload.acc != null ? payload.acc : 0;
     var mode = payload.mode || ctx.mode || "normal";
-    var pathType = ctx.pathType || "star";
+    var pathType = ctx.pathType || (node && node.type) || "star";
     var gemsEarned = 0;
+    var xpEarned = 0;
     var rewardKey = "";
+    var thresholds = getPassThresholds(ctx);
 
     if (mode === "jump") {
       if (payload.success) {
         gemsEarned = GEM_JUMP_WIN;
+        xpEarned = 20;
         addGems(gemsEarned);
         applyJumpSuccess(ctx.targetStage, ctx.targetPart);
         rewardKey = "flow.pathGemJumpWin";
+        if (global.RNFIslandProgress && RNFIslandProgress.recordNodeClear) {
+          RNFIslandProgress.recordNodeClear({
+            gems: gemsEarned,
+            xp: xpEarned,
+            stage: ctx.targetStage || progress.stage,
+            part: ctx.targetPart || progress.part,
+            acc: acc,
+            nodeType: "jump",
+          });
+        }
       }
       clearLessonContext();
       return {
         gems: gemsEarned,
+        xp: xpEarned,
         rewardKey: rewardKey,
         jump: true,
         success: !!payload.success,
       };
     }
 
+    function awardNodeGems(amount, key) {
+      if (!amount) return;
+      gemsEarned += amount;
+      addGems(amount);
+      if (key) rewardKey = key;
+    }
+
     var passed = true;
     if (pathType === "trophy" || mode === "challenge") {
-      passed = acc >= CHALLENGE_MIN_ACC;
+      passed = acc >= thresholds.challenge;
       if (passed) {
-        gemsEarned = GEM_CHALLENGE;
-        rewardKey = "flow.pathGemChallenge";
-        addGems(gemsEarned);
+        awardNodeGems(
+          (node && node.gemReward) || GEM_CHALLENGE,
+          "flow.pathGemChallenge"
+        );
       } else {
         clearLessonContext();
-        return { gems: 0, passed: false, rewardKey: "flow.pathChallengeFail" };
+        return {
+          gems: 0,
+          xp: 0,
+          passed: false,
+          rewardKey: "flow.pathChallengeFail",
+        };
       }
     } else if (pathType === "bonus" || mode === "bonus") {
-      gemsEarned = 5;
-      rewardKey = "flow.pathGemBonus";
-      addGems(gemsEarned);
+      awardNodeGems((node && node.gemReward) || 5, "flow.pathGemBonus");
       passed = true;
     } else if (pathType === "chest" || mode === "chest") {
       if (!progress.chestClaimed[ctx.nodeId]) {
-        gemsEarned = GEM_CHEST;
+        awardNodeGems((node && node.gemReward) || GEM_CHEST, "flow.pathGemChest");
         progress.chestClaimed[ctx.nodeId] = true;
-        rewardKey = "flow.pathGemChest";
-        addGems(gemsEarned);
+        saveProgress(progress);
       }
       passed = true;
     } else if (pathType === "listen" || mode === "listen") {
-      passed = acc >= DRILL_MIN_ACC;
-      if (passed) addGems(2);
+      passed = acc >= thresholds.drill;
+      if (passed) awardNodeGems((node && node.gemReward) || 2, "flow.pathGemListen");
     } else if (pathType === "match" || mode === "match") {
-      passed = acc >= CHALLENGE_MIN_ACC;
-      if (passed) {
-        gemsEarned = 2;
-        addGems(2);
-        rewardKey = "flow.pathGemMatch";
+      passed = acc >= thresholds.challenge;
+      if (passed) awardNodeGems((node && node.gemReward) || 2, "flow.pathGemMatch");
+      else {
+        clearLessonContext();
+        return {
+          gems: 0,
+          xp: 0,
+          passed: false,
+          rewardKey: "flow.pathChallengeFail",
+        };
       }
     } else if (pathType === "story" || mode === "story") {
-      passed = acc >= 50;
-      if (passed) addGems(1);
+      passed = acc >= thresholds.story;
+      if (passed) awardNodeGems((node && node.gemReward) || 1, "flow.pathGemStory");
     } else if (pathType === "raid" || (mode === "challenge" && ctx.pathType === "raid")) {
-      passed = acc >= CHALLENGE_MIN_ACC;
+      passed = acc >= thresholds.challenge;
       if (passed) {
-        gemsEarned = GEM_CHALLENGE + 2;
-        addGems(gemsEarned);
-        rewardKey = "flow.pathGemRaid";
+        awardNodeGems(
+          (node && node.gemReward) || GEM_CHALLENGE + 2,
+          "flow.pathGemRaid"
+        );
       } else {
         clearLessonContext();
-        return { gems: 0, passed: false, rewardKey: "flow.pathChallengeFail" };
+        return {
+          gems: 0,
+          xp: 0,
+          passed: false,
+          rewardKey: "flow.pathChallengeFail",
+        };
       }
-    } else if (pathType === "practice" || mode === "drill") {
-      passed = acc >= DRILL_MIN_ACC;
+    } else if (
+      pathType === "practice" ||
+      pathType === "quiz" ||
+      pathType === "flash" ||
+      pathType === "vocab" ||
+      mode === "drill"
+    ) {
+      passed = acc >= thresholds.drill;
       if (!passed) {
         clearLessonContext();
-        return { gems: 0, passed: false, rewardKey: "flow.pathDrillFail" };
+        return { gems: 0, xp: 0, passed: false, rewardKey: "flow.pathDrillFail" };
+      }
+      if (pathType === "flash") {
+        awardNodeGems((node && node.gemReward) || 2, "flow.pathGemFlash");
+      } else if (pathType === "vocab") {
+        awardNodeGems((node && node.gemReward) || 2, "flow.pathGemVocab");
+      }
+    } else if (pathType === "star") {
+      passed = acc >= thresholds.drill;
+      if (passed && node && node.gemReward) {
+        awardNodeGems(node.gemReward, "flow.pathGemLesson");
       }
     }
 
     if (passed) {
+      xpEarned =
+        (node && node.xpReward) ||
+        ctx.xpReward ||
+        defaultXpForType(pathType);
+      if (payload.correct != null && payload.answered) {
+        var bonusXp = Math.min(8, Math.floor((payload.correct / payload.answered) * 4));
+        xpEarned += bonusXp;
+      }
+      if (global.RNFIslandProgress && RNFIslandProgress.recordNodeClear) {
+        RNFIslandProgress.recordNodeClear({
+          gems: gemsEarned,
+          xp: xpEarned,
+          stage: progress.stage,
+          part: progress.part,
+          acc: acc,
+          nodeType: pathType,
+          nodeId: ctx.nodeId,
+        });
+      }
       if (ctx.nodeId) markNodeDone(progress, ctx.nodeId);
       progress = loadProgress();
       var stageBefore = progress.stage;
@@ -508,7 +747,16 @@
     }
 
     clearLessonContext();
-    return { gems: gemsEarned, passed: passed, rewardKey: rewardKey };
+    return {
+      gems: gemsEarned,
+      xp: xpEarned,
+      passed: passed,
+      rewardKey: rewardKey,
+      islandLevel:
+        global.RNFIslandProgress && RNFIslandProgress.getIslandLevel
+          ? RNFIslandProgress.getIslandLevel()
+          : 1,
+    };
   }
 
   function onJumpFail() {
@@ -528,9 +776,20 @@
   function getPathTier(opts) {
     opts = opts || {};
     var ctx = getLessonContext();
-    if (ctx && ctx.tier) return ctx.tier;
-    if (opts.stage) return getStageMeta(opts.stage).tier;
-    return getStageMeta(loadProgress().stage).tier;
+    var base = ctx && ctx.tier ? ctx.tier : getStageMeta(loadProgress().stage).tier;
+    if (opts.stage) base = getStageMeta(opts.stage).tier;
+    var diff = ctx && typeof ctx.difficulty === "number" ? ctx.difficulty : 0;
+    return Math.min(5, base + Math.floor(diff / 5));
+  }
+
+  function getPathProgressScore() {
+    var p = loadProgress();
+    var nodes = (p.doneIds && p.doneIds.length) || 0;
+    var island = 0;
+    if (global.RNFIslandProgress && RNFIslandProgress.getProgressScore) {
+      island = RNFIslandProgress.getProgressScore();
+    }
+    return (p.stage || 1) * 22 + (p.part || 1) * 10 + nodes * 6 + (p.nodeIndex || 0) + island;
   }
 
   function renderPathAnimals() {
@@ -559,7 +818,13 @@
     GEM_JUMP_FAIL: GEM_JUMP_FAIL,
     GEM_CHALLENGE: GEM_CHALLENGE,
     GEM_CHEST: GEM_CHEST,
+    MAX_STAGE: MAX_STAGE,
+    MAX_PART: MAX_PART,
+    NODE_REWARDS: NODE_REWARDS,
     STAGES: STAGES,
+    findNodeById: findNodeById,
+    getPassThresholds: getPassThresholds,
+    getPathProgressScore: getPathProgressScore,
     loadProgress: loadProgress,
     saveProgress: saveProgress,
     getActiveUnit: getActiveUnit,

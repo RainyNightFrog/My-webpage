@@ -1098,6 +1098,10 @@
     return /^[A-Za-z0-9\s'".,?!;:()\-–—…]+$/.test(x);
   }
 
+  function looksLikeChinese(s) {
+    return /[\u4e00-\u9fff]/.test(s || "");
+  }
+
   /** 學日語／韓語等：選項與詞塊顯示目標語言，不用 en 欄的英文釋義 */
   function tTargetField(obj) {
     if (!obj) return "";
@@ -1109,18 +1113,85 @@
     return obj.hant || obj.hans || obj.en || obj.foreign || "";
   }
 
-  function tField(obj) {
+  function fieldForCourse(obj, course) {
     if (!obj) return "";
-    var course = getLearnTarget();
     if (course === "zh") {
       var zk = getLocaleKey();
       if (obj[zk]) return obj[zk];
       return obj.hant || obj.hans || obj.en || "";
     }
     if (course === "en") {
-      return obj.en || obj.foreign || obj.hant || obj.hans || "";
+      if (obj.foreign && looksLikeEnglish(obj.foreign)) return obj.foreign;
+      if (obj.en && looksLikeEnglish(obj.en)) return obj.en;
+      if (
+        obj.hant &&
+        obj.hans &&
+        obj.hant === obj.hans &&
+        looksLikeEnglish(obj.hant)
+      ) {
+        return obj.hant;
+      }
+      if (obj.en) return obj.en;
+      if (obj.foreign) return obj.foreign;
+      return "";
     }
     return tTargetField(obj);
+  }
+
+  function tField(obj) {
+    return fieldForCourse(obj, getLearnTarget());
+  }
+
+  /** 選詞題選項：依學習語言顯示，避免學英語卻出現中文選項 */
+  function chipOptionText(obj, course) {
+    return fieldForCourse(obj, course || getLearnTarget());
+  }
+
+  function chipHasChineseOptions(q, course) {
+    course = course || "en";
+    if (!q || !q.words) return false;
+    for (var i = 0; i < q.words.length; i++) {
+      if (looksLikeChinese(chipOptionText(q.words[i].text, course))) return true;
+    }
+    return false;
+  }
+
+  function chipHasEnglishOnlyOptions(q, course) {
+    course = course || "en";
+    if (!q || !q.words) return false;
+    for (var i = 0; i < q.words.length; i++) {
+      var t = chipOptionText(q.words[i].text, course);
+      if (!t || !looksLikeEnglish(t)) return false;
+    }
+    return true;
+  }
+
+  function repairChipQuestionForCourse(q, course) {
+    if (!q || q.type !== "word_bank" || q.variant !== "translate_chip" || !q.words) {
+      return q;
+    }
+    if (course !== "en") return q;
+    var copy = JSON.parse(JSON.stringify(q));
+    var fixed = false;
+    copy.words.forEach(function (w) {
+      if (!w || !w.text) return;
+      var cur = chipOptionText(w.text, "en");
+      if (looksLikeChinese(cur)) {
+        var en = (w.text.en || w.text.foreign || "").trim();
+        if (en && looksLikeEnglish(en)) {
+          w.text = { hant: en, hans: en, en: en };
+          fixed = true;
+        }
+      }
+    });
+    if (fixed || (copy.prompt && copy.prompt.hant && copy.prompt.hant.indexOf("中文") >= 0)) {
+      copy.prompt = {
+        hant: "點選正確的英文詞語",
+        hans: "点选正确的英文词语",
+        en: "Pick the correct English word",
+      };
+    }
+    return copy;
   }
 
   /** 介面文案（標題、配對題說明）依網站語言 */
@@ -1372,6 +1443,16 @@
     if (q.type === "word_bank") {
       if (!q.words || !q.words.length) issues.push("no_words");
       if (!q.answer || !q.answer.length) issues.push("no_answer");
+      if (q.variant === "translate_chip" && q.courses && q.courses.length) {
+        q.courses.forEach(function (c) {
+          if (c === "en" && isMisdirectedEnChipQuestion(q)) {
+            issues.push("en_chip_has_chinese_options");
+          }
+          if (c === "zh" && isMisdirectedZhChipQuestion(q)) {
+            issues.push("zh_chip_has_english_only_options");
+          }
+        });
+      }
       var ids = {};
       (q.words || []).forEach(function (w) {
         if (w.id) ids[w.id] = true;
@@ -1533,10 +1614,30 @@
   }
 
   function isMisdirectedEnChipQuestion(q) {
-    return (
-      isMisdirectedWordBank(q, "en") &&
-      q.variant === "translate_chip"
-    );
+    if (!q || q.type !== "word_bank" || q.variant !== "translate_chip") return false;
+    if (!q.courses || q.courses.indexOf("en") < 0) return false;
+    if (isMisdirectedWordBank(q, "en")) return true;
+    if (chipHasChineseOptions(q, "en")) return true;
+    if (q.prompt) {
+      var ph = q.prompt.hant || "";
+      var ps = q.prompt.hans || "";
+      if (ph.indexOf("中文") >= 0 || ps.indexOf("中文") >= 0) return true;
+    }
+    return false;
+  }
+
+  function isMisdirectedZhChipQuestion(q) {
+    if (!q || q.type !== "word_bank" || q.variant !== "translate_chip") return false;
+    if (!q.courses || q.courses.indexOf("zh") < 0) return false;
+    if (chipHasEnglishOnlyOptions(q, "zh") && !chipHasChineseOptions(q, "zh")) return true;
+    return false;
+  }
+
+  function isMisdirectedChipForCourse(q, course) {
+    course = course || getLearnTarget();
+    if (course === "en") return isMisdirectedEnChipQuestion(q);
+    if (course === "zh") return isMisdirectedZhChipQuestion(q);
+    return false;
   }
 
   function questionMatchesCourse(q, course) {
@@ -1715,6 +1816,7 @@
         if (reviewCourse === "zh" && isCircularZhTextChoice(q)) return false;
         if (isSpoilerTextChoice(q)) return false;
         if (isMisdirectedWordBank(q, reviewCourse)) return false;
+        if (isMisdirectedChipForCourse(q, reviewCourse)) return false;
         return questionMatchesCourse(q, reviewCourse);
       });
       while (out.length < size) {
@@ -1748,6 +1850,7 @@
       if (course === "zh" && isCircularZhTextChoice(q)) return false;
       if (isSpoilerTextChoice(q)) return false;
       if (isMisdirectedWordBank(q, course)) return false;
+      if (isMisdirectedChipForCourse(q, course)) return false;
       return true;
     });
     if (beginner) {
@@ -1773,6 +1876,7 @@
         if (course === "zh" && isCircularZhTextChoice(q)) return false;
         if (isSpoilerTextChoice(q)) return false;
         if (isMisdirectedWordBank(q, course)) return false;
+        if (isMisdirectedChipForCourse(q, course)) return false;
         return true;
       });
       if (beginner) {
@@ -1781,7 +1885,7 @@
       pool = pool.concat(
         shuffle(
           fallback.map(function (q) {
-            return expandQuestionChoices(q, course);
+            return repairChipQuestionForCourse(expandQuestionChoices(q, course), course);
           })
         )
       );
@@ -1892,6 +1996,13 @@
     matchSideDisplayText: matchSideDisplayText,
     cueTextForLearnForeign: cueTextForLearnForeign,
     isSpoilerLearnForeignQuestion: isSpoilerLearnForeignQuestion,
+    chipOptionText: chipOptionText,
+    isMisdirectedChipForCourse: isMisdirectedChipForCourse,
+    isMisdirectedEnChipQuestion: isMisdirectedEnChipQuestion,
+    isMisdirectedZhChipQuestion: isMisdirectedZhChipQuestion,
+    repairChipQuestionForCourse: repairChipQuestionForCourse,
+    looksLikeChinese: looksLikeChinese,
+    looksLikeEnglish: looksLikeEnglish,
     validateQuestionIntegrity: validateQuestionIntegrity,
     dedupeEmojiPickQuestion: dedupeEmojiPickQuestion,
     questionMatchesCourse: questionMatchesCourse,

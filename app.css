@@ -9327,6 +9327,119 @@ button.lc-pond-rail-link {
   background: linear-gradient(135deg, rgba(244, 114, 182, 0.22), rgba(56, 189, 248, 0.15));
 }
 
+.lc-pond-zone--forest {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(120, 113, 108, 0.2));
+}
+
+.lc-pond-scene--s4 {
+  border-color: rgba(251, 146, 60, 0.55);
+}
+
+.lc-pond-scene--s4 .lc-pond-scene-bg {
+  background:
+    radial-gradient(circle at 25% 30%, #fb923c88, transparent 48%),
+    radial-gradient(circle at 70% 65%, #ef444488, transparent 50%),
+    radial-gradient(circle at 50% 10%, #fde04766, transparent 45%);
+}
+
+.lc-pond-scene--s5 {
+  border-color: rgba(250, 204, 21, 0.65);
+}
+
+.lc-pond-scene--s5 .lc-pond-scene-bg {
+  background:
+    radial-gradient(circle at 20% 50%, #facc1588, transparent 50%),
+    radial-gradient(circle at 80% 25%, #a855f788, transparent 48%),
+    radial-gradient(circle at 55% 80%, #22d3ee77, transparent 52%);
+}
+
+.lc-island-hud {
+  margin-bottom: 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 27, 75, 0.65));
+  border: 1px solid rgba(167, 139, 250, 0.35);
+}
+
+.lc-island-hud-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.lc-island-hud-lv {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fde047;
+}
+
+.lc-island-hud-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lc-island-hud-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.lc-island-hud-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a78bfa, #f472b6, #fde047);
+  transition: width 0.35s ease;
+}
+
+.lc-island-hud-meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lc-pond-stop--boss .lc-pond-stop-icon {
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.85));
+}
+
+.lc-pond-stop--boss.lc-pond-stop--current {
+  animation: lc-pond-boss-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lc-pond-boss-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.lc-pond-diff {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-size: 0.5rem;
+  color: #fde047;
+  letter-spacing: -0.05em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.lc-gem-reward-xp {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #c4b5fd;
+}
+
 .lc-pond-track-row {
   display: flex;
   flex-direction: row;

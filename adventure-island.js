@@ -85,6 +85,7 @@
   global.RNFAdventureIsland = {
     UNLOCK_AT: UNLOCK_AT,
     isUnlocked: isUnlocked,
+    setUnlocked: setUnlocked,
     recordAnswer: recordAnswer,
     remainingToUnlock: remainingToUnlock,
     getAnsweredCount: readAnsweredCount,

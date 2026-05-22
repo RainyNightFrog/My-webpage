@@ -66,6 +66,8 @@
     if (type === "story") return "📖";
     if (type === "bonus") return "✨";
     if (type === "raid") return "🐉";
+    if (type === "flash") return "⚡️";
+    if (type === "vocab") return "📚";
     return "✦";
   }
 
@@ -82,6 +84,8 @@
       story: "flow.pondStopStory",
       bonus: "flow.pondStopBonus",
       raid: "flow.pondStopRaid",
+      flash: "flow.pondStopFlash",
+      vocab: "flow.pondStopVocab",
     };
     return t(map[type] || "flow.pondStopLesson");
   }
@@ -120,6 +124,23 @@
         " 💎</span>"
       );
     }
+    if (node.gemReward && node.gemReward > 0) {
+      var gemCls =
+        node.gemHint === "challenge" || node.boss
+          ? " lc-pond-gem-badge--boss"
+          : node.gemHint === "chest"
+            ? " lc-pond-gem-badge--chest"
+            : node.gemHint === "bonus"
+              ? " lc-pond-gem-badge--bonus"
+              : "";
+      return (
+        '<span class="lc-pond-gem-badge' +
+        gemCls +
+        '">+' +
+        node.gemReward +
+        " 💎</span>"
+      );
+    }
     if (node.gemHint === "challenge") {
       return (
         '<span class="lc-pond-gem-badge lc-pond-gem-badge--boss">+' +
@@ -137,14 +158,23 @@
     if (node.gemHint === "bonus") {
       return '<span class="lc-pond-gem-badge lc-pond-gem-badge--bonus">+5 💎</span>';
     }
-    if (node.xpHint) {
+    if (node.xpHint || node.xpReward) {
       return (
         '<span class="lc-pond-xp-badge">+' +
-        node.xpHint +
+        (node.xpReward || node.xpHint) +
         " XP</span>"
       );
     }
     return "";
+  }
+
+  function renderDifficultyStars(node) {
+    var d = node.difficulty;
+    if (d == null || d < 1) return "";
+    var stars = Math.min(5, 1 + Math.floor(d / 3));
+    var html = '<span class="lc-pond-diff" aria-hidden="true">';
+    for (var i = 0; i < stars; i++) html += "★";
+    return html + "</span>";
   }
 
   function playTagHtml(node) {
@@ -205,7 +235,10 @@
       "lc-pond-stop lc-pond-stop--" +
       n.type +
       " lc-pond-stop--" +
-      state;
+      state +
+      (n.boss || n.type === "trophy" || n.type === "raid"
+        ? " lc-pond-stop--boss"
+        : "");
     var attrs =
       tag === "a"
         ? ' href="' + n.href + '" class="' + cls + '"'
@@ -231,6 +264,7 @@
       ">" +
       ribbon +
       gemBadgeHtml(n) +
+      renderDifficultyStars(n) +
       '<span class="lc-pond-stop-pad"></span>' +
       '<span class="lc-pond-stop-icon">' +
       nodeIcon(n.type) +
@@ -301,6 +335,39 @@
     );
   }
 
+  function renderIslandHud() {
+    if (!global.RNFIslandProgress || !RNFIslandProgress.getSummary) return "";
+    var sum = RNFIslandProgress.getSummary();
+    var xpPer =
+      global.RNFIslandProgress.XP_PER_LEVEL || 80;
+    var inLevel = sum.stats.xpEarned % xpPer;
+    var pct = Math.round((inLevel / xpPer) * 100);
+    return (
+      '<div class="lc-island-hud" role="status">' +
+      '<div class="lc-island-hud-row">' +
+      '<span class="lc-island-hud-lv">' +
+      t("flow.islandHudLevel", { n: sum.level }) +
+      "</span>" +
+      '<span class="lc-island-hud-tag">' +
+      t("flow.islandTagline") +
+      "</span></div>" +
+      '<div class="lc-island-hud-bar" aria-hidden="true">' +
+      '<div class="lc-island-hud-fill" style="width:' +
+      pct +
+      '%"></div></div>' +
+      '<p class="lc-island-hud-meta">' +
+      t("flow.islandHudXp", { n: sum.xpToNext }) +
+      " · " +
+      t("flow.islandHudNodes", { n: sum.stats.nodesCleared }) +
+      " · " +
+      t("flow.islandHudBosses", { n: sum.stats.bossesBeat }) +
+      (sum.stats.raidsBeat
+        ? " · " + t("flow.islandHudRaids", { n: sum.stats.raidsBeat })
+        : "") +
+      "</p></div>"
+    );
+  }
+
   function renderChapterBanner() {
     var unit = getActiveUnit();
     var accent = unit.banner || "moon";
@@ -309,6 +376,7 @@
       '<header class="lc-pond-chapter lc-pond-chapter--' +
       accent +
       '">' +
+      renderIslandHud() +
       '<div class="lc-pond-chapter-meta">' +
       '<a class="lc-pond-chapter-back" href="languages.html">' +
       t("flow.learnStage", {
@@ -338,6 +406,21 @@
   }
 
   function getBoardUnitsLeft() {
+    if (
+      global.RNFIslandProgress &&
+      RNFIslandProgress.canShowLeaderboard &&
+      RNFIslandProgress.canShowLeaderboard()
+    ) {
+      return 0;
+    }
+    if (global.RNFIslandProgress && RNFIslandProgress.loadStats) {
+      var cleared = RNFIslandProgress.loadStats().nodesCleared || 0;
+      var need =
+        global.RNFIslandProgress.LB_UNLOCK_NODES != null
+          ? RNFIslandProgress.LB_UNLOCK_NODES
+          : 3;
+      return Math.max(0, need - cleared);
+    }
     var done = global.LCApp && LCApp.getUnitsCompleted ? LCApp.getUnitsCompleted() : 0;
     var need = global.RNFLeaderboard && RNFLeaderboard.UNLOCK_UNITS
       ? RNFLeaderboard.UNLOCK_UNITS
@@ -501,8 +584,16 @@
       '<div class="lc-shop-board-row">' +
       '<span class="lc-shop-board-shield" aria-hidden="true">🛡️</span>' +
       '<p class="lc-panel-text">' +
-      t("flow.learnBoardDesc", { n: boardLeft }) +
-      "</p></div></div>" +
+      (boardLeft === 0
+        ? t("flow.learnBoardUnlocked")
+        : t("flow.learnBoardIsland", { n: boardLeft })) +
+      "</p>" +
+      (boardLeft === 0
+        ? '<a class="lc-panel-link" href="leaderboard.html">' +
+          t("flow.hubQuickLeaderboard") +
+          "</a>"
+        : "") +
+      "</div></div>" +
       '<div class="lc-panel-card lc-panel-daily lc-pond-widget">' +
       '<div class="lc-panel-head-row">' +
       "<h3 class=\"lc-panel-title\">" +

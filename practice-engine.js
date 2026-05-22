@@ -99,7 +99,11 @@
     if (!q) return "";
     if (q.type === "translate_choice") return pickCorrectPrompt();
     if (isWriteSentenceQuestion(q)) return writeSentencePrompt();
-    if (isTranslateChipQuestion(q)) return uiTf(q.prompt);
+    if (isTranslateChipQuestion(q)) {
+      var chipCourse = getLearnCourse();
+      if (chipCourse !== "zh") return pickCorrectPrompt();
+      return uiTf(q.prompt);
+    }
     if (q.type === "match_pairs" && q.prompt) return uiTf(q.prompt);
     if (q.type === "text_choice" && q.prompt) return uiTf(q.prompt);
     if (q.type === "true_false" && q.prompt) return uiTf(q.prompt);
@@ -727,6 +731,15 @@
     if (this.state.mode === "listen") sessionSize = 8;
     if (this.state.mode === "match") sessionSize = 10;
     if (this.state.mode === "story") sessionSize = 10;
+    var ctx =
+      global.RNFPathProgress && RNFPathProgress.getLessonContext
+        ? RNFPathProgress.getLessonContext()
+        : null;
+    var diff = ctx && typeof ctx.difficulty === "number" ? ctx.difficulty : 0;
+    sessionSize += Math.min(6, Math.floor(diff / 4));
+    if (this.state.mode === "challenge" || ctx && (ctx.nodeType === "raid" || ctx.nodeType === "trophy")) {
+      sessionSize += Math.min(4, Math.floor(diff / 5));
+    }
     var stageTier =
       global.RNFPathProgress && RNFPathProgress.getPathTier
         ? RNFPathProgress.getPathTier()
@@ -1833,6 +1846,9 @@
   function chipWordText(textObj) {
     if (!textObj) return "";
     var course = getLearnCourse();
+    if (global.RNFQuestions && RNFQuestions.chipOptionText) {
+      return RNFQuestions.chipOptionText(textObj, course);
+    }
     if (course === "zh") {
       return global.RNFQuestions && RNFQuestions.tUiField
         ? RNFQuestions.tUiField(textObj)
@@ -3231,7 +3247,12 @@
     }
   };
 
-  PracticeEngine.prototype.renderPathGemReward = function (amount, subKey, onContinue) {
+  PracticeEngine.prototype.renderPathGemReward = function (
+    amount,
+    subKey,
+    onContinue,
+    xpBonus
+  ) {
     var self = this;
     var n = amount || 0;
     var gems = "";
@@ -3239,6 +3260,16 @@
       gems += '<span class="lc-gem-piece"></span>';
     }
     var sub = subKey ? t(subKey) : t("flow.pathGemDefaultSub");
+    var xpLine =
+      xpBonus > 0
+        ? '<p class="lc-gem-reward-xp">' + t("flow.pathXpEarned", { n: xpBonus }) + "</p>"
+        : "";
+    var title =
+      n > 0
+        ? t("flow.gemEarned", { n: n })
+        : xpBonus > 0
+          ? t("flow.pathXpEarned", { n: xpBonus })
+          : t("flow.pathGemDefaultSub");
 
     this.root.innerHTML =
       '<div class="lc-gem-reward lc-gem-reward--path">' +
@@ -3251,11 +3282,13 @@
       "</div></div>" +
       '<div class="lc-gem-shadow"></div></div>' +
       '<h2 class="lc-gem-reward-title">' +
-      t("flow.gemEarned", { n: n }) +
+      title +
       "</h2>" +
       '<p class="lc-gem-reward-sub">' +
       sub +
-      "</p></div>";
+      "</p>" +
+      xpLine +
+      "</div>";
 
     if (this.btnSkip) this.btnSkip.classList.add("lc-hidden");
     this.setAction(true, t("flow.continue"));
@@ -3514,10 +3547,19 @@
               acc: acc,
             })
           : null;
-      if (jumpResult && jumpResult.success && jumpResult.gems > 0) {
-        this.renderPathGemReward(jumpResult.gems, jumpResult.rewardKey, function () {
-          location.href = "learn.html";
-        });
+      if (
+        jumpResult &&
+        jumpResult.success &&
+        (jumpResult.gems > 0 || jumpResult.xp > 0)
+      ) {
+        this.renderPathGemReward(
+          jumpResult.gems,
+          jumpResult.rewardKey,
+          function () {
+            location.href = "learn.html";
+          },
+          jumpResult.xp
+        );
         return;
       }
       location.href = "learn.html";
@@ -3552,8 +3594,13 @@
       finishSessionFlow(self);
     }
 
-    if (pathResult && pathResult.gems > 0) {
-      this.renderPathGemReward(pathResult.gems, pathResult.rewardKey, afterPathReward);
+    if (pathResult && (pathResult.gems > 0 || pathResult.xp > 0)) {
+      this.renderPathGemReward(
+        pathResult.gems,
+        pathResult.rewardKey,
+        afterPathReward,
+        pathResult.xp
+      );
       return;
     }
 

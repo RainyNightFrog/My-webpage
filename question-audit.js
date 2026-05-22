@@ -115,6 +115,27 @@
       }
     }
 
+    if (
+      q.type === "word_bank" &&
+      q.variant === "translate_chip" &&
+      global.RNFQuestions
+    ) {
+      if (q.courses && q.courses.indexOf("en") >= 0 && RNFQuestions.isMisdirectedEnChipQuestion) {
+        if (RNFQuestions.isMisdirectedEnChipQuestion(q)) {
+          issues.push("en_chip_chinese_options");
+        }
+      }
+      if (q.courses && q.courses.indexOf("zh") >= 0 && RNFQuestions.isMisdirectedZhChipQuestion) {
+        if (RNFQuestions.isMisdirectedZhChipQuestion(q)) {
+          issues.push("zh_chip_wrong_language");
+        }
+      }
+    }
+
+    if (global.RNFQuestions && RNFQuestions.validateQuestionIntegrity) {
+      issues = issues.concat(RNFQuestions.validateQuestionIntegrity(q));
+    }
+
     return issues;
   }
 
