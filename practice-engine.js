@@ -15,6 +15,14 @@
     return global.AppI18n ? AppI18n.t(key, vars) : key;
   }
 
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function pickCorrectPrompt() {
     var lang = global.AppI18n && AppI18n.getLang ? AppI18n.getLang() : "zhHant";
     var course = getLearnCourse();
@@ -803,6 +811,7 @@
     if (bar && !bar.dataset.defaultHtml) {
       bar.dataset.defaultHtml = bar.innerHTML;
     }
+    this._footerDefaultSaved = !!(bar && bar.dataset.defaultHtml);
     this._footerBar = bar;
     this._wireDefaultFooter();
   };
@@ -837,6 +846,9 @@
       bar.innerHTML = bar.dataset.defaultHtml;
       bar.classList.remove("lc-footer-bar--result");
       this._wireDefaultFooter();
+    }
+    if (global.RNFPracticeBackpack && RNFPracticeBackpack.ensureFooter) {
+      RNFPracticeBackpack.ensureFooter(this);
     }
   };
 
@@ -1256,11 +1268,33 @@
   };
 
   PracticeEngine.prototype.renderCurrent = function () {
+    var self = this;
     var q = this.current();
     if (!q) {
       this.renderComplete();
       return;
     }
+    try {
+      this._renderCurrentQuestion(q);
+    } catch (err) {
+      if (global.console && console.error) console.error(err);
+      if (this.root) {
+        this.root.innerHTML =
+          '<div class="lc-complete"><p class="lc-quiz-q">' +
+          escapeHtml(t("flow.lessonLoadError")) +
+          '</p><button type="button" class="lc-btn-primary lc-btn-block" id="btnLessonRetry">' +
+          escapeHtml(t("flow.reloadPage")) +
+          "</button></div>";
+        var retry = document.getElementById("btnLessonRetry");
+        if (retry) retry.onclick = function () {
+          location.reload();
+        };
+      }
+      this.setAction(false);
+    }
+  };
+
+  PracticeEngine.prototype._renderCurrentQuestion = function (q) {
     this.state.checked = false;
     this._selection = null;
     this._bankOrder = [];
@@ -1326,12 +1360,12 @@
     if (headerSpeak) {
       html +=
         '<p class="lc-quiz-q lc-quiz-q--speak">' +
-        promptText +
+        escapeHtml(promptText) +
         '<button type="button" class="lc-quiz-speak" aria-label="' +
-        t("flow.guidePlayAudio") +
+        escapeHtml(t("flow.guidePlayAudio")) +
         '">🔊</button></p>';
     } else {
-      html += '<p class="lc-quiz-q">' + promptText + "</p>";
+      html += '<p class="lc-quiz-q">' + escapeHtml(promptText) + "</p>";
     }
 
     if (q.type === "emoji_pick") {
@@ -1482,6 +1516,7 @@
     opts.forEach(function (opt, i) {
       var artCls = opt.cardArt ? " lc-pick-art--" + opt.cardArt : "";
       var labelTxt = tf(opt.label);
+      var safeLabel = labelTxt ? escapeHtml(String(labelTxt)) : "";
       html +=
         '<button type="button" class="lc-pick-card lc-pick-card--vivid lc-pick-card--tone-' +
         (i % 3) +
@@ -1490,7 +1525,7 @@
         i +
         '"' +
         (opt.correct ? ' data-correct="1"' : "") +
-        (labelTxt ? ' data-pick-label="' + labelTxt.replace(/"/g, "&quot;") + '"' : "") +
+        (safeLabel ? ' data-pick-label="' + safeLabel + '"' : "") +
         ' aria-label="' +
         (labelTxt ? labelTxt + " · " : "") +
         (uiIsZhHans() ? "选项 " : "Option ") +
@@ -1501,8 +1536,8 @@
         '"><span class="lc-pick-emoji">' +
         (opt.emoji || "❓") +
         "</span></div>" +
-        (showLabels && labelTxt
-          ? '<span class="lc-pick-label">' + labelTxt + "</span>"
+        (showLabels && safeLabel
+          ? '<span class="lc-pick-label">' + safeLabel + "</span>"
           : "") +
         '<span class="lc-pick-key">' +
         (i + 1) +
@@ -2448,13 +2483,24 @@
       this.state.xp += XP_PER_CORRECT + (this.state.streak >= 3 ? XP_STREAK_BONUS : 0);
       removeMistake(q);
     } else {
-      this.state.streak = 0;
       saveMistake(q);
-      if (this.state.lives > 0) this.state.lives -= 1;
-      saveHearts(this.state.lives);
-      if (global.document && document.dispatchEvent) {
-        document.dispatchEvent(new CustomEvent("lc:heartschange"));
+      var bpM =
+        global.RNFPracticeBackpack &&
+        RNFPracticeBackpack.beforeHeartLoss(this);
+      var blockHeartM = bpM && bpM.blockHeart === true;
+      var saveStreakM = bpM && bpM.saveStreak === true;
+      if (!saveStreakM) this.state.streak = 0;
+      if (!blockHeartM) {
+        if (this.state.lives > 0) this.state.lives -= 1;
+        saveHearts(this.state.lives);
+        if (global.document && document.dispatchEvent) {
+          document.dispatchEvent(new CustomEvent("lc:heartschange"));
+        }
       }
+    }
+
+    if (ok && global.RNFPracticeBackpack && RNFPracticeBackpack.onCorrect) {
+      RNFPracticeBackpack.onCorrect(this);
     }
 
     this.recordResult(q, ok, false);
@@ -2562,13 +2608,24 @@
       this.state.xp += XP_PER_CORRECT + (this.state.streak >= 3 ? XP_STREAK_BONUS : 0);
       removeMistake(q);
     } else {
-      this.state.streak = 0;
       saveMistake(q);
-      if (this.state.lives > 0) this.state.lives -= 1;
-      saveHearts(this.state.lives);
-      if (global.document && document.dispatchEvent) {
-        document.dispatchEvent(new CustomEvent("lc:heartschange"));
+      var bp =
+        global.RNFPracticeBackpack &&
+        RNFPracticeBackpack.beforeHeartLoss(this);
+      var blockHeart = bp && bp.blockHeart === true;
+      var saveStreak = bp && bp.saveStreak === true;
+      if (!saveStreak) this.state.streak = 0;
+      if (!blockHeart) {
+        if (this.state.lives > 0) this.state.lives -= 1;
+        saveHearts(this.state.lives);
+        if (global.document && document.dispatchEvent) {
+          document.dispatchEvent(new CustomEvent("lc:heartschange"));
+        }
       }
+    }
+
+    if (ok && global.RNFPracticeBackpack && RNFPracticeBackpack.onCorrect) {
+      RNFPracticeBackpack.onCorrect(this);
     }
 
     this.recordResult(q, ok, false);
@@ -2697,6 +2754,9 @@
     if (this.state.mode === "jump" && this.state.lives <= 0) {
       this.renderJumpTestFail();
       return;
+    }
+    if (global.RNFPracticeBackpack && RNFPracticeBackpack.onAdvance) {
+      RNFPracticeBackpack.onAdvance(this);
     }
     this.resetLessonFooter();
     this.state.index += 1;

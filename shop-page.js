@@ -3,7 +3,6 @@
  */
 (function (global) {
   var MAX_HEARTS = 5;
-  var REFILL_COST = 350;
 
   var COURSE_KEYS = {
     en: "flow.courseEn",
@@ -79,20 +78,21 @@
     var statusHtml = "";
 
     if (item.id === "heart") {
-      if (heartsFull) {
+      var stash = owned;
+      statusHtml =
+        '<span class="lc-shop-card-status">' +
+        t("flow.shopHeartCount", { n: stats.hearts, max: MAX_HEARTS }) +
+        (stash ? " · " + t("flow.shopHeartStash", { n: stash }) : "") +
+        "</span>";
+      if (heartsFull && stash >= 5) {
         disabled = true;
-        btnText = t("flow.shopHeartsFull");
-        statusHtml =
-          '<span class="lc-shop-card-status">' +
-          t("flow.shopHeartCount", { n: stats.hearts, max: MAX_HEARTS }) +
-          "</span>";
+        btnText = t("flow.shopHeartStashFull");
+      } else if (heartsFull) {
+        btnText = t("flow.shopBuyStash");
+        disabled = stats.gems < item.cost;
       } else {
-        statusHtml =
-          '<span class="lc-shop-card-status">' +
-          t("flow.shopHeartCount", { n: stats.hearts, max: MAX_HEARTS }) +
-          "</span>";
+        disabled = stats.gems < item.cost;
       }
-      disabled = heartsFull || stats.gems < item.cost;
     } else {
       if (owned > 0) {
         statusHtml =
@@ -134,6 +134,23 @@
 
   function renderUseCards(inv) {
     var html = "";
+    var lessonKeys = ["hint", "shield", "focus", "xpBoost", "gemCharm", "starBoost", "streakSave", "heart"];
+    lessonKeys.forEach(function (id) {
+      if ((inv[id] || 0) > 0) {
+        var item = global.RNFShopInventory && RNFShopInventory.ITEMS[id];
+        if (!item) return;
+        html +=
+          '<span class="lc-shop-owned-chip lc-shop-owned-chip--' +
+          item.color +
+          '">' +
+          item.icon +
+          " " +
+          t(item.titleKey) +
+          " ×" +
+          inv[id] +
+          "</span>";
+      }
+    });
     if (inv.mission > 0) {
       html +=
         '<button type="button" class="lc-shop-use-btn" data-use="mission">' +
@@ -152,8 +169,36 @@
       "<h2>" +
       t("flow.shopOwnedTitle") +
       "</h2>" +
+      '<p class="lc-shop-owned-hint">' +
+      t("flow.shopOwnedHint") +
+      "</p>" +
       '<div class="lc-shop-use-row">' +
       html +
+      "</div></section>"
+    );
+  }
+
+  function renderShopGroup(groupId, stats, inv) {
+    var api = global.RNFShopInventory;
+    if (!api || !api.itemsInGroup) return "";
+    var titleKey =
+      groupId === "lesson"
+        ? "flow.shopGroupLesson"
+        : groupId === "adventure"
+          ? "flow.shopGroupAdventure"
+          : "flow.shopGroupDaily";
+    var cards = "";
+    api.itemsInGroup(groupId).forEach(function (id) {
+      if (api.ITEMS[id]) cards += renderShopCard(api.ITEMS[id], stats, inv);
+    });
+    if (!cards) return "";
+    return (
+      '<section class="lc-shop-section">' +
+      "<h2>" +
+      t(titleKey) +
+      "</h2>" +
+      '<div class="lc-shop-grid">' +
+      cards +
       "</div></section>"
     );
   }
@@ -162,59 +207,12 @@
     var inv = global.RNFShopInventory
       ? RNFShopInventory.loadInventory()
       : { revive: 0, challenge: 0, mission: 0 };
-    var items = global.RNFShopInventory ? RNFShopInventory.ITEMS : {};
-    var cards = "";
-    ["heart", "revive", "challenge", "mission"].forEach(function (id) {
-      if (items[id]) cards += renderShopCard(items[id], stats, inv);
-    });
-
-    var heartsFull = stats.hearts >= MAX_HEARTS;
-    var canRefill = !heartsFull && stats.gems >= REFILL_COST;
-
     return (
       renderShopHero(stats) +
-      '<section class="lc-shop-section">' +
-      "<h2>" +
-      t("flow.shopItemsTitle") +
-      "</h2>" +
-      '<div class="lc-shop-grid">' +
-      cards +
-      "</div></section>" +
-      renderUseCards(inv) +
-      '<section class="lc-shop-section lc-shop-section--plus">' +
-      "<h2>" +
-      t("flow.shopHeartsTitle") +
-      "</h2>" +
-      '<article class="lc-shop-row lc-shop-row--wide">' +
-      '<span class="lc-shop-row-icon" aria-hidden="true">♾️</span>' +
-      '<div class="lc-shop-row-body">' +
-      "<h3>" +
-      t("flow.shopUnlimitedTitle") +
-      "</h3>" +
-      "<p>" +
-      t("flow.shopUnlimitedDesc") +
-      "</p></div>" +
-      '<a href="super.html" class="lc-shop-btn accent">' +
-      t("flow.shopFreeTrial") +
-      "</a></article>" +
-      '<article class="lc-shop-row lc-shop-row--wide">' +
-      '<span class="lc-shop-row-icon" aria-hidden="true">❤️‍🔥</span>' +
-      '<div class="lc-shop-row-body">' +
-      "<h3>" +
-      t("flow.shopRefillTitle") +
-      "</h3>" +
-      "<p>" +
-      t("flow.shopRefillDesc") +
-      "</p></div>" +
-      '<button type="button" class="lc-shop-btn' +
-      (canRefill ? "" : " disabled") +
-      '" data-action="refill"' +
-      (canRefill ? "" : " disabled") +
-      ">" +
-      (heartsFull
-        ? t("flow.shopHeartsFull")
-        : t("flow.shopRefillBtn", { n: REFILL_COST })) +
-      "</button></article></section>"
+      renderShopGroup("lesson", stats, inv) +
+      renderShopGroup("adventure", stats, inv) +
+      renderShopGroup("daily", stats, inv) +
+      renderUseCards(inv)
     );
   }
 
@@ -291,12 +289,16 @@
         var id = btn.getAttribute("data-buy");
         var res = RNFShopInventory.purchase(id);
         if (res.ok) {
-          showToast(t("flow.shopBuySuccess"));
+          showToast(
+            res.stashed ? t("flow.shopHeartStashed") : t("flow.shopBuySuccess")
+          );
           init();
         } else if (res.reason === "gems") {
           showToast(t("flow.shopNotEnoughGems"));
         } else if (res.reason === "full") {
           showToast(t("flow.shopHeartsFull"));
+        } else if (res.reason === "stash") {
+          showToast(t("flow.shopHeartStashFull"));
         }
       });
     });
@@ -315,18 +317,6 @@
       });
     });
 
-    document.querySelectorAll(".lc-shop-btn[data-action]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var action = btn.getAttribute("data-action");
-        if (!action || btn.disabled) return;
-        if (action === "refill" && global.LCApp && LCApp.refillHeartsFromGems) {
-          if (LCApp.refillHeartsFromGems()) {
-            showToast(t("flow.shopBuySuccess"));
-            init();
-          }
-        }
-      });
-    });
   }
 
   function init() {
@@ -366,5 +356,5 @@
     }
   }
 
-  global.RNFShop = { init: init, REFILL_COST: REFILL_COST };
+  global.RNFShop = { init: init };
 })(typeof window !== "undefined" ? window : this);

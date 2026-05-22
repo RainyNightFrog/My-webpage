@@ -98,11 +98,13 @@
     );
   }
 
-  function statCard(icon, value, labelKey, muted) {
+  function statCard(icon, value, labelKey, muted, tone) {
     var valClass = "lc-profile-stat-val";
     if (muted) valClass += " lc-muted";
     return (
-      '<div class="lc-profile-stat-card">' +
+      '<div class="lc-profile-stat-card lc-profile-stat-card--' +
+      (tone || "default") +
+      '">' +
       '<span class="lc-profile-stat-icon" aria-hidden="true">' +
       icon +
       "</span>" +
@@ -158,7 +160,26 @@
     );
   }
 
-  var pickerState = { emoji: "🐸", category: "all" };
+  var pickerState = { emoji: "🐸", category: "all", frame: "classic" };
+
+  function getFrameApi() {
+    return global.RNFAvatarFrames || null;
+  }
+
+  function getFrameId() {
+    var api = getFrameApi();
+    return api ? api.getFrameId() : "classic";
+  }
+
+  function setFrameId(id) {
+    var api = getFrameApi();
+    if (api) api.setFrameId(id);
+  }
+
+  function frameClassFor(id) {
+    var api = getFrameApi();
+    return api ? api.frameClassFor(id) : "lc-frame-classic";
+  }
 
   /** 若 avatar-pool.js 未載入時仍可選頭像 */
   var FALLBACK_AVATARS = [
@@ -261,6 +282,7 @@
     var modal = document.getElementById("avatarModal");
     if (!modal) return;
     pickerState.emoji = getAvatarEmoji() || "🐸";
+    pickerState.frame = getFrameId();
     modal.hidden = false;
     renderAvatarPicker();
     requestAnimationFrame(function () {
@@ -276,7 +298,35 @@
   function renderAvatarPicker() {
     var pool = getAvatarPoolApi();
     var preview = document.getElementById("avatarPickerPreview");
-    if (preview) preview.textContent = pickerState.emoji;
+    if (preview) {
+      preview.textContent = pickerState.emoji;
+      preview.className =
+        "lc-avatar-picker-preview " + frameClassFor(pickerState.frame);
+    }
+
+    var framesEl = document.getElementById("avatarPickerFrames");
+    if (framesEl && getFrameApi()) {
+      framesEl.innerHTML = "";
+      getFrameApi().FRAMES.forEach(function (fr) {
+        var fb = document.createElement("button");
+        fb.type = "button";
+        fb.className =
+          "lc-frame-picker-item " +
+          fr.className +
+          (pickerState.frame === fr.id ? " selected" : "");
+        fb.setAttribute("aria-label", t(fr.labelKey));
+        fb.setAttribute("aria-pressed", pickerState.frame === fr.id ? "true" : "false");
+        fb.innerHTML =
+          '<span class="lc-frame-picker-inner"><span class="lc-frame-picker-emoji">' +
+          pickerState.emoji +
+          "</span></span>";
+        fb.addEventListener("click", function () {
+          pickerState.frame = fr.id;
+          renderAvatarPicker();
+        });
+        framesEl.appendChild(fb);
+      });
+    }
 
     var tabsEl = document.getElementById("avatarPickerTabs");
     var gridEl = document.getElementById("avatarPickerGrid");
@@ -334,11 +384,16 @@
 
   function applyAvatarToProfileButton() {
     var btn = document.getElementById("btnEditAvatar");
+    var wrap = document.querySelector(".lc-profile-avatar-wrap");
     if (!btn) return;
     var emoji = getAvatarEmoji();
     btn.innerHTML = profileAvatarInnerHtml(emoji);
     if (emoji) btn.classList.add("has-avatar");
     else btn.classList.remove("has-avatar");
+    if (wrap) {
+      wrap.className =
+        "lc-profile-avatar-wrap " + frameClassFor(getFrameId());
+    }
   }
 
   var avatarModalListenersBound = false;
@@ -356,6 +411,7 @@
       if (saveBtn) {
         saveBtn.onclick = function () {
           setAvatarEmoji(pickerState.emoji);
+          setFrameId(pickerState.frame);
           applyAvatarToProfileButton();
           closeAvatarModal();
           if (global.LCApp && LCApp.refreshProfileNavIcon) {
@@ -414,8 +470,10 @@
     var side = document.getElementById("profileSide");
     if (main) {
       main.innerHTML =
-        '<header class="lc-profile-header">' +
-        '<div class="lc-profile-avatar-wrap">' +
+        '<header class="lc-profile-header lc-profile-header--vivid">' +
+        '<div class="lc-profile-avatar-wrap ' +
+        frameClassFor(getFrameId()) +
+        '">' +
         '<button type="button" class="lc-profile-avatar' +
         (getAvatarEmoji() ? " has-avatar" : "") +
         '" id="btnEditAvatar" aria-label="' +
@@ -450,10 +508,10 @@
         t("flow.profileStatsTitle") +
         "</h2>" +
         '<div class="lc-profile-stats-grid">' +
-        statCard("🔥", stats.streak, "flow.profileStreakDays") +
-        statCard("⚡", xp, "flow.profileTotalXp") +
-        statCard("🛡️", t("flow.profileNoLeague"), "flow.profileLeague", true) +
-        statCard("🏅", top3, "flow.profileTop3") +
+        statCard("🔥", stats.streak, "flow.profileStreakDays", false, "rose") +
+        statCard("⚡", xp, "flow.profileTotalXp", false, "gold") +
+        statCard("🛡️", t("flow.profileNoLeague"), "flow.profileLeague", true, "violet") +
+        statCard("🏅", top3, "flow.profileTop3", false, "cyan") +
         "</div></section>" +
         '<section class="lc-profile-ach">' +
         '<div class="lc-profile-ach-head">' +

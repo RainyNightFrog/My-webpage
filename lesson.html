@@ -59,6 +59,8 @@
   <script src="adventure-island-progress.js"></script>
   <script src="leaderboard-data.js"></script>
   <script src="adventure-island.js"></script>
+  <script src="shop-inventory.js"></script>
+  <script src="practice-backpack.js"></script>
   <script src="practice-engine.js"></script>
   <script>
     var mode = "normal";
@@ -115,6 +117,9 @@
           total: engine.state.queue.length || 10,
           lives: lessonLives,
         });
+        if (window.RNFPracticeBackpack && RNFPracticeBackpack.init) {
+          RNFPracticeBackpack.init(engine);
+        }
       } catch (err) {
         console.error(err);
         document.getElementById("quizRoot").innerHTML =

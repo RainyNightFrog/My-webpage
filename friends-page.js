@@ -124,13 +124,12 @@
       escapeHtml(t("flow.friendsAddLabel")) +
       "</label>" +
       '<div class="lc-friends-add-row">' +
-      '<input type="text" id="friendsAddInput" list="friendsNameList" placeholder="' +
+      '<input type="text" id="friendsAddInput" placeholder="' +
       escapeHtml(t("flow.friendsAddPlaceholder")) +
       '" autocomplete="off" />' +
       '<button type="button" class="lc-btn-primary" id="friendsAddBtn">' +
       escapeHtml(t("flow.friendsAddBtn")) +
       "</button></div>" +
-      '<datalist id="friendsNameList"></datalist>' +
       '<p class="lc-friends-add-hint" id="friendsAddHint"></p></div>' +
       '<div class="lc-friends-layout">' +
       '<aside class="lc-friends-sidebar" id="friendsSidebar">' +
@@ -140,20 +139,8 @@
       renderChat(activeFriendId) +
       "</div></div>";
 
-    refreshNameList();
     bindEvents();
     scrollChatBottom();
-  }
-
-  function refreshNameList() {
-    var list = document.getElementById("friendsNameList");
-    if (!list || !global.RNFriends) return;
-    list.innerHTML = "";
-    RNFriends.getDirectory().forEach(function (d) {
-      var opt = document.createElement("option");
-      opt.value = d.name;
-      list.appendChild(opt);
-    });
   }
 
   function scrollChatBottom() {
