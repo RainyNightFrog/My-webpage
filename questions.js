@@ -512,8 +512,8 @@
       vocabKey: "en:fast",
       prompt: { hant: "詞義判斷", hans: "词义判断", en: "Meaning check" },
       statement: {
-        hant: '"Fast" can mean "quick" or "to go without food".',
-        hans: '"Fast" can mean "quick" or "to go without food".',
+        hant: "「fast」可以表示「快的」，也可以表示「禁食、不吃東西」。",
+        hans: "「fast」可以表示「快的」，也可以表示「禁食、不吃东西」。",
         en: '"Fast" can mean "quick" or "to go without food".',
       },
       explanation: {
@@ -1135,7 +1135,7 @@
   }
 
   var _fullBankCache = null;
-  var _fullBankCacheVersion = 33;
+  var _fullBankCacheVersion = 35;
   var MIN_CHOICE_OPTIONS = 5;
 
   function dedupeEmojiPickQuestion(q, course) {

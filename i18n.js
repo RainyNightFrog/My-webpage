@@ -433,7 +433,7 @@
         greatJob: "表現很棒，保持節奏！",
         keepGoing: "再練幾輪就會更熟練。",
         matchAllFirst: "請先完成所有配對再檢查。",
-        matchHint: "請配對全部 {n} 組（每組選一左一右），完成後會自動進入下一題",
+        matchHint: "請配對全部 {n} 組（先點左再點右）；配錯可再試，全對或試滿 {n} 次後可按檢查／繼續",
         matchResultPerfect: "全部配對正確！太棒了！",
         matchEncouragePartial: "完成了！對了 {correct} / {total} 組，沒關係，下一題繼續加油！",
         encourageLines: [
@@ -979,7 +979,7 @@
         greatJob: "Great work—keep it up!",
         keepGoing: "A few more rounds and it'll stick.",
         matchAllFirst: "Match all pairs before checking.",
-        matchHint: "Match all {n} pairs (one left + one right each). Next question loads when done.",
+        matchHint: "Match all {n} pairs (left then right). Wrong tries unlock; when all match or after {n} tries, tap Check or Continue.",
         matchResultPerfect: "Perfect — every pair matched!",
         matchEncouragePartial: "Done! {correct} / {total} correct. It's okay — keep going on the next one!",
         encourageLines: [

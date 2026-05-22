@@ -102,6 +102,7 @@
     if (isTranslateChipQuestion(q)) return uiTf(q.prompt);
     if (q.type === "match_pairs" && q.prompt) return uiTf(q.prompt);
     if (q.type === "text_choice" && q.prompt) return uiTf(q.prompt);
+    if (q.type === "true_false" && q.prompt) return uiTf(q.prompt);
     return tf(q.prompt);
   }
 
@@ -1241,6 +1242,7 @@
       q.type === "word_bank" && q.variant === "write_sentence";
     var isTranslateChip = isTranslateChipQuestion(q);
     var isListenPick = isListenPickQuestion(q);
+    var isTrueFalse = q.type === "true_false";
     var badge =
       !isTranslate && !isLongWrite && q.badge
         ? '<span class="lc-quiz-badge lc-quiz-badge--' +
@@ -1266,6 +1268,7 @@
       (isWriteSentence ? " lc-step-write-sentence" : "") +
       (isTranslateChip ? " lc-step-translate-chip" : "") +
       (isListenPick ? " lc-step-listen" : "") +
+      (isTrueFalse ? " lc-step-true-false" : "") +
       '" data-qid="' +
       q.id +
       '">' +
@@ -1275,6 +1278,7 @@
       !isTranslate &&
       !isListenPick &&
       !isTranslateChip &&
+      !isTrueFalse &&
       questionSpeakText(q);
     if (headerSpeak) {
       html +=
@@ -1388,6 +1392,16 @@
       }
     }
 
+    if (q.type === "true_false") {
+      var stmtEl = this.root.querySelector(".lc-statement");
+      if (stmtEl && q.statement) {
+        stmtEl.textContent =
+          global.RNFQuestions && RNFQuestions.tUiField
+            ? RNFQuestions.tUiField(q.statement) || tf(q.statement)
+            : tf(q.statement);
+      }
+    }
+
     if (q.type === "listen_pick") {
       var slowBtn = this.root.querySelector(".lc-listen-btn--slow");
       if (slowBtn) slowBtn.setAttribute("aria-label", t("flow.listenSlow"));
@@ -1413,19 +1427,29 @@
       } catch (e) {}
     }
     var opts = RNFQuestions.shuffle(q.options);
-    var html = '<div class="lc-pick-grid lc-pick-grid--vivid lc-pick-grid--icon-only">';
+    var epCourse = "en";
+    try {
+      epCourse = sessionStorage.getItem("learn_target") || "en";
+    } catch (e) {}
+    var showLabels = epCourse === "zh";
+    var html =
+      '<div class="lc-pick-grid lc-pick-grid--vivid' +
+      (showLabels ? " lc-pick-grid--labeled" : " lc-pick-grid--icon-only") +
+      '">';
     opts.forEach(function (opt, i) {
       var artCls = opt.cardArt ? " lc-pick-art--" + opt.cardArt : "";
       var labelTxt = tf(opt.label);
       html +=
-        '<button type="button" class="lc-pick-card lc-pick-card--vivid lc-pick-card--icon-only lc-pick-card--tone-' +
+        '<button type="button" class="lc-pick-card lc-pick-card--vivid lc-pick-card--tone-' +
         (i % 3) +
+        (showLabels ? "" : " lc-pick-card--icon-only") +
         '" data-pick="' +
         i +
         '"' +
         (opt.correct ? ' data-correct="1"' : "") +
         (labelTxt ? ' data-pick-label="' + labelTxt.replace(/"/g, "&quot;") + '"' : "") +
         ' aria-label="' +
+        (labelTxt ? labelTxt + " · " : "") +
         (uiIsZhHans() ? "选项 " : "Option ") +
         (i + 1) +
         '">' +
@@ -1434,6 +1458,9 @@
         '"><span class="lc-pick-emoji">' +
         (opt.emoji || "❓") +
         "</span></div>" +
+        (showLabels && labelTxt
+          ? '<span class="lc-pick-label">' + labelTxt + "</span>"
+          : "") +
         '<span class="lc-pick-key">' +
         (i + 1) +
         "</span></button>";
@@ -1544,15 +1571,22 @@
   };
 
   PracticeEngine.prototype.renderTrueFalse = function (q) {
+    var stmt =
+      global.RNFQuestions && RNFQuestions.tUiField
+        ? RNFQuestions.tUiField(q.statement) || tf(q.statement)
+        : tf(q.statement);
     var html =
-      '<p class="lc-statement">' + tf(q.statement) + "</p>" +
+      '<div class="lc-tf-block">' +
+      '<p class="lc-statement">' +
+      stmt +
+      "</p>" +
       '<div class="lc-tf-row">' +
       '<button type="button" class="lc-tf-btn" data-tf="true">' +
       t("flow.trueLabel") +
       "</button>" +
       '<button type="button" class="lc-tf-btn" data-tf="false">' +
       t("flow.falseLabel") +
-      "</button></div>";
+      "</button></div></div>";
     this._tfCorrect = q.correct ? "true" : "false";
     return html;
   };
@@ -2174,7 +2208,9 @@
     if (!st) return;
 
     function updateCheckEnabled() {
-      self.setAction(st.pairsDone >= st.total);
+      var canFinish =
+        st.correctCount >= st.total || st.pairsDone >= st.total;
+      self.setAction(canFinish);
     }
 
     function clearPending() {
@@ -2186,26 +2222,37 @@
     }
 
     function maybeFinishRound() {
-      if (st.pairsDone < st.total || self.state.checked) return;
+      if (self.state.checked) return;
+      if (st.correctCount < st.total && st.pairsDone < st.total) return;
       window.setTimeout(function () {
-        if (!self._matchState || self.state.checked || st.pairsDone < st.total) {
-          return;
-        }
+        if (!self._matchState || self.state.checked) return;
+        if (st.correctCount < st.total && st.pairsDone < st.total) return;
         self.finishMatchPairsRound(q);
       }, 650);
     }
 
     function lockPair(leftEl, rightEl, correct) {
       st.pairsDone += 1;
-      if (correct) st.correctCount += 1;
-      [leftEl, rightEl].forEach(function (el) {
-        el.classList.remove("match-glow", "pending", "wrong-pick");
-        el.classList.add("matched");
-        if (!correct) el.classList.add("matched-wrong");
-      });
       clearPending();
-      updateCheckEnabled();
-      maybeFinishRound();
+      if (correct) {
+        st.correctCount += 1;
+        [leftEl, rightEl].forEach(function (el) {
+          el.classList.remove("match-glow", "pending", "wrong-pick");
+          el.classList.add("matched");
+        });
+        updateCheckEnabled();
+        maybeFinishRound();
+        return;
+      }
+      leftEl.classList.add("wrong-pick");
+      rightEl.classList.add("wrong-pick");
+      setTimeout(function () {
+        if (self.state.checked) return;
+        leftEl.classList.remove("wrong-pick");
+        rightEl.classList.remove("wrong-pick");
+        updateCheckEnabled();
+        maybeFinishRound();
+      }, 520);
     }
 
     function tryPair() {
@@ -2420,7 +2467,11 @@
         return;
       }
     } else if (q.type === "match_pairs") {
-      if (!this._matchState || this._matchState.pairsDone < this._matchState.total) {
+      var mst = this._matchState;
+      if (
+        !mst ||
+        (mst.correctCount < mst.total && mst.pairsDone < mst.total)
+      ) {
         alert(t("flow.matchAllFirst"));
         return;
       }

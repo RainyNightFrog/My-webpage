@@ -270,16 +270,27 @@
     );
   }
 
+  function isConfusingEmojiDistractor(target, candidate) {
+    if (!target || !candidate) return false;
+    if (target.icon === "fast") {
+      return candidate.icon === "asap" || candidate.emoji === "⏩";
+    }
+    if (target.icon === "asap") {
+      return candidate.icon === "fast" || candidate.emoji === "🏃";
+    }
+    return false;
+  }
+
   function pickOther(items, exclude, n) {
     var usedEmoji = {};
     usedEmoji[exclude.emoji || ""] = true;
     var out = [];
     var pool = items.filter(function (x) {
-      return x && x.icon !== exclude.icon;
+      return x && x.icon !== exclude.icon && !isConfusingEmojiDistractor(exclude, x);
     });
     while (out.length < n && pool.length) {
       var candidates = pool.filter(function (x) {
-        return !usedEmoji[x.emoji || ""];
+        return !usedEmoji[x.emoji || ""] && !isConfusingEmojiDistractor(exclude, x);
       });
       if (!candidates.length) break;
       var pick = candidates[Math.floor(Math.random() * candidates.length)];
@@ -356,9 +367,24 @@
   function promptWhich(course, item) {
     if (course === "zh") {
       return {
-        hant: "哪一個是「" + item.meaning.hant + "」？",
-        hans: "哪一个是「" + item.meaning.hans + "」？",
-        en: 'Which one is "' + item.meaning.en + '"?',
+        hant:
+          "哪個圖示是「" +
+          item.meaning.hant +
+          "」（" +
+          item.foreign +
+          "）？看下方中文標籤選擇",
+        hans:
+          "哪个图示是「" +
+          item.meaning.hans +
+          "」（" +
+          item.foreign +
+          "）？看下方中文标签选择",
+        en:
+          'Which picture means "' +
+          item.meaning.en +
+          '" (' +
+          item.foreign +
+          ")? Read the labels below",
       };
     }
     var word = item.foreign || item.meaning.en;

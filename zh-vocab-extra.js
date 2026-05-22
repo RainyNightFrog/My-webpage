@@ -118,7 +118,7 @@
     { foreign: "壞", meaning: L("壞", "坏", "bad"), emoji: "👎", icon: "bad" },
     { foreign: "冷", meaning: L("冷", "冷", "cold"), emoji: "🥶", icon: "cold" },
     { foreign: "熱", meaning: L("熱", "热", "hot"), emoji: "🥵", icon: "hot" },
-    { foreign: "快", meaning: L("快", "快", "fast"), emoji: "⚡", icon: "fast" },
+    { foreign: "快", meaning: L("快", "快", "fast"), emoji: "🏃", icon: "fast" },
     { foreign: "慢", meaning: L("慢", "慢", "slow"), emoji: "🐢", icon: "slow" },
     { foreign: "新", meaning: L("新", "新", "new"), emoji: "✨", icon: "new" },
     { foreign: "舊", meaning: L("舊", "旧", "old"), emoji: "📦", icon: "old" },

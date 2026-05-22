@@ -1082,6 +1082,40 @@ body.lc-zh-picker-open {
   margin-bottom: 1.25rem;
 }
 
+.lc-step-true-false .lc-quiz-q {
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 1rem;
+}
+
+.lc-step-true-false .lc-tf-block {
+  max-width: 36rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.lc-step-true-false .lc-statement {
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.65;
+  text-align: center;
+  padding: 1.15rem 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.lc-step-true-false .lc-tf-row {
+  max-width: 26rem;
+  margin: 0 auto;
+}
+
+.lc-step-true-false .lc-tf-btn {
+  font-size: 1.05rem;
+}
+
 .lc-lesson-page .lc-step.active .lc-guide {
   margin-left: auto;
   margin-right: auto;
@@ -1743,6 +1777,29 @@ body.lc-lesson-last-chance .lc-progress-wrap {
 
 .lc-pick-grid--icon-only {
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+
+.lc-pick-grid--labeled {
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+}
+
+.lc-pick-grid--labeled .lc-pick-card {
+  min-height: 8.5rem;
+  padding-bottom: 2.35rem;
+}
+
+.lc-pick-grid--labeled .lc-pick-label {
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .lc-pick-card--icon-only {
