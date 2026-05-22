@@ -7,63 +7,60 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="app.css">
 </head>
-<body class="lc-app lc-learn-page lc-learn-pond-mode" data-i18n-page="learn">
-  <div class="lc-bg lc-pond-bg" aria-hidden="true"></div>
-  <div class="lc-pond-rain" aria-hidden="true"></div>
+<body class="lc-app lc-learn-page" data-i18n-page="learn">
+  <div class="lc-bg" aria-hidden="true"></div>
 
-  <div class="lc-pond-shell">
-    <nav class="lc-pond-rail" aria-label="Main">
-      <a class="lc-pond-rail-brand" href="home.html" title="Rainy Night Frog">
+  <div class="lc-learn-shell">
+    <nav class="lc-learn-nav" aria-label="Main">
+      <a class="lc-learn-brand" href="home.html">
         <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-learn-brand-text" data-i18n="flow.brandName">Rainy Night Frog</span>
       </a>
-      <ul class="lc-pond-rail-menu">
+      <ul class="lc-learn-menu">
         <li>
-          <a class="lc-pond-rail-link active" href="learn.html" data-i18n-title="flow.navLearn">
-            <span class="lc-pond-rail-icon" aria-hidden="true">🏠</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.adventureIslandName">冒險島</span>
+          <a class="lc-learn-link active" href="learn.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🏠</span>
+            <span data-i18n="flow.navLearn">學習</span>
           </a>
         </li>
         <li>
-          <a class="lc-pond-rail-link" href="leaderboard.html">
-            <span class="lc-pond-rail-icon" aria-hidden="true">🛡️</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navLeaderboard">排行榜</span>
+          <a class="lc-learn-link" href="leaderboard.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🛡️</span>
+            <span data-i18n="flow.navLeaderboard">排行榜</span>
           </a>
         </li>
         <li>
-          <a class="lc-pond-rail-link" href="quests.html">
-            <span class="lc-pond-rail-icon lc-nav-chest-icon" aria-hidden="true"></span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navQuests">特別任務</span>
+          <a class="lc-learn-link" href="quests.html">
+            <span class="lc-learn-link-icon lc-nav-chest-icon" aria-hidden="true"></span>
+            <span data-i18n="flow.navQuests">特別任務</span>
           </a>
         </li>
         <li>
-          <a class="lc-pond-rail-link" href="shop.html">
-            <span class="lc-pond-rail-icon" aria-hidden="true">💎</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navShop">寶石小店</span>
+          <a class="lc-learn-link" href="shop.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">💎</span>
+            <span data-i18n="flow.navShop">寶石小店</span>
           </a>
         </li>
         <li>
-          <a class="lc-pond-rail-link" href="profile.html">
-            <span class="lc-pond-rail-icon" aria-hidden="true">🐸</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navProfile">個人檔案</span>
+          <a class="lc-learn-link" href="profile.html">
+            <span class="lc-learn-link-icon" aria-hidden="true">🐸</span>
+            <span data-i18n="flow.navProfile">個人檔案</span>
           </a>
         </li>
-        <li class="lc-pond-rail-more">
-          <button type="button" class="lc-pond-rail-link lc-learn-more-btn" data-nav-more aria-expanded="false">
-            <span class="lc-pond-rail-icon lc-more-icon" aria-hidden="true">⋯</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navMore">更多</span>
+        <li class="lc-learn-more-wrap">
+          <button type="button" class="lc-learn-link lc-learn-more-btn" data-nav-more aria-expanded="false" aria-haspopup="menu">
+            <span class="lc-learn-link-icon lc-more-icon" aria-hidden="true">⋯</span>
+            <span data-i18n="flow.navMore">更多</span>
           </button>
         </li>
       </ul>
-      <p class="lc-pond-rail-course" data-learn-lang-label>?��?�� 中�?</p>
-      <div id="langTriggerMount" class="lc-pond-rail-lang"></div>
+      <p class="lc-learn-lang" data-learn-lang-label>🇺🇸 英語</p>
+      <div id="langTriggerMount" class="lc-learn-lang-mount"></div>
     </nav>
 
-    <div class="lc-pond-stage">
-      <header class="lc-pond-topbar" id="pondTopbar" aria-label="Status"></header>
-      <div class="lc-pond-layout">
-        <main class="lc-pond-main" id="pathCol"></main>
-        <aside class="lc-pond-widgets" id="sidePanel" aria-label="Widgets"></aside>
-      </div>
+    <div class="lc-learn-body">
+      <main class="lc-learn-path-col" id="pathCol"></main>
+      <aside class="lc-learn-panel" id="sidePanel" aria-label="Widgets"></aside>
     </div>
   </div>
 
@@ -82,7 +79,7 @@
   <script>
     AppI18n.applyPage("learn");
     if (window.RNFAdventureIsland && !RNFAdventureIsland.guardLearnPage()) {
-      /* redirecting ??first 10 questions required */
+      /* redirecting — first 10 questions required */
     } else {
     LCApp.initLangPopover("langTriggerMount");
     LCApp.initMoreMenu();

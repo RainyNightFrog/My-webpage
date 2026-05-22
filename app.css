@@ -4400,10 +4400,21 @@ body.lc-lesson-last-chance .lc-progress-wrap {
 
 .lc-learn-brand-text {
   font-family: var(--font-brand);
-  font-size: 1.35rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #4ade80;
   letter-spacing: 0.02em;
+  line-height: 1.25;
+  max-width: 9.5rem;
+}
+
+.lc-learn-top-stats {
+  margin-bottom: 0.85rem;
+  justify-content: flex-end;
+}
+
+.lc-learn-path-col .lc-pond-scroll {
+  max-width: 100%;
 }
 
 .lc-learn-menu {

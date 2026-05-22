@@ -884,7 +884,7 @@
     return global.LCApp && LCApp.renderLearnStatsBar
       ? LCApp.renderLearnStatsBar(stats).replace(
           'class="lc-learn-stats"',
-          'class="lc-learn-stats lc-pond-stats"'
+          'class="lc-learn-stats lc-learn-top-stats"'
         )
       : "";
   }
@@ -952,7 +952,8 @@
     var sidePanel = document.getElementById("sidePanel");
     if (!sidePanel) return;
     var stats = global.LCApp && LCApp.getLearnStats ? LCApp.getLearnStats() : {};
-    sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
+    sidePanel.innerHTML =
+      renderTopBar(stats) + renderSidePanel(stats, consumeLessonFinishPayload());
     bindSidePanelActions();
     if (global.RNFFrogLogo) RNFFrogLogo.mount(sidePanel);
   }
@@ -1177,15 +1178,14 @@
 
     var pathCol = document.getElementById("pathCol");
     var sidePanel = document.getElementById("sidePanel");
-    var topbar = document.getElementById("pondTopbar");
     if (!pathCol) return;
-
-    if (topbar) topbar.innerHTML = renderTopBar(stats);
 
     pathCol.innerHTML = renderPondJourney() + renderChapterBanner();
 
     if (sidePanel) {
-      sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
+      sidePanel.innerHTML =
+        renderTopBar(stats) +
+        renderSidePanel(stats, consumeLessonFinishPayload());
       bindSidePanelActions();
     }
 
