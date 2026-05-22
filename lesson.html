@@ -11,12 +11,12 @@
   <div class="lc-bg" aria-hidden="true"></div>
   <div class="lc-wrap">
     <header class="lc-header">
-      <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">首頁</a>
+      <a class="lc-logo lc-logo-home" href="home.html" data-i18n="flow.navHome">首�?</a>
       <div class="lc-header-end">
         <div class="lc-score-pill" id="scoreDisplay" aria-live="polite">
-          <span class="lc-score-badge" aria-hidden="true">🐸</span>
+          <span class="lc-score-badge" aria-hidden="true">?��</span>
           <div class="lc-score-body">
-            <span class="lc-score-label" data-i18n="flow.scoreCorrect">答對</span>
+            <span class="lc-score-label" data-i18n="flow.scoreCorrect">答�?</span>
             <div class="lc-score-nums">
               <span class="lc-score-num" id="scoreNum">0</span>
               <span class="lc-score-slash">/</span>
@@ -36,7 +36,7 @@
     <main class="lc-main" id="quizRoot"></main>
 
     <div class="lc-footer-bar">
-      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">跳過</button>
+      <button type="button" class="lc-btn-ghost" id="btnSkip" data-i18n="flow.skip">跳�?</button>
       <button type="button" class="lc-btn-primary" id="btnAction" disabled data-i18n="flow.check">檢查</button>
     </div>
   </div>
@@ -44,6 +44,7 @@
   <script src="frog-logo-inline.js"></script>
   <script src="i18n.js"></script>
   <script src="player-auth.js"></script>
+  <script src="app-settings.js"></script>
   <script src="app.js"></script>
   <script src="zh-vocab-extra.js"></script>
   <script src="zh-vocab-hard.js"></script>
@@ -88,15 +89,15 @@
         document.getElementById("btnAction").classList.add("lc-hidden");
         RNFPractice.renderGradeFromStorage(document.getElementById("quizRoot"));
         document.title =
-          (AppI18n.t("flow.reviewReport") || "Report") + " — Rainy Night Frog";
+          (AppI18n.t("flow.reviewReport") || "Report") + " ??Rainy Night Frog";
         return;
       }
       if (!window.RNFPractice || !RNFPractice.PracticeEngine) {
         document.getElementById("quizRoot").innerHTML =
           '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "無法載入練習題，請重新整理頁面。") +
+          (AppI18n.t("flow.lessonLoadError") || "?��?載入練�?題�?請�??�整?��??��?) +
           '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "重新整理") +
+          (AppI18n.t("flow.reloadPage") || "?�新?��?") +
           "</button></div>";
         return;
       }
@@ -118,21 +119,21 @@
         console.error(err);
         document.getElementById("quizRoot").innerHTML =
           '<div class="lc-complete"><p class="lc-quiz-q">' +
-          (AppI18n.t("flow.lessonLoadError") || "無法載入練習題，請重新整理頁面。") +
+          (AppI18n.t("flow.lessonLoadError") || "?��?載入練�?題�?請�??�整?��??��?) +
           '</p><button type="button" class="lc-btn-primary lc-btn-block" onclick="location.reload()">' +
-          (AppI18n.t("flow.reloadPage") || "重新整理") +
+          (AppI18n.t("flow.reloadPage") || "?�新?��?") +
           "</button></div>";
       }
       if (mode === "review") {
         document.title =
-          (AppI18n.t("flow.modeReviewTitle") || "Review") + " — Rainy Night Frog";
+          (AppI18n.t("flow.modeReviewTitle") || "Review") + " ??Rainy Night Frog";
       }
       if (mode === "jump") {
         var jumpPart = params.get("part") || sessionStorage.getItem("rnf_jump_test_part") || "";
         document.title =
           (AppI18n.t("flow.jumpTestStart") || "Jump test") +
           (jumpPart ? " · " + jumpPart : "") +
-          " — Rainy Night Frog";
+          " ??Rainy Night Frog";
       }
     }
 

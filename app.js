@@ -591,8 +591,7 @@
   function handleMoreAction(action) {
     closeMoreMenu();
     if (action === "settings") {
-      var langBtn = document.querySelector(".lc-lang-trigger");
-      if (langBtn) langBtn.click();
+      location.href = "settings.html";
       return;
     }
     if (action === "logout") {
@@ -1442,6 +1441,7 @@
   function speakText(text, opts) {
     opts = opts || {};
     if (!text || !global.speechSynthesis) return;
+    if (global.RNFSettings && !RNFSettings.isSoundEnabled()) return;
     speechSynthesis.cancel();
     var lang =
       opts.lang ||
@@ -1449,6 +1449,12 @@
     var u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = opts.rate != null ? opts.rate : 0.92;
+    u.volume =
+      opts.volume != null
+        ? opts.volume
+        : global.RNFSettings && RNFSettings.getVolume
+          ? RNFSettings.getVolume()
+          : 1;
 
     function doSpeak() {
       var voice =

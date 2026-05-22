@@ -182,6 +182,76 @@
     return '<span class="lc-pond-play-tag">' + t(node.playKey) + "</span>";
   }
 
+  function renderLevelBadge(n) {
+    if (!n.levelNum) return "";
+    var tierKey = n.tierLabelKey || "flow.pathTierBasic";
+    var tierCls =
+      n.tierRank >= 3
+        ? " lc-pond-level--elite"
+        : n.tierRank >= 2
+          ? " lc-pond-level--adv"
+          : "";
+    return (
+      '<span class="lc-pond-level' +
+      tierCls +
+      '">' +
+      '<span class="lc-pond-level-num">' +
+      n.levelNum +
+      "</span>" +
+      '<span class="lc-pond-level-lbl">' +
+      t("flow.pathLevelNum", { n: n.levelNum }) +
+      "</span>" +
+      '<span class="lc-pond-level-tier">' +
+      t(tierKey) +
+      "</span></span>"
+    );
+  }
+
+  function renderCurrentRibbon(n, state) {
+    if (state !== "current" || !n.href || !n.levelNum) return "";
+    var html =
+      '<span class="lc-pond-ribbon lc-pond-ribbon--now">' +
+      t("flow.pathLevelNow", { n: n.levelNum }) +
+      " · " +
+      t("flow.learnStart") +
+      "</span>";
+    if (n.nextIsAdvanced) {
+      html +=
+        '<span class="lc-pond-next-adv">' +
+        t("flow.pathNextAdvanced", { n: n.nextLevelNum }) +
+        "</span>";
+    } else if (n.nextLevelNum) {
+      html +=
+        '<span class="lc-pond-next-hint">' +
+        t("flow.pathNextLevel", { n: n.nextLevelNum }) +
+        "</span>";
+    }
+    return html;
+  }
+
+  function renderPathProgressStrip() {
+    if (!global.RNFPathProgress || !RNFPathProgress.getPathLevelSummary) {
+      return "";
+    }
+    var sum = RNFPathProgress.getPathLevelSummary();
+    var pct = sum.total
+      ? Math.round((sum.current / sum.total) * 100)
+      : 0;
+    return (
+      '<div class="lc-pond-path-progress" role="status">' +
+      '<span class="lc-pond-path-progress-lbl">' +
+      t("flow.pathProgressLabel", {
+        cur: sum.current,
+        total: sum.total,
+      }) +
+      "</span>" +
+      '<div class="lc-pond-path-progress-bar" aria-hidden="true">' +
+      '<div class="lc-pond-path-progress-fill" style="width:' +
+      pct +
+      '%"></div></div></div>'
+    );
+  }
+
   function renderPondJump(n) {
     var style = n.jumpStyle || "violet";
     var tipHtml =
@@ -240,10 +310,24 @@
       (n.boss || n.type === "trophy" || n.type === "raid"
         ? " lc-pond-stop--boss"
         : "");
+    var ariaLabel =
+      n.levelNum && n.tierLabelKey
+        ? t("flow.pathLevelNum", { n: n.levelNum }) +
+          " · " +
+          t(n.tierLabelKey) +
+          " · " +
+          nodeTypeLabel(n.type)
+        : nodeTypeLabel(n.type);
     var attrs =
       tag === "a"
-        ? ' href="' + n.href + '" class="' + cls + '"'
-        : ' class="' + cls + '"';
+        ? ' href="' +
+          n.href +
+          '" class="' +
+          cls +
+          '" aria-label="' +
+          ariaLabel +
+          '"'
+        : ' class="' + cls + '" aria-label="' + ariaLabel + '"';
 
     var ribbon =
       state === "current" && n.href
@@ -264,6 +348,7 @@
       attrs +
       ">" +
       ribbon +
+      renderLevelBadge(n) +
       gemBadgeHtml(n) +
       renderDifficultyStars(n) +
       '<span class="lc-pond-stop-pad"></span>' +
@@ -306,14 +391,31 @@
 
   function renderPondZoneTitle(block) {
     if (!block.zoneKey) return "";
+    var rangeHtml = "";
+    if (block.levelFrom && block.levelTo) {
+      rangeHtml =
+        '<span class="lc-pond-zone-range">' +
+        t("flow.pathZoneLevels", {
+          from: block.levelFrom,
+          to: block.levelTo,
+        }) +
+        "</span>";
+    }
+    var tierHtml = block.zoneTierKey
+      ? '<span class="lc-pond-zone-tier">' + t(block.zoneTierKey) + "</span>"
+      : "";
     return (
       '<div class="lc-pond-zone-head">' +
       '<span class="lc-pond-zone-badge">' +
       (block.mascot || "✦") +
       "</span>" +
+      '<div class="lc-pond-zone-head-text">' +
       '<span class="lc-pond-zone-title">' +
       t(block.zoneKey) +
-      "</span></div>"
+      "</span>" +
+      rangeHtml +
+      tierHtml +
+      "</div></div>"
     );
   }
 
@@ -402,6 +504,7 @@
       '<div class="lc-pond-scene-aurora" aria-hidden="true"></div>' +
       renderPondPals() +
       '<div class="lc-pond-scroll lc-pond-scroll--full">' +
+      renderPathProgressStrip() +
       '<div class="lc-pond-sky-path">' +
       '<div class="lc-pond-river">' +
       '<div class="lc-pond-river-line" aria-hidden="true"></div>' +
@@ -750,9 +853,13 @@
         '<p class="lc-panel-text">' +
         t("flow.hubProfileLoggedInDesc", { name: label }) +
         "</p>" +
+        '<div class="lc-hub-profile-actions">' +
         '<a class="lc-panel-link" href="profile.html">' +
         t("flow.hubQuickProfile") +
-        "</a></div>"
+        "</a>" +
+        '<button type="button" class="lc-panel-link lc-hub-logout" data-pond-logout">' +
+        t("flow.moreLogout") +
+        "</button></div></div>"
       );
     }
     return (
@@ -782,6 +889,107 @@
       : "";
   }
 
+  function getCheckinQuestStatus() {
+    if (!global.RNFQuestSystem || !RNFQuestSystem.getSummary) return null;
+    var summary = RNFQuestSystem.getSummary();
+    for (var i = 0; i < summary.quests.length; i++) {
+      if (summary.quests[i].id === "checkin") return summary.quests[i];
+    }
+    return null;
+  }
+
+  function renderDailyCheckinBlock() {
+    var q = getCheckinQuestStatus();
+    if (!q) return "";
+    var action = "";
+    if (!q.done) {
+      action =
+        '<button type="button" class="lc-pond-checkin-btn" data-pond-checkin>📅 ' +
+        t("flow.questCheckinBtn") +
+        "</button>";
+    } else if (q.canClaim) {
+      action =
+        '<button type="button" class="lc-pond-checkin-btn lc-pond-checkin-btn--claim" data-pond-claim-checkin>🎁 ' +
+        t("flow.questClaim") +
+        " +10 💎</button>";
+    } else {
+      action =
+        '<span class="lc-pond-checkin-done">✓ ' +
+        t("flow.questClaimed") +
+        "</span>";
+    }
+    return (
+      '<div class="lc-pond-checkin">' +
+      '<p class="lc-pond-checkin-lbl">' +
+      t("flow.questCheckin") +
+      "</p>" +
+      '<p class="lc-pond-checkin-desc">' +
+      t("flow.questCheckinDesc") +
+      "</p>" +
+      action +
+      "</div>"
+    );
+  }
+
+  function showPondToast(msg) {
+    var el = document.getElementById("lcPondToast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "lcPondToast";
+      el.className = "lc-quest-toast";
+      el.setAttribute("role", "status");
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(showPondToast._t);
+    showPondToast._t = setTimeout(function () {
+      el.classList.remove("show");
+    }, 2600);
+  }
+
+  function refreshSidePanel() {
+    var sidePanel = document.getElementById("sidePanel");
+    if (!sidePanel) return;
+    var stats = global.LCApp && LCApp.getLearnStats ? LCApp.getLearnStats() : {};
+    sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
+    bindSidePanelActions();
+    if (global.RNFFrogLogo) RNFFrogLogo.mount(sidePanel);
+  }
+
+  function bindSidePanelActions() {
+    var checkinBtn = document.querySelector("[data-pond-checkin]");
+    if (checkinBtn) {
+      checkinBtn.addEventListener("click", function () {
+        if (!global.RNFQuestSystem || !RNFQuestSystem.doCheckin) return;
+        RNFQuestSystem.doCheckin();
+        showPondToast(t("flow.questCheckinDone"));
+        refreshSidePanel();
+      });
+    }
+    var claimBtn = document.querySelector("[data-pond-claim-checkin]");
+    if (claimBtn) {
+      claimBtn.addEventListener("click", function () {
+        if (!global.RNFQuestSystem || !RNFQuestSystem.claim) return;
+        var r = RNFQuestSystem.claim("checkin");
+        if (r.ok) {
+          showPondToast(t("flow.questClaimedToast", { n: r.reward }));
+          if (global.LCApp && LCApp.initGemsPicker) LCApp.initGemsPicker();
+        }
+        refreshSidePanel();
+      });
+    }
+    var logoutBtn = document.querySelector("[data-pond-logout]");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", function () {
+        if (global.RNFPlayerAuth && RNFPlayerAuth.logout) {
+          RNFPlayerAuth.logout();
+        }
+        location.href = "auth.html?mode=login";
+      });
+    }
+  }
+
   function renderSidePanel(stats, lessonRecap) {
     var dailyPct = stats.dailyGoal
       ? Math.min(100, Math.round((stats.dailyXp / stats.dailyGoal) * 100))
@@ -791,22 +999,9 @@
     var boardLeft = getBoardUnitsLeft();
 
     return (
+      renderHubProfileCard() +
       renderLessonRecapWidget(lessonRecap) +
       renderHubExploreGrid() +
-      renderHubProfileCard() +
-      '<div class="lc-panel-card lc-panel-super lc-learn-super-card lc-pond-widget">' +
-      '<div class="lc-learn-super-inner">' +
-      '<div class="lc-learn-super-copy">' +
-      '<h3 class="lc-panel-title">' +
-      t("flow.learnSuperTitle") +
-      "</h3>" +
-      '<p class="lc-panel-text">' +
-      t("flow.learnSuperDesc") +
-      "</p>" +
-      '<a href="super.html" class="lc-panel-cta">' +
-      t("flow.learnSuperCta") +
-      "</a></div>" +
-      '<div class="lc-learn-super-mascot" data-frog-logo aria-hidden="true"></div></div></div>' +
       '<div class="lc-panel-card lc-shop-board-card lc-pond-widget">' +
       "<h3 class=\"lc-panel-title\">" +
       t("flow.learnBoardTitle") +
@@ -824,7 +1019,7 @@
           "</a>"
         : "") +
       "</div></div>" +
-      '<div class="lc-panel-card lc-panel-daily lc-pond-widget">' +
+      '<div class="lc-panel-card lc-panel-daily lc-pond-widget lc-pond-widget--daily">' +
       '<div class="lc-panel-head-row">' +
       "<h3 class=\"lc-panel-title\">" +
       t("flow.learnDailyTitle") +
@@ -832,6 +1027,7 @@
       '<a href="quests.html" class="lc-panel-link">' +
       t("flow.learnShowAll") +
       "</a></div>" +
+      renderDailyCheckinBlock() +
       '<p class="lc-panel-quest-lbl">' +
       t("flow.dailyXpTask", { n: stats.dailyGoal }) +
       "</p>" +
@@ -986,10 +1182,18 @@
 
     if (topbar) topbar.innerHTML = renderTopBar(stats);
 
-    pathCol.innerHTML = renderChapterBanner() + renderPondJourney();
+    pathCol.innerHTML = renderPondJourney() + renderChapterBanner();
 
     if (sidePanel) {
       sidePanel.innerHTML = renderSidePanel(stats, consumeLessonFinishPayload());
+      bindSidePanelActions();
+    }
+
+    if (!global._rnfPondQuestListener) {
+      global._rnfPondQuestListener = true;
+      document.addEventListener("rnf:quests-change", function () {
+        refreshSidePanel();
+      });
     }
 
     if (global.RNFFrogLogo) RNFFrogLogo.mount();
@@ -1032,6 +1236,7 @@
   global.RNFLearnPath = {
     init: init,
     renderSidePanel: renderSidePanel,
+    refreshSidePanel: refreshSidePanel,
     getBoardUnitsLeft: getBoardUnitsLeft,
     openJumpModal: openJumpModal,
     closeJumpModal: closeJumpModal,

@@ -2087,10 +2087,13 @@
       return;
     }
     if (!global.speechSynthesis) return;
+    if (global.RNFSettings && !RNFSettings.isSoundEnabled()) return;
     speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = 0.92;
+    u.volume =
+      global.RNFSettings && RNFSettings.getVolume ? RNFSettings.getVolume() : 1;
     speechSynthesis.speak(u);
   };
 
@@ -2151,10 +2154,13 @@
           return;
         }
         if (!global.speechSynthesis) return;
+        if (global.RNFSettings && !RNFSettings.isSoundEnabled()) return;
         speechSynthesis.cancel();
         var u = new SpeechSynthesisUtterance(text);
         u.lang = lang;
         u.rate = rate === "slow" ? 0.72 : 0.92;
+        u.volume =
+          global.RNFSettings && RNFSettings.getVolume ? RNFSettings.getVolume() : 1;
         speechSynthesis.speak(u);
       });
     });
