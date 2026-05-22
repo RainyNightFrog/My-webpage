@@ -51,8 +51,8 @@
   <script src="zh-literacy-bank.js"></script>
   <script src="en-literacy-bank.js"></script>
   <script src="mascot-pool.js"></script>
-  <script src="question-generator.js?v=20260521"></script>
-  <script src="questions.js?v=20260521"></script>
+  <script src="question-generator.js?v=20260522"></script>
+  <script src="questions.js?v=20260522"></script>
   <script src="question-audit.js"></script>
   <script src="quest-system.js"></script>
   <script src="path-progress.js"></script>
@@ -60,8 +60,8 @@
   <script src="leaderboard-data.js"></script>
   <script src="adventure-island.js"></script>
   <script src="shop-inventory.js"></script>
-  <script src="practice-backpack.js?v=20260521"></script>
-  <script src="practice-engine.js?v=20260521"></script>
+  <script src="practice-backpack.js?v=20260522"></script>
+  <script src="practice-engine.js?v=20260522"></script>
   <script>
     var mode = "normal";
     var params = new URLSearchParams(location.search);
@@ -114,22 +114,35 @@
       if (err && console.error) console.error(err);
     }
 
-    function ensureQuizVisible() {
+    function clearLessonOverlayState() {
+      document.body.classList.remove(
+        "lc-lesson-result-wrong",
+        "lc-lesson-result-correct",
+        "lc-lesson-result-encourage",
+        "lc-lesson-last-chance"
+      );
+    }
+
+    function rootHasQuizMarkup() {
       var root = document.getElementById("quizRoot");
-      if (!root || !engine) return false;
-      if (root.querySelector(".lc-step, .lc-complete, .lc-grade-report")) return true;
-      if (engine.state.queue && engine.state.queue.length) {
-        try {
-          engine.renderCurrent();
-        } catch (e) {
-          showLessonBootError(e);
-          return false;
-        }
+      if (!root) return false;
+      if ((root.innerHTML || "").length < 60) return false;
+      if (root.querySelector(".lc-step.active")) return true;
+      var errLine = root.querySelector(".lc-complete .lc-quiz-q");
+      return !!(errLine && (errLine.textContent || "").trim().length > 0);
+    }
+
+    function forceRenderQuiz() {
+      if (!engine || !engine.renderCurrent) return;
+      try {
+        engine.renderCurrent();
+      } catch (e) {
+        if (console.error) console.error(e);
       }
-      return !!root.querySelector(".lc-step, .lc-complete");
     }
 
     function boot() {
+      clearLessonOverlayState();
       if (viewGrade) {
         LCApp.initScoreWidget(10);
         document.getElementById("btnSkip").classList.add("lc-hidden");
