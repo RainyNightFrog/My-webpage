@@ -158,26 +158,227 @@
     );
   }
 
+  var pickerState = { emoji: "🐸", category: "all" };
+
+  /** 若 avatar-pool.js 未載入時仍可選頭像 */
+  var FALLBACK_AVATARS = [
+    { id: "frog", emoji: "🐸", cats: ["land", "fun"] },
+    { id: "bear", emoji: "🐻", cats: ["land"] },
+    { id: "panda", emoji: "🐼", cats: ["land"] },
+    { id: "fox", emoji: "🦊", cats: ["land"] },
+    { id: "cat", emoji: "🐱", cats: ["land"] },
+    { id: "dog", emoji: "🐶", cats: ["land"] },
+    { id: "rabbit", emoji: "🐰", cats: ["land"] },
+    { id: "tiger", emoji: "🐯", cats: ["land"] },
+    { id: "lion", emoji: "🦁", cats: ["land"] },
+    { id: "monkey", emoji: "🐵", cats: ["land"] },
+    { id: "pig", emoji: "🐷", cats: ["land"] },
+    { id: "koala", emoji: "🐨", cats: ["land"] },
+    { id: "penguin", emoji: "🐧", cats: ["land", "sea"] },
+    { id: "unicorn", emoji: "🦄", cats: ["land", "fun"] },
+    { id: "butterfly", emoji: "🦋", cats: ["sky", "fun"] },
+    { id: "bee", emoji: "🐝", cats: ["sky", "land"] },
+    { id: "owl", emoji: "🦉", cats: ["sky", "land"] },
+    { id: "parrot", emoji: "🦜", cats: ["sky"] },
+    { id: "dolphin", emoji: "🐬", cats: ["sea"] },
+    { id: "whale", emoji: "🐳", cats: ["sea"] },
+    { id: "fish", emoji: "🐟", cats: ["sea"] },
+    { id: "tropical", emoji: "🐠", cats: ["sea"] },
+    { id: "octopus", emoji: "🐙", cats: ["sea"] },
+    { id: "crab", emoji: "🦀", cats: ["sea"] },
+    { id: "turtle", emoji: "🐢", cats: ["sea", "land"] },
+    { id: "shark", emoji: "🦈", cats: ["sea"] },
+    { id: "seal", emoji: "🦭", cats: ["sea"] },
+    { id: "shell", emoji: "🐚", cats: ["sea"] },
+    { id: "jelly", emoji: "🪼", cats: ["sea"] },
+    { id: "star", emoji: "🌟", cats: ["fun"] },
+    { id: "rainbow", emoji: "🌈", cats: ["fun"] },
+  ];
+
+  var FALLBACK_CATEGORIES = [
+    { id: "all", labelKey: "flow.avatarCatAll" },
+    { id: "land", labelKey: "flow.avatarCatLand" },
+    { id: "sea", labelKey: "flow.avatarCatSea" },
+    { id: "sky", labelKey: "flow.avatarCatSky" },
+    { id: "fun", labelKey: "flow.avatarCatFun" },
+  ];
+
+  function getAvatarPoolApi() {
+    if (global.RNFAvatarPool && global.RNFAvatarPool.listByCategory) {
+      return global.RNFAvatarPool;
+    }
+    return {
+      CATEGORIES: FALLBACK_CATEGORIES,
+      listByCategory: function (catId) {
+        if (!catId || catId === "all") return FALLBACK_AVATARS.slice();
+        return FALLBACK_AVATARS.filter(function (a) {
+          return a.cats.indexOf(catId) >= 0;
+        });
+      },
+      isValidEmoji: function (emoji) {
+        return FALLBACK_AVATARS.some(function (a) {
+          return a.emoji === emoji;
+        });
+      },
+    };
+  }
+
+  function getAvatarEmoji() {
+    try {
+      var e = localStorage.getItem("rnf_avatar_emoji");
+      if (e && getAvatarPoolApi().isValidEmoji(e)) return e;
+    } catch (err) {}
+    return "";
+  }
+
+  function setAvatarEmoji(emoji) {
+    if (!emoji) return;
+    try {
+      localStorage.setItem("rnf_avatar_emoji", emoji);
+      localStorage.setItem("rnf_avatar_done", "1");
+      var raw = localStorage.getItem("rnf_profile");
+      var p = raw ? JSON.parse(raw) : {};
+      p.avatarEmoji = emoji;
+      localStorage.setItem("rnf_profile", JSON.stringify(p));
+    } catch (err) {}
+  }
+
+  function profileAvatarInnerHtml(emoji) {
+    if (emoji) {
+      return (
+        '<span class="lc-profile-avatar-emoji" aria-hidden="true">' +
+        emoji +
+        "</span>"
+      );
+    }
+    return (
+      '<span class="lc-profile-avatar-plus">+</span>' +
+      '<span class="lc-profile-avatar-silhouette" aria-hidden="true"></span>'
+    );
+  }
+
+  function openAvatarModal() {
+    var modal = document.getElementById("avatarModal");
+    if (!modal) return;
+    pickerState.emoji = getAvatarEmoji() || "🐸";
+    modal.hidden = false;
+    renderAvatarPicker();
+    requestAnimationFrame(function () {
+      renderAvatarPicker();
+    });
+  }
+
+  function closeAvatarModal() {
+    var modal = document.getElementById("avatarModal");
+    if (modal) modal.hidden = true;
+  }
+
+  function renderAvatarPicker() {
+    var pool = getAvatarPoolApi();
+    var preview = document.getElementById("avatarPickerPreview");
+    if (preview) preview.textContent = pickerState.emoji;
+
+    var tabsEl = document.getElementById("avatarPickerTabs");
+    var gridEl = document.getElementById("avatarPickerGrid");
+    if (!tabsEl || !gridEl) return;
+
+    tabsEl.innerHTML = "";
+    pool.CATEGORIES.forEach(function (cat) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className =
+        "lc-avatar-picker-tab" +
+        (pickerState.category === cat.id ? " on" : "");
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", pickerState.category === cat.id ? "true" : "false");
+      btn.textContent = t(cat.labelKey);
+      btn.addEventListener("click", function () {
+        pickerState.category = cat.id;
+        renderAvatarPicker();
+      });
+      tabsEl.appendChild(btn);
+    });
+
+    var list = pool.listByCategory(pickerState.category);
+    gridEl.innerHTML = "";
+    if (!list.length) {
+      var empty = document.createElement("p");
+      empty.className = "lc-avatar-picker-empty";
+      empty.textContent = t("flow.avatarPickerSub");
+      gridEl.appendChild(empty);
+      return;
+    }
+
+    list.forEach(function (item) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className =
+        "lc-avatar-picker-item" +
+        (pickerState.emoji === item.emoji ? " selected" : "");
+      b.setAttribute("aria-label", item.id);
+      b.setAttribute("aria-pressed", pickerState.emoji === item.emoji ? "true" : "false");
+      var span = document.createElement("span");
+      span.className = "lc-avatar-picker-emoji";
+      span.setAttribute("aria-hidden", "true");
+      span.textContent = item.emoji;
+      b.appendChild(span);
+      b.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        pickerState.emoji = item.emoji;
+        renderAvatarPicker();
+      });
+      gridEl.appendChild(b);
+    });
+  }
+
+  function applyAvatarToProfileButton() {
+    var btn = document.getElementById("btnEditAvatar");
+    if (!btn) return;
+    var emoji = getAvatarEmoji();
+    btn.innerHTML = profileAvatarInnerHtml(emoji);
+    if (emoji) btn.classList.add("has-avatar");
+    else btn.classList.remove("has-avatar");
+  }
+
+  var avatarModalListenersBound = false;
+
   function bindAvatarModal() {
     var modal = document.getElementById("avatarModal");
     if (!modal) return;
-    try {
-      if (localStorage.getItem("rnf_avatar_done") === "1") {
-        modal.hidden = true;
-        return;
-      }
-    } catch (e) {}
 
-    modal.hidden = false;
-    document.getElementById("btnAvatarStart").onclick = function () {
+    if (!avatarModalListenersBound) {
+      avatarModalListenersBound = true;
+      var saveBtn = document.getElementById("btnAvatarSave");
+      var laterBtn = document.getElementById("btnAvatarLater");
+      var closeBtn = document.getElementById("btnAvatarClose");
+
+      if (saveBtn) {
+        saveBtn.onclick = function () {
+          setAvatarEmoji(pickerState.emoji);
+          applyAvatarToProfileButton();
+          closeAvatarModal();
+          if (global.LCApp && LCApp.refreshProfileNavIcon) {
+            LCApp.refreshProfileNavIcon();
+          }
+        };
+      }
+      if (laterBtn) laterBtn.onclick = closeAvatarModal;
+      if (closeBtn) closeBtn.onclick = closeAvatarModal;
+
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeAvatarModal();
+      });
+    }
+
+    if (!bindAvatarModal._welcomedOnce) {
+      bindAvatarModal._welcomedOnce = true;
       try {
-        localStorage.setItem("rnf_avatar_done", "1");
+        if (localStorage.getItem("rnf_avatar_done") !== "1") {
+          openAvatarModal();
+        }
       } catch (e) {}
-      modal.hidden = true;
-    };
-    document.getElementById("btnAvatarLater").onclick = function () {
-      modal.hidden = true;
-    };
+    }
   }
 
   function bindProfileTabs() {
@@ -215,11 +416,12 @@
       main.innerHTML =
         '<header class="lc-profile-header">' +
         '<div class="lc-profile-avatar-wrap">' +
-        '<button type="button" class="lc-profile-avatar" id="btnEditAvatar" aria-label="' +
+        '<button type="button" class="lc-profile-avatar' +
+        (getAvatarEmoji() ? " has-avatar" : "") +
+        '" id="btnEditAvatar" aria-label="' +
         t("flow.profileEditAvatar") +
         '">' +
-        '<span class="lc-profile-avatar-plus">+</span>' +
-        '<span class="lc-profile-avatar-silhouette" aria-hidden="true"></span>' +
+        profileAvatarInnerHtml(getAvatarEmoji()) +
         "</button>" +
         '<span class="lc-profile-edit-badge" aria-hidden="true">✎</span></div>' +
         '<div class="lc-profile-ident-wrap">' +
@@ -326,13 +528,11 @@
 
     var editBtn = document.getElementById("btnEditAvatar");
     if (editBtn) {
-      editBtn.onclick = function () {
-        var modal = document.getElementById("avatarModal");
-        if (modal) modal.hidden = false;
-      };
+      editBtn.onclick = openAvatarModal;
     }
 
     bindAvatarModal();
+    applyAvatarToProfileButton();
     bindProfileTabs();
 
     if (global.LCApp && LCApp.refreshProfileNavIcon) {
@@ -344,5 +544,10 @@
     if (global.LCApp && LCApp.initHeartsPicker) LCApp.initHeartsPicker();
   }
 
-  global.RNFProfile = { init: init };
+  global.RNFProfile = {
+    init: init,
+    getAvatarEmoji: getAvatarEmoji,
+    openAvatarPicker: openAvatarModal,
+    renderAvatarPicker: renderAvatarPicker,
+  };
 })(typeof window !== "undefined" ? window : this);

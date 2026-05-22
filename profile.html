@@ -97,9 +97,13 @@
       LCApp.initMoreMenu();
       LCApp.initCoursePicker();
       LCApp.initStreakPicker();
-    LCApp.initGemsPicker();
-    LCApp.initHeartsPicker();
+      LCApp.initGemsPicker();
+      LCApp.initHeartsPicker();
       RNFProfile.init();
+      var modal = document.getElementById("avatarModal");
+      if (modal && !modal.hidden && RNFProfile.renderAvatarPicker) {
+        RNFProfile.renderAvatarPicker();
+      }
     });
     document.addEventListener("lc:coursechange", function () {
       RNFProfile.init();

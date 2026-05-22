@@ -6011,9 +6011,17 @@ button.lc-hearts-pop-row {
 }
 
 .lc-profile-avatar-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   font-size: 4.5rem;
   line-height: 1;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
+@media (max-width: 420px) {
+  .lc-avatar-picker-grid {
+    grid-template-columns: repeat(4, minmax(48px, 1fr));
+    min-height: 180px;
+  }
 }
 
 .lc-profile-edit-badge {
@@ -6387,10 +6395,20 @@ button.lc-hearts-pop-row {
   position: relative;
   max-width: min(520px, 96vw);
   max-height: min(90vh, 720px);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   text-align: center;
+}
+
+.lc-avatar-picker-card > .lc-avatar-picker-preview,
+.lc-avatar-picker-card > h2,
+.lc-avatar-picker-card > .lc-avatar-picker-sub,
+.lc-avatar-picker-card > .lc-avatar-picker-tabs,
+.lc-avatar-picker-card > .lc-avatar-save,
+.lc-avatar-picker-card > .lc-avatar-later {
+  flex-shrink: 0;
 }
 
 .lc-avatar-picker-close {
@@ -6469,30 +6487,55 @@ button.lc-hearts-pop-row {
 
 .lc-avatar-picker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
-  gap: 0.45rem;
-  max-height: min(42vh, 320px);
+  grid-template-columns: repeat(5, minmax(52px, 1fr));
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-height: 200px;
+  max-height: min(42vh, 340px);
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.65rem;
   margin-bottom: 1rem;
   border-radius: 14px;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .lc-avatar-picker-item {
+  width: 100%;
+  min-height: 52px;
+  min-width: 0;
   aspect-ratio: 1;
   border: 2px solid transparent;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   line-height: 1;
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
   transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.lc-avatar-picker-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.lc-avatar-picker-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 1rem 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .lc-avatar-picker-item:hover {
