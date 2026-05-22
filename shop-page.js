@@ -4,8 +4,6 @@
 (function (global) {
   var MAX_HEARTS = 5;
   var REFILL_COST = 350;
-  var STREAK_FREEZE_EQUIPPED = 2;
-  var STREAK_FREEZE_MAX = 2;
 
   var COURSE_KEYS = {
     en: "flow.courseEn",
@@ -53,124 +51,170 @@
     );
   }
 
-  function renderFamilyBanner() {
+  function renderShopHero(stats) {
     return (
-      '<div class="lc-shop-family-banner">' +
-      '<div class="lc-shop-family-chars" aria-hidden="true">' +
-      '<span>🐸</span><span>👧</span><span>👦</span><span>🧒</span>' +
-      "</div>" +
-      '<div class="lc-shop-family-text">' +
+      '<header class="lc-shop-hero">' +
+      '<div class="lc-shop-hero-glow" aria-hidden="true"></div>' +
+      '<div class="lc-shop-hero-copy">' +
       "<h1>" +
-      t("flow.shopFamilyTitle") +
+      t("flow.shopHeroTitle") +
       "</h1>" +
       "<p>" +
-      t("flow.shopFamilyDesc") +
+      t("flow.shopHeroDesc") +
       "</p>" +
-      '<a href="super.html" class="lc-shop-family-cta">' +
-      t("flow.shopFamilyCta") +
-      "</a></div></div>"
+      '<p class="lc-shop-hero-balance">' +
+      t("flow.shopBalance", { n: stats.gems }) +
+      " 💎</p></div>" +
+      '<div class="lc-shop-hero-mascot" aria-hidden="true">' +
+      '<span>🐸</span><span>💎</span><span>🛍️</span>' +
+      "</div></header>"
     );
   }
 
-  function shopRow(opts) {
-    var btnClass = "lc-shop-btn";
-    if (opts.disabled) btnClass += " disabled";
-    if (opts.accent) btnClass += " accent";
+  function renderShopCard(item, stats, inv) {
+    var owned = inv[item.id] || 0;
+    var heartsFull = stats.hearts >= MAX_HEARTS;
+    var disabled = false;
+    var btnText = t(item.btnKey, { n: item.cost });
+    var statusHtml = "";
 
-    var status = "";
-    if (opts.statusKey) {
-      status =
-        '<span class="lc-shop-row-status">' +
-        t(opts.statusKey, opts.statusVars) +
-        "</span>";
+    if (item.id === "heart") {
+      if (heartsFull) {
+        disabled = true;
+        btnText = t("flow.shopHeartsFull");
+        statusHtml =
+          '<span class="lc-shop-card-status">' +
+          t("flow.shopHeartCount", { n: stats.hearts, max: MAX_HEARTS }) +
+          "</span>";
+      } else {
+        statusHtml =
+          '<span class="lc-shop-card-status">' +
+          t("flow.shopHeartCount", { n: stats.hearts, max: MAX_HEARTS }) +
+          "</span>";
+      }
+      disabled = heartsFull || stats.gems < item.cost;
+    } else {
+      if (owned > 0) {
+        statusHtml =
+          '<span class="lc-shop-card-owned">' +
+          t("flow.shopOwned", { n: owned }) +
+          "</span>";
+      }
+      disabled = stats.gems < item.cost;
     }
 
-    var iconClass = "lc-shop-row-icon";
-    if (opts.iconClass) iconClass += " " + opts.iconClass;
-
-    var btnTag = opts.href ? "a" : "button";
-    var btnAttrs =
-      btnTag === "a"
-        ? ' href="' + opts.href + '" class="' + btnClass + '"'
-        : ' type="button" class="' +
-          btnClass +
-          '"' +
-          (opts.disabled ? " disabled" : "") +
-          ' data-action="' +
-          (opts.action || "") +
-          '"';
-
     return (
-      '<article class="lc-shop-row">' +
-      '<span class="' +
-      iconClass +
-      '" aria-hidden="true">' +
-      opts.icon +
+      '<article class="lc-shop-card lc-shop-card--' +
+      item.color +
+      '">' +
+      '<span class="lc-shop-card-icon" aria-hidden="true">' +
+      item.icon +
       "</span>" +
-      '<div class="lc-shop-row-body">' +
-      '<div class="lc-shop-row-title">' +
-      "<h3>" +
-      t(opts.titleKey) +
+      '<h3 class="lc-shop-card-title">' +
+      t(item.titleKey) +
       "</h3>" +
-      status +
-      "</div>" +
-      "<p>" +
-      t(opts.descKey) +
-      "</p></div>" +
-      "<" +
-      btnTag +
-      btnAttrs +
+      '<p class="lc-shop-card-desc">' +
+      t(item.descKey) +
+      "</p>" +
+      statusHtml +
+      '<p class="lc-shop-card-price">' +
+      item.cost +
+      " 💎</p>" +
+      '<button type="button" class="lc-shop-card-btn' +
+      (disabled ? " disabled" : "") +
+      '" data-buy="' +
+      item.id +
+      '"' +
+      (disabled ? " disabled" : "") +
       ">" +
-      t(opts.btnKey, opts.btnVars) +
-      "</" +
-      btnTag +
-      "></article>"
+      btnText +
+      "</button></article>"
+    );
+  }
+
+  function renderUseCards(inv) {
+    var html = "";
+    if (inv.mission > 0) {
+      html +=
+        '<button type="button" class="lc-shop-use-btn" data-use="mission">' +
+        t("flow.shopUseMission", { n: inv.mission }) +
+        "</button>";
+    }
+    if (inv.challenge > 0) {
+      html +=
+        '<button type="button" class="lc-shop-use-btn" data-use="challenge">' +
+        t("flow.shopUseChallenge", { n: inv.challenge }) +
+        "</button>";
+    }
+    if (!html) return "";
+    return (
+      '<section class="lc-shop-section lc-shop-section--owned">' +
+      "<h2>" +
+      t("flow.shopOwnedTitle") +
+      "</h2>" +
+      '<div class="lc-shop-use-row">' +
+      html +
+      "</div></section>"
     );
   }
 
   function renderMain(stats) {
+    var inv = global.RNFShopInventory
+      ? RNFShopInventory.loadInventory()
+      : { revive: 0, challenge: 0, mission: 0 };
+    var items = global.RNFShopInventory ? RNFShopInventory.ITEMS : {};
+    var cards = "";
+    ["heart", "revive", "challenge", "mission"].forEach(function (id) {
+      if (items[id]) cards += renderShopCard(items[id], stats, inv);
+    });
+
     var heartsFull = stats.hearts >= MAX_HEARTS;
     var canRefill = !heartsFull && stats.gems >= REFILL_COST;
 
     return (
-      renderFamilyBanner() +
-      '<section class="lc-shop-section">' +
-      "<h2>" +
-      t("flow.shopHeartsTitle") +
-      "</h2>" +
-      shopRow({
-        icon: "❤️",
-        titleKey: "flow.shopRefillTitle",
-        descKey: "flow.shopRefillDesc",
-        btnKey: heartsFull ? "flow.shopHeartsFull" : "flow.shopRefillBtn",
-        btnVars: heartsFull ? null : { n: REFILL_COST },
-        disabled: heartsFull || !canRefill,
-        action: canRefill ? "refill" : "",
-      }) +
-      shopRow({
-        icon: "♾️",
-        iconClass: "infinity",
-        titleKey: "flow.shopUnlimitedTitle",
-        descKey: "flow.shopUnlimitedDesc",
-        btnKey: "flow.shopFreeTrial",
-        accent: true,
-        href: "super.html",
-      }) +
-      "</section>" +
+      renderShopHero(stats) +
       '<section class="lc-shop-section">' +
       "<h2>" +
       t("flow.shopItemsTitle") +
       "</h2>" +
-      shopRow({
-        icon: "🧊",
-        titleKey: "flow.shopFreezeTitle",
-        descKey: "flow.shopFreezeDesc",
-        statusKey: "flow.shopFreezeEquipped",
-        statusVars: { n: STREAK_FREEZE_EQUIPPED, max: STREAK_FREEZE_MAX },
-        btnKey: "flow.shopEquipped",
-        disabled: true,
-      }) +
-      "</section>"
+      '<div class="lc-shop-grid">' +
+      cards +
+      "</div></section>" +
+      renderUseCards(inv) +
+      '<section class="lc-shop-section lc-shop-section--plus">' +
+      "<h2>" +
+      t("flow.shopHeartsTitle") +
+      "</h2>" +
+      '<article class="lc-shop-row lc-shop-row--wide">' +
+      '<span class="lc-shop-row-icon" aria-hidden="true">♾️</span>' +
+      '<div class="lc-shop-row-body">' +
+      "<h3>" +
+      t("flow.shopUnlimitedTitle") +
+      "</h3>" +
+      "<p>" +
+      t("flow.shopUnlimitedDesc") +
+      "</p></div>" +
+      '<a href="super.html" class="lc-shop-btn accent">' +
+      t("flow.shopFreeTrial") +
+      "</a></article>" +
+      '<article class="lc-shop-row lc-shop-row--wide">' +
+      '<span class="lc-shop-row-icon" aria-hidden="true">❤️‍🔥</span>' +
+      '<div class="lc-shop-row-body">' +
+      "<h3>" +
+      t("flow.shopRefillTitle") +
+      "</h3>" +
+      "<p>" +
+      t("flow.shopRefillDesc") +
+      "</p></div>" +
+      '<button type="button" class="lc-shop-btn' +
+      (canRefill ? "" : " disabled") +
+      '" data-action="refill"' +
+      (canRefill ? "" : " disabled") +
+      ">" +
+      (heartsFull
+        ? t("flow.shopHeartsFull")
+        : t("flow.shopRefillBtn", { n: REFILL_COST })) +
+      "</button></article></section>"
     );
   }
 
@@ -222,53 +266,65 @@
       '<div class="lc-shop-ad-slot">' +
       '<a href="super.html" class="lc-shop-remove-ads">' +
       t("flow.shopRemoveAds") +
-      "</a></div>" +
-      '<nav class="lc-panel-footer lc-shop-footer">' +
-      '<a href="home.html">' +
-      t("flow.learnFooterAbout") +
-      "</a>" +
-      '<a href="shop.html">' +
-      t("flow.navShop") +
-      "</a>" +
-      '<a href="home.html">' +
-      t("flow.shopFooterEfficacy") +
-      "</a>" +
-      '<a href="home.html">' +
-      t("flow.shopFooterCareers") +
-      "</a>" +
-      '<a href="home.html">' +
-      t("flow.shopFooterInvestors") +
-      "</a>" +
-      '<a href="home.html">' +
-      t("flow.profileFooterTerms") +
-      "</a>" +
-      '<a href="home.html">' +
-      t("flow.privacyPolicy") +
-      "</a></nav>"
+      "</a></div>"
     );
   }
 
+  function showToast(msg) {
+    var el = document.getElementById("shopToast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "shopToast";
+      el.className = "lc-shop-toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(function () {
+      el.classList.remove("show");
+    }, 2200);
+  }
+
   function bindActions(stats) {
+    document.querySelectorAll(".lc-shop-card-btn[data-buy]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (btn.disabled || !global.RNFShopInventory) return;
+        var id = btn.getAttribute("data-buy");
+        var res = RNFShopInventory.purchase(id);
+        if (res.ok) {
+          showToast(t("flow.shopBuySuccess"));
+          init();
+        } else if (res.reason === "gems") {
+          showToast(t("flow.shopNotEnoughGems"));
+        } else if (res.reason === "full") {
+          showToast(t("flow.shopHeartsFull"));
+        }
+      });
+    });
+
+    document.querySelectorAll(".lc-shop-use-btn[data-use]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var use = btn.getAttribute("data-use");
+        if (use === "mission" && RNFShopInventory.consumeMission()) {
+          RNFShopInventory.addMissionXp(5);
+          showToast(t("flow.shopMissionUsed"));
+          init();
+        }
+        if (use === "challenge") {
+          showToast(t("flow.shopChallengeHint"));
+        }
+      });
+    });
+
     document.querySelectorAll(".lc-shop-btn[data-action]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var action = btn.getAttribute("data-action");
         if (!action || btn.disabled) return;
-
-        if (action === "refill" && stats.hearts < MAX_HEARTS) {
-          if (global.LCApp && LCApp.refillHeartsFromGems) {
-            LCApp.refillHeartsFromGems();
-          } else if (stats.gems >= REFILL_COST) {
-            try {
-              var target = LCApp.getLearnTarget();
-              localStorage.setItem(
-                "rnf_gems_" + target,
-                String(stats.gems - REFILL_COST)
-              );
-              localStorage.setItem("rnf_hearts_" + target, String(MAX_HEARTS));
-            } catch (e) {}
-            document.dispatchEvent(new CustomEvent("lc:heartschange"));
+        if (action === "refill" && global.LCApp && LCApp.refillHeartsFromGems) {
+          if (LCApp.refillHeartsFromGems()) {
+            showToast(t("flow.shopBuySuccess"));
+            init();
           }
-          init();
         }
       });
     });

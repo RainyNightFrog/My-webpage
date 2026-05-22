@@ -169,22 +169,50 @@
     }
 
     function finishProfile() {
-      try {
-        localStorage.setItem("rnf_profile_created", "1");
-        localStorage.removeItem("rnf_profile_prompt");
-        if (!localStorage.getItem("rnf_profile_joined")) {
-          localStorage.setItem("rnf_profile_joined", new Date().toISOString());
-        }
-        var age = parseInt(document.getElementById("ageInput").value, 10);
-        if (!isNaN(age)) localStorage.setItem("rnf_profile_age", String(age));
-        saveProfileDraft();
-      } catch (e) {}
       var back = "learn.html";
       try {
         back = sessionStorage.getItem("rnf_profile_return") || back;
         sessionStorage.removeItem("rnf_profile_return");
         sessionStorage.removeItem("rnf_setup_flow");
       } catch (e2) {}
+
+      var emailEl = document.getElementById("profileEmail");
+      var passEl = document.getElementById("profilePassword");
+      var nameEl = document.getElementById("profileName");
+      var ageInput = document.getElementById("ageInput");
+      var age = ageInput ? parseInt(ageInput.value, 10) : NaN;
+
+      if (
+        global.RNFPlayerAuth &&
+        emailEl &&
+        passEl &&
+        isSignupValid()
+      ) {
+        RNFPlayerAuth.register({
+          name: nameEl ? nameEl.value : "",
+          email: emailEl.value,
+          password: passEl.value,
+          age: !isNaN(age) ? age : null,
+        }).then(function (res) {
+          if (res.ok) {
+            location.href = back;
+            return;
+          }
+          location.href =
+            "auth.html?mode=register&return=" + encodeURIComponent(back);
+        });
+        return;
+      }
+
+      try {
+        localStorage.setItem("rnf_profile_created", "1");
+        localStorage.removeItem("rnf_profile_prompt");
+        if (!localStorage.getItem("rnf_profile_joined")) {
+          localStorage.setItem("rnf_profile_joined", new Date().toISOString());
+        }
+        if (!isNaN(age)) localStorage.setItem("rnf_profile_age", String(age));
+        saveProfileDraft();
+      } catch (e) {}
       location.href = back;
     }
 

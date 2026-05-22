@@ -43,6 +43,7 @@
 
   <script src="frog-logo-inline.js"></script>
   <script src="i18n.js"></script>
+  <script src="player-auth.js"></script>
   <script src="app.js"></script>
   <script src="zh-vocab-extra.js"></script>
   <script src="zh-vocab-hard.js"></script>
@@ -53,6 +54,7 @@
   <script src="questions.js"></script>
   <script src="question-audit.js"></script>
   <script src="path-progress.js"></script>
+  <script src="adventure-island.js"></script>
   <script src="practice-engine.js"></script>
   <script>
     var mode = "normal";
@@ -62,6 +64,10 @@
     if (params.get("mode") === "drill") mode = "drill";
     if (params.get("mode") === "challenge") mode = "challenge";
     if (params.get("mode") === "chest") mode = "chest";
+    if (params.get("mode") === "bonus") mode = "bonus";
+    if (params.get("mode") === "listen") mode = "listen";
+    if (params.get("mode") === "match") mode = "match";
+    if (params.get("mode") === "story") mode = "story";
     if (window.RNFPathProgress && RNFPathProgress.bindLessonFromUrl) {
       RNFPathProgress.bindLessonFromUrl(params);
     }

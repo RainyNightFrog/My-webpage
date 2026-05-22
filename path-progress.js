@@ -118,11 +118,13 @@
   }
 
   function buildNodeBlueprint(stage, part) {
+    var sid = "s" + stage + "p" + part;
     return [
       {
+        zone: "lc-pond-zone--meadow",
         nodes: [
           {
-            id: "s" + stage + "p" + part + "-jump1",
+            id: sid + "-jump1",
             type: "jump",
             jumpStyle: "blue",
             showTip: true,
@@ -130,20 +132,24 @@
             targetStage: stage,
             gemHint: "jump",
           },
-          { id: "s" + stage + "p" + part + "-l1", type: "star" },
-          { id: "s" + stage + "p" + part + "-drill1", type: "practice" },
-          { id: "s" + stage + "p" + part + "-chest1", type: "chest", gemHint: "chest" },
-          { id: "s" + stage + "p" + part + "-l2", type: "star" },
-          { id: "s" + stage + "p" + part + "-boss1", type: "trophy", gemHint: "challenge" },
+          { id: sid + "-l1", type: "star", playKey: "flow.pathPlayLesson" },
+          { id: sid + "-listen", type: "listen", playKey: "flow.pathPlayListen", xpHint: 8 },
+          { id: sid + "-drill1", type: "practice", playKey: "flow.pathPlayDrill" },
+          { id: sid + "-chest1", type: "chest", gemHint: "chest", playKey: "flow.pathPlayChest" },
+          { id: sid + "-match", type: "match", playKey: "flow.pathPlayMatch", xpHint: 6 },
+          { id: sid + "-l2", type: "star", playKey: "flow.pathPlayLesson" },
+          { id: sid + "-boss1", type: "trophy", gemHint: "challenge", playKey: "flow.pathPlayBoss" },
+          { id: sid + "-quiz", type: "quiz", playKey: "flow.pathPlayQuiz" },
+          { id: sid + "-bonus", type: "bonus", gemHint: "bonus", playKey: "flow.pathPlayBonus" },
         ],
-        prop: "npc",
         mascot: stage === 1 ? "🐸" : stage === 2 ? "🦉" : "🐉",
       },
       { divider: "flow.learnSectionFriends" },
       {
+        zone: "lc-pond-zone--coral",
         nodes: [
           {
-            id: "s" + stage + "p" + part + "-jump2",
+            id: sid + "-jump2",
             type: "jump",
             jumpStyle: "pink",
             showTip: true,
@@ -151,11 +157,14 @@
             targetStage: Math.min(3, stage + 1),
             gemHint: "jump",
           },
-          { id: "s" + stage + "p" + part + "-l3", type: "star" },
-          { id: "s" + stage + "p" + part + "-drill2", type: "practice" },
-          { id: "s" + stage + "p" + part + "-chest2", type: "chest", gemHint: "chest" },
-          { id: "s" + stage + "p" + part + "-boss2", type: "trophy", gemHint: "challenge" },
-          { id: "s" + stage + "p" + part + "-l4", type: "star" },
+          { id: sid + "-story", type: "story", playKey: "flow.pathPlayStory", xpHint: 10 },
+          { id: sid + "-drill2", type: "practice", playKey: "flow.pathPlayDrill" },
+          { id: sid + "-chest2", type: "chest", gemHint: "chest", playKey: "flow.pathPlayChest" },
+          { id: sid + "-l3", type: "star", playKey: "flow.pathPlayLesson" },
+          { id: sid + "-raid", type: "raid", gemHint: "challenge", playKey: "flow.pathPlayRaid" },
+          { id: sid + "-listen2", type: "listen", playKey: "flow.pathPlayListen" },
+          { id: sid + "-boss2", type: "trophy", gemHint: "challenge", playKey: "flow.pathPlayBoss" },
+          { id: sid + "-l4", type: "star", playKey: "flow.pathPlayLesson" },
         ],
         mascot: "🦆",
       },
@@ -171,7 +180,13 @@
       }
       if (block.nodes) {
         block.nodes.forEach(function (n) {
-          list.push({ kind: "node", node: n, prop: block.prop, mascot: block.mascot });
+          list.push({
+            kind: "node",
+            node: n,
+            prop: block.prop,
+            mascot: block.mascot,
+            zone: block.zone,
+          });
         });
       }
     });
@@ -229,9 +244,12 @@
       progress.stage +
       "&part=" +
       progress.part;
-    if (node.type === "practice") q += "&mode=drill";
-    if (node.type === "trophy") q += "&mode=challenge";
-    if (node.type === "chest") q += "&mode=chest";
+    if (node.type === "practice" || node.type === "quiz") q += "&mode=drill";
+    if (node.type === "trophy" || node.type === "raid") q += "&mode=challenge";
+    if (node.type === "chest" || node.type === "bonus") q += "&mode=chest";
+    if (node.type === "listen") q += "&mode=listen";
+    if (node.type === "match") q += "&mode=match";
+    if (node.type === "story") q += "&mode=story";
     return q;
   }
 
@@ -262,8 +280,11 @@
     var pathType = params.get("path") || "star";
     var mode = params.get("mode") || "normal";
     if (mode === "drill") pathType = "practice";
-    if (mode === "challenge") pathType = "trophy";
-    if (mode === "chest") pathType = "chest";
+    if (mode === "challenge") pathType = pathType === "raid" ? "raid" : "trophy";
+    if (mode === "chest") pathType = pathType === "bonus" ? "bonus" : "chest";
+    if (mode === "listen") pathType = "listen";
+    if (mode === "match") pathType = "match";
+    if (mode === "story") pathType = "story";
     if (params.get("mode") === "jump") pathType = "jump";
     return {
       pathType: pathType,
@@ -425,6 +446,11 @@
         clearLessonContext();
         return { gems: 0, passed: false, rewardKey: "flow.pathChallengeFail" };
       }
+    } else if (pathType === "bonus" || mode === "bonus") {
+      gemsEarned = 5;
+      rewardKey = "flow.pathGemBonus";
+      addGems(gemsEarned);
+      passed = true;
     } else if (pathType === "chest" || mode === "chest") {
       if (!progress.chestClaimed[ctx.nodeId]) {
         gemsEarned = GEM_CHEST;
@@ -433,6 +459,29 @@
         addGems(gemsEarned);
       }
       passed = true;
+    } else if (pathType === "listen" || mode === "listen") {
+      passed = acc >= DRILL_MIN_ACC;
+      if (passed) addGems(2);
+    } else if (pathType === "match" || mode === "match") {
+      passed = acc >= CHALLENGE_MIN_ACC;
+      if (passed) {
+        gemsEarned = 2;
+        addGems(2);
+        rewardKey = "flow.pathGemMatch";
+      }
+    } else if (pathType === "story" || mode === "story") {
+      passed = acc >= 50;
+      if (passed) addGems(1);
+    } else if (pathType === "raid" || (mode === "challenge" && ctx.pathType === "raid")) {
+      passed = acc >= CHALLENGE_MIN_ACC;
+      if (passed) {
+        gemsEarned = GEM_CHALLENGE + 2;
+        addGems(gemsEarned);
+        rewardKey = "flow.pathGemRaid";
+      } else {
+        clearLessonContext();
+        return { gems: 0, passed: false, rewardKey: "flow.pathChallengeFail" };
+      }
     } else if (pathType === "practice" || mode === "drill") {
       passed = acc >= DRILL_MIN_ACC;
       if (!passed) {
@@ -452,6 +501,14 @@
   }
 
   function onJumpFail() {
+    if (
+      global.RNFShopInventory &&
+      RNFShopInventory.consumeRevive &&
+      RNFShopInventory.consumeRevive()
+    ) {
+      clearLessonContext();
+      return { gems: 0, saved: true, rewardKey: "flow.shopReviveUsed" };
+    }
     addGems(-GEM_JUMP_FAIL);
     clearLessonContext();
     return { gems: -GEM_JUMP_FAIL, rewardKey: "flow.pathGemJumpFail" };

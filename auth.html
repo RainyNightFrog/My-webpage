@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="flow.authLoginTitle">登入 — Rainy Night Frog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lc-app lc-auth-page" data-i18n-page="auth">
+  <div class="lc-bg" aria-hidden="true"></div>
+  <div class="lc-wrap lc-auth-wrap">
+    <header class="lc-header">
+      <a class="lc-logo" href="home.html">
+        <span class="lc-logo-icon" data-frog-logo aria-hidden="true"></span>
+        <span class="lc-logo-text" data-i18n="flow.brandName">Rainy Night Frog</span>
+      </a>
+      <div id="langTriggerMount"></div>
+    </header>
+
+    <main class="lc-auth-main">
+      <div class="lc-auth-card" id="authLoggedIn" hidden>
+        <p class="lc-auth-welcome" id="authLoggedInName"></p>
+        <p class="lc-auth-hint" data-i18n="flow.authLoggedInHint">你的寶石、愛心與冒險島進度都已同步。</p>
+        <button type="button" class="lc-btn-primary lc-btn-block" id="authContinueBtn" data-i18n="flow.authContinuePlay">繼續冒險</button>
+        <button type="button" class="lc-btn-ghost lc-btn-block" id="authLogoutBtn" data-i18n="flow.authLogout">登出</button>
+      </div>
+
+      <div class="lc-auth-card" id="authFormsWrap">
+        <h1 class="lc-auth-title" id="authTitle" data-i18n="flow.authLoginTitle">登入帳戶</h1>
+        <p class="lc-auth-sub" data-i18n="flow.authSub">註冊一次，永久保存學習進度、寶石、愛心與冒險島解鎖。</p>
+        <p class="lc-auth-error" id="authError" hidden role="alert"></p>
+
+        <div id="authLoginPanel">
+          <form class="lc-auth-form" id="authLoginForm" novalidate>
+            <label class="lc-auth-field">
+              <span data-i18n="flow.signupEmail">信箱</span>
+              <input type="email" class="lc-auth-input" id="authLoginEmail" required autocomplete="email" />
+            </label>
+            <label class="lc-auth-field lc-auth-pass">
+              <span data-i18n="flow.signupPassword">密碼</span>
+              <input type="password" class="lc-auth-input" id="authLoginPassword" required minlength="6" autocomplete="current-password" />
+              <button type="button" class="lc-auth-eye" id="authLoginEye" aria-label="Show">👁</button>
+            </label>
+            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.authLoginBtn">登入</button>
+          </form>
+          <p class="lc-auth-switch">
+            <span data-i18n="flow.authNoAccount">還沒有帳戶？</span>
+            <a href="auth.html?mode=register" data-auth-mode="register" data-i18n="flow.authGoRegister">立即註冊</a>
+          </p>
+        </div>
+
+        <div id="authRegisterPanel" hidden>
+          <form class="lc-auth-form" id="authRegisterForm" novalidate>
+            <label class="lc-auth-field">
+              <span data-i18n="flow.signupName">姓名（選填）</span>
+              <input type="text" class="lc-auth-input" id="authRegName" autocomplete="name" />
+            </label>
+            <label class="lc-auth-field">
+              <span data-i18n="flow.signupEmail">信箱</span>
+              <input type="email" class="lc-auth-input" id="authRegEmail" required autocomplete="email" />
+            </label>
+            <label class="lc-auth-field lc-auth-pass">
+              <span data-i18n="flow.signupPassword">密碼</span>
+              <input type="password" class="lc-auth-input" id="authRegPassword" required minlength="6" autocomplete="new-password" />
+              <button type="button" class="lc-auth-eye" id="authRegEye" aria-label="Show">👁</button>
+            </label>
+            <button type="submit" class="lc-btn-primary lc-btn-block" data-i18n="flow.signupCreateAccount">創建帳戶</button>
+          </form>
+          <p class="lc-auth-switch">
+            <span data-i18n="flow.authHasAccount">已有帳戶？</span>
+            <a href="auth.html?mode=login" data-auth-mode="login" data-i18n="flow.authGoLogin">登入</a>
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="frog-logo-inline.js"></script>
+  <script src="i18n.js"></script>
+  <script src="player-auth.js"></script>
+  <script src="app.js"></script>
+  <script src="auth-page.js"></script>
+  <script>
+    AppI18n.applyPage("auth");
+    LCApp.initLangPopover("langTriggerMount");
+    if (window.RNFFrogLogo) RNFFrogLogo.mount();
+    if (window.RNFAuthPage) RNFAuthPage.init();
+    document.addEventListener("lc:langchange", function () {
+      AppI18n.applyPage("auth");
+      if (window.RNFAuthPage) RNFAuthPage.init();
+    });
+  </script>
+</body>
+</html>

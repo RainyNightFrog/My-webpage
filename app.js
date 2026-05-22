@@ -504,11 +504,35 @@
     }
   }
 
+  function getAvatarEmoji() {
+    try {
+      var e = localStorage.getItem("rnf_avatar_emoji");
+      if (e && (!global.RNFAvatarPool || RNFAvatarPool.isValidEmoji(e))) return e;
+      var raw = localStorage.getItem("rnf_profile");
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (
+          p.avatarEmoji &&
+          (!global.RNFAvatarPool || RNFAvatarPool.isValidEmoji(p.avatarEmoji))
+        ) {
+          return p.avatarEmoji;
+        }
+      }
+    } catch (err) {}
+    return "";
+  }
+
   function refreshProfileNavIcon() {
     var link = document.querySelector('a.lc-learn-link[href="profile.html"]');
     if (!link) return;
     var icon = link.querySelector(".lc-learn-link-icon");
     if (!icon) return;
+    var avatar = getAvatarEmoji();
+    if (avatar) {
+      icon.innerHTML =
+        '<span class="lc-nav-profile-emoji" aria-hidden="true">' + avatar + "</span>";
+      return;
+    }
     var initial = getProfileInitial();
     if (initial) {
       icon.innerHTML =
@@ -572,20 +596,10 @@
       return;
     }
     if (action === "logout") {
-      try {
-        [
-          "rnf_profile",
-          "rnf_profile_created",
-          "rnf_profile_prompt",
-          "rnf_profile_joined",
-          "rnf_profile_age",
-          "rnf_avatar_done",
-        ].forEach(function (k) {
-          localStorage.removeItem(k);
-        });
-        sessionStorage.clear();
-      } catch (e) {}
-      location.href = "home.html";
+      if (global.RNFPlayerAuth && RNFPlayerAuth.logout) {
+        RNFPlayerAuth.logout();
+      }
+      location.href = "auth.html?mode=login";
     }
   }
 

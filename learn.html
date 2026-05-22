@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="flow.learnPageTitle">學習 — Rainy Night Frog</title>
+  <title data-i18n="flow.learnPageTitle">冒險島 — Rainy Night Frog</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="app.css">
 </head>
@@ -20,7 +20,7 @@
         <li>
           <a class="lc-pond-rail-link active" href="learn.html" data-i18n-title="flow.navLearn">
             <span class="lc-pond-rail-icon" aria-hidden="true">✦</span>
-            <span class="lc-pond-rail-lbl" data-i18n="flow.navLearn">學習</span>
+            <span class="lc-pond-rail-lbl" data-i18n="flow.adventureIslandName">冒險島</span>
           </a>
         </li>
         <li>
@@ -70,11 +70,16 @@
   <script src="frog-logo-inline.js"></script>
   <script src="i18n.js"></script>
   <script src="avatar-pool.js"></script>
+  <script src="player-auth.js"></script>
   <script src="app.js"></script>
   <script src="path-progress.js"></script>
+  <script src="adventure-island.js"></script>
   <script src="learn-path.js"></script>
   <script>
     AppI18n.applyPage("learn");
+    if (window.RNFAdventureIsland && !RNFAdventureIsland.guardLearnPage()) {
+      /* redirecting — first 10 questions required */
+    } else {
     LCApp.initLangPopover("langTriggerMount");
     LCApp.initMoreMenu();
     LCApp.initCoursePicker();
@@ -104,6 +109,7 @@
       RNFLearnPath.init();
       LCApp.initHeartsPicker();
     });
+    }
   </script>
 </body>
 </html>

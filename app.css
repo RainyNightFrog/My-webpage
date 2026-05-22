@@ -2685,6 +2685,7 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   max-width: 520px;
   margin-left: auto;
   margin-right: auto;
+  align-items: stretch;
 }
 
 @media (max-width: 520px) {
@@ -2692,6 +2693,10 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   .lc-stat-grid--complete {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
+  }
+  .lc-stat-grid--complete .lc-stat-val {
+    font-size: 1.65rem;
+    min-height: 2.1rem;
   }
 }
 
@@ -2720,6 +2725,43 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   border-color: #c026d366;
 }
 
+.lc-stat-grid--complete .lc-stat-card {
+  min-height: 6.25rem;
+  padding: 1.1rem 0.5rem;
+}
+
+.lc-stat-grid--complete .lc-stat-val {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08em;
+  width: 100%;
+  min-height: 2.5rem;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--text);
+}
+
+.lc-stat-grid--complete .lc-stat-num,
+.lc-stat-grid--complete .lc-stat-unit {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-stat-grid--complete .lc-stat-unit {
+  opacity: 0.92;
+}
+
 .lc-stat-val {
   display: block;
   width: 100%;
@@ -2730,6 +2772,12 @@ body.lc-lesson-last-chance .lc-progress-wrap {
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text);
+}
+
+.lc-stat-grid--complete .lc-stat-lbl {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
 }
 
 .lc-stat-lbl {
@@ -7440,6 +7488,201 @@ button.lc-hearts-pop-row {
   text-decoration: underline;
 }
 
+/* Gem shop — item cards */
+.lc-shop-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.25rem;
+  margin-bottom: 1.25rem;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, #4c1d95 0%, #be185d 45%, #0284c7 100%);
+}
+
+.lc-shop-hero-glow {
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 120deg, #fde68a, #f472b6, #38bdf8, #a78bfa, #fde68a);
+  opacity: 0.35;
+  animation: lc-shop-glow-spin 12s linear infinite;
+}
+
+@keyframes lc-shop-glow-spin {
+  to { transform: rotate(360deg); }
+}
+
+.lc-shop-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-shop-hero-copy h1 {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.lc-shop-hero-copy p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 420px;
+}
+
+.lc-shop-hero-balance {
+  margin-top: 0.5rem;
+  font-weight: 800;
+  color: #fde68a;
+}
+
+.lc-shop-hero-mascot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.35rem;
+  font-size: 2rem;
+}
+
+.lc-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.85rem;
+}
+
+.lc-shop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.1rem 0.85rem;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.65);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.lc-shop-card:hover {
+  transform: translateY(-3px);
+}
+
+.lc-shop-card--rose {
+  border-color: #fb718566;
+  background: linear-gradient(160deg, rgba(244, 63, 94, 0.35), rgba(15, 23, 42, 0.8));
+}
+
+.lc-shop-card--violet {
+  border-color: #a78bfa66;
+  background: linear-gradient(160deg, rgba(139, 92, 246, 0.35), rgba(15, 23, 42, 0.8));
+}
+
+.lc-shop-card--gold {
+  border-color: #fbbf2466;
+  background: linear-gradient(160deg, rgba(251, 191, 36, 0.3), rgba(15, 23, 42, 0.8));
+}
+
+.lc-shop-card--cyan {
+  border-color: #22d3ee66;
+  background: linear-gradient(160deg, rgba(34, 211, 238, 0.3), rgba(15, 23, 42, 0.8));
+}
+
+.lc-shop-card-icon {
+  font-size: 2.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.lc-shop-card-title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.lc-shop-card-desc {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+  flex: 1;
+}
+
+.lc-shop-card-owned,
+.lc-shop-card-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #86efac;
+  margin-bottom: 0.35rem;
+}
+
+.lc-shop-card-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fde68a;
+  margin-bottom: 0.55rem;
+}
+
+.lc-shop-card-btn {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #1e1b4b;
+  background: linear-gradient(90deg, #fde68a, #f472b6);
+}
+
+.lc-shop-card-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lc-shop-use-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lc-shop-use-btn {
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 222, 128, 0.5);
+  background: rgba(34, 197, 94, 0.2);
+  color: #bbf7d0;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lc-shop-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  z-index: 9999;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease;
+}
+
+.lc-shop-toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.lc-shop-row--wide {
+  margin-top: 0.65rem;
+}
+
 a.lc-shop-super-cta {
   display: inline-block;
   text-decoration: none;
@@ -8056,6 +8299,16 @@ button.lc-pond-rail-link {
   border-color: rgba(192, 132, 252, 0.4);
 }
 
+.lc-pond-island-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fde68a;
+  margin-bottom: 0.35rem;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
 .lc-pond-chapter-title {
   font-family: var(--font-display);
   font-size: clamp(1.35rem, 3vw, 1.85rem);
@@ -8077,7 +8330,7 @@ button.lc-pond-rail-link {
 
 .lc-pond-scene {
   position: relative;
-  min-height: 280px;
+  min-height: 380px;
   padding: 1.5rem 0 2.5rem;
   border-radius: 22px;
   border: 1px solid rgba(56, 189, 248, 0.15);
@@ -8085,6 +8338,10 @@ button.lc-pond-rail-link {
     radial-gradient(ellipse 80% 60% at 50% 100%, rgba(14, 165, 233, 0.2) 0%, transparent 65%),
     rgba(0, 0, 0, 0.25);
   overflow: hidden;
+}
+
+.lc-pond-main {
+  min-height: 0;
 }
 
 .lc-pond-pals {
@@ -8388,28 +8645,167 @@ button.lc-pond-rail-link {
   background: linear-gradient(135deg, rgba(46, 16, 101, 0.75), rgba(15, 23, 42, 0.55));
 }
 
-.lc-pond-scene--s1 {
-  border-color: rgba(74, 222, 128, 0.25);
+.lc-pond-scene--vivid {
+  min-height: 520px;
+  border-width: 2px;
+}
+
+.lc-pond-scene-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(34, 197, 94, 0.22), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(251, 191, 36, 0.15), transparent),
-    rgba(0, 0, 0, 0.25);
+    radial-gradient(circle at 15% 20%, rgba(251, 113, 133, 0.45) 0%, transparent 42%),
+    radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.5) 0%, transparent 40%),
+    radial-gradient(circle at 50% 90%, rgba(167, 139, 250, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(251, 191, 36, 0.35) 0%, transparent 38%);
+  animation: lc-pond-bg-shift 14s ease-in-out infinite alternate;
+}
+
+@keyframes lc-pond-bg-shift {
+  0% { filter: hue-rotate(0deg) saturate(1.1); }
+  100% { filter: hue-rotate(18deg) saturate(1.25); }
+}
+
+.lc-pond-scene--s1 {
+  border-color: rgba(74, 222, 128, 0.45);
+  background: transparent;
+}
+
+.lc-pond-scene--s1 .lc-pond-scene-bg {
+  background:
+    radial-gradient(circle at 10% 30%, #4ade8066, transparent 45%),
+    radial-gradient(circle at 90% 25%, #fbbf2466, transparent 40%),
+    radial-gradient(circle at 50% 85%, #22d3ee55, transparent 50%);
 }
 
 .lc-pond-scene--s2 {
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgba(56, 189, 248, 0.5);
+  background: transparent;
+}
+
+.lc-pond-scene--s2 .lc-pond-scene-bg {
   background:
-    radial-gradient(ellipse 70% 50% at 30% 70%, rgba(56, 189, 248, 0.25), transparent),
-    radial-gradient(ellipse 50% 40% at 75% 30%, rgba(244, 114, 182, 0.18), transparent),
-    rgba(0, 0, 0, 0.25);
+    radial-gradient(circle at 20% 70%, #38bdf888, transparent 48%),
+    radial-gradient(circle at 80% 30%, #ec489988, transparent 45%),
+    radial-gradient(circle at 55% 15%, #a78bfa77, transparent 42%);
 }
 
 .lc-pond-scene--s3 {
-  border-color: rgba(192, 132, 252, 0.35);
+  border-color: rgba(192, 132, 252, 0.55);
+  background: transparent;
+}
+
+.lc-pond-scene--s3 .lc-pond-scene-bg {
   background:
-    radial-gradient(ellipse 80% 55% at 50% 100%, rgba(168, 85, 247, 0.28), transparent),
-    radial-gradient(ellipse 50% 35% at 10% 20%, rgba(251, 113, 133, 0.2), transparent),
-    rgba(0, 0, 0, 0.3);
+    radial-gradient(circle at 30% 25%, #f472b688, transparent 45%),
+    radial-gradient(circle at 75% 75%, #7c3aed88, transparent 50%),
+    radial-gradient(circle at 50% 50%, #fde04755, transparent 55%);
+}
+
+.lc-pond-track--wide {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: max-content;
+  padding: 0.5rem 0;
+}
+
+.lc-pond-zone {
+  flex-shrink: 0;
+  padding: 1.25rem 1rem;
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  border: 2px dashed rgba(255, 255, 255, 0.12);
+}
+
+.lc-pond-zone--meadow {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(251, 191, 36, 0.12));
+}
+
+.lc-pond-zone--coral {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.22), rgba(56, 189, 248, 0.15));
+}
+
+.lc-pond-track-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: nowrap;
+}
+
+.lc-pond-play-tag {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.02em;
+}
+
+.lc-pond-xp-badge {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 0.12rem 0.35rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #a78bfa, #f472b6);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.lc-pond-gem-badge--bonus {
+  background: linear-gradient(90deg, #fde047, #f97316);
+}
+
+.lc-pond-stop--listen.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #67e8f9, #6366f1 100%);
+}
+
+.lc-pond-stop--match.lc-pond-stop--current .lc-pond-stop-pad,
+.lc-pond-stop--quiz.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #c084fc, #7c3aed 100%);
+}
+
+.lc-pond-stop--story.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #fdba74, #ea580c 55%, #7c2d12 100%);
+}
+
+.lc-pond-stop--bonus.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #fde047, #f59e0b, #ec4899 100%);
+}
+
+.lc-pond-stop--raid.lc-pond-stop--current .lc-pond-stop-pad {
+  background: linear-gradient(180deg, #f87171, #7f1d1d 50%, #4c1d95 100%);
+  box-shadow: 0 0 28px rgba(248, 113, 113, 0.55);
+}
+
+.lc-pond-jump-risk {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: none;
+  white-space: nowrap;
+  font-size: 0.62rem;
+}
+
+.lc-pond-jump-risk span:first-child {
+  color: #86efac;
+}
+
+.lc-pond-jump-risk span:last-child {
+  color: #fca5a5;
+}
+
+.lc-jump-fail-gems.saved {
+  color: #86efac;
 }
 
 .lc-pond-animals {
@@ -9558,4 +9954,133 @@ body[data-i18n-page="setup"] .lc-footer-bar {
   50% {
     transform: translateY(-8px) rotate(6deg);
   }
+}
+
+/* Auth — login / register */
+.lc-auth-page .lc-auth-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.lc-auth-main {
+  padding: 1.5rem 1rem 3rem;
+}
+
+.lc-auth-card {
+  padding: 1.5rem 1.25rem;
+  border-radius: 20px;
+  border: 2px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(160deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.lc-auth-title {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.lc-auth-sub,
+.lc-auth-hint {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.lc-auth-error {
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.lc-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.lc-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.lc-auth-input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.lc-auth-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+.lc-auth-pass {
+  position: relative;
+}
+
+.lc-auth-pass .lc-auth-input {
+  padding-right: 2.75rem;
+}
+
+.lc-auth-eye {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.45rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+.lc-auth-switch {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.lc-auth-switch a {
+  color: #38bdf8;
+  font-weight: 800;
+  text-decoration: underline;
+  margin-left: 0.35rem;
+}
+
+.lc-setup-auth-switch {
+  margin-top: 1.5rem;
+}
+
+.lc-pond-widget--logged-in {
+  border-color: rgba(74, 222, 128, 0.35) !important;
+  background: linear-gradient(
+    145deg,
+    rgba(34, 197, 94, 0.15),
+    rgba(15, 23, 42, 0.72)
+  ) !important;
+}
+
+.lc-auth-welcome {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: #86efac;
 }

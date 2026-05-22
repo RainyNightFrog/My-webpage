@@ -723,7 +723,10 @@
     }
     var sessionSize = SESSION_SIZE;
     if (this.state.mode === "challenge") sessionSize = 12;
-    if (this.state.mode === "chest") sessionSize = 6;
+    if (this.state.mode === "chest" || this.state.mode === "bonus") sessionSize = 6;
+    if (this.state.mode === "listen") sessionSize = 8;
+    if (this.state.mode === "match") sessionSize = 10;
+    if (this.state.mode === "story") sessionSize = 10;
     var stageTier =
       global.RNFPathProgress && RNFPathProgress.getPathTier
         ? RNFPathProgress.getPathTier()
@@ -1182,6 +1185,9 @@
   };
 
   PracticeEngine.prototype.recordResult = function (q, ok, skipped) {
+    if (!skipped && global.RNFAdventureIsland && RNFAdventureIsland.recordAnswer) {
+      RNFAdventureIsland.recordAnswer();
+    }
     if (!q) return;
     var idx = this.state.results.length;
     this.state.results.push({
@@ -2917,6 +2923,18 @@
   PracticeEngine.prototype.renderJumpTestFail = function () {
     var self = this;
     var part = this._jumpPart || getJumpTestPart();
+    var gemNote = "";
+    if (global.RNFPathProgress && RNFPathProgress.onJumpFail) {
+      var failGems = RNFPathProgress.onJumpFail();
+      gemNote =
+        '<p class="lc-jump-fail-gems' +
+        (failGems.saved ? " saved" : "") +
+        '">' +
+        t(failGems.rewardKey || "flow.pathGemJumpFail", {
+          n: Math.abs(failGems.gems || 3),
+        }) +
+        "</p>";
+    }
 
     saveSessionReport(this.state);
     this.resetLessonFooter();
@@ -3424,22 +3442,26 @@
       '<div class="lc-stat-grid lc-stat-grid--complete">' +
       '<div class="lc-stat-card">' +
       '<span class="lc-stat-val">' +
+      '<span class="lc-stat-num">' +
       s.correct +
-      "</span>" +
+      "</span></span>" +
       '<span class="lc-stat-lbl">' +
       t("flow.correctCount") +
       "</span></div>" +
       '<div class="lc-stat-card">' +
       '<span class="lc-stat-val">' +
+      '<span class="lc-stat-num">' +
       acc +
-      "%</span>" +
+      '</span><span class="lc-stat-unit">%</span></span>' +
       '<span class="lc-stat-lbl">' +
       t("flow.accuracy") +
       "</span></div>" +
       '<div class="lc-stat-card lc-stat-xp">' +
-      '<span class="lc-stat-val">+' +
+      '<span class="lc-stat-val">' +
+      '<span class="lc-stat-unit">+</span>' +
+      '<span class="lc-stat-num">' +
       s.xp +
-      "</span>" +
+      "</span></span>" +
       '<span class="lc-stat-lbl">' +
       t("flow.xpBonus") +
       "</span></div>" +

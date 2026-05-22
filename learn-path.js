@@ -60,6 +60,12 @@
     if (type === "cat") return "🐱";
     if (type === "practice") return "🌊";
     if (type === "jump") return "⚡";
+    if (type === "listen") return "🎧";
+    if (type === "match") return "🔗";
+    if (type === "quiz") return "📝";
+    if (type === "story") return "📖";
+    if (type === "bonus") return "✨";
+    if (type === "raid") return "🐉";
     return "✦";
   }
 
@@ -70,6 +76,12 @@
       chest: "flow.pondStopChest",
       trophy: "flow.pondStopBoss",
       jump: "flow.pondStopRapid",
+      listen: "flow.pondStopListen",
+      match: "flow.pondStopMatch",
+      quiz: "flow.pondStopQuiz",
+      story: "flow.pondStopStory",
+      bonus: "flow.pondStopBonus",
+      raid: "flow.pondStopRaid",
     };
     return t(map[type] || "flow.pondStopLesson");
   }
@@ -122,7 +134,22 @@
         " 💎</span>"
       );
     }
+    if (node.gemHint === "bonus") {
+      return '<span class="lc-pond-gem-badge lc-pond-gem-badge--bonus">+5 💎</span>';
+    }
+    if (node.xpHint) {
+      return (
+        '<span class="lc-pond-xp-badge">+' +
+        node.xpHint +
+        " XP</span>"
+      );
+    }
     return "";
+  }
+
+  function playTagHtml(node) {
+    if (!node.playKey) return "";
+    return '<span class="lc-pond-play-tag">' + t(node.playKey) + "</span>";
   }
 
   function renderPondJump(n) {
@@ -132,12 +159,18 @@
         ? '<span class="lc-pond-jump-tip">' + t("flow.learnJump") + "</span>"
         : "";
     var riskHtml =
-      '<span class="lc-pond-jump-risk">' +
+      '<span class="lc-pond-jump-risk" title="' +
       t("flow.pathJumpRisk", {
         win: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_WIN : 10,
         lose: global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_FAIL : 3,
       }) +
-      "</span>";
+      '">' +
+      "<span>+" +
+      (global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_WIN : 10) +
+      "💎</span>" +
+      "<span>−" +
+      (global.RNFPathProgress ? RNFPathProgress.GEM_JUMP_FAIL : 3) +
+      "💎</span></span>";
     return (
       '<div class="lc-pond-stop lc-pond-stop--jump lc-pond-stop--' +
       style +
@@ -205,6 +238,7 @@
       '<span class="lc-pond-stop-type">' +
       nodeTypeLabel(n.type) +
       "</span>" +
+      playTagHtml(n) +
       doneMark +
       lock +
       "</" +
@@ -229,25 +263,36 @@
   }
 
   function renderPondJourney() {
-    var stops = flattenPondStops();
+    var layout = getPathLayout();
     var track = "";
-    stops.forEach(function (item, i) {
-      if (item.kind === "divider") {
-        track += renderPondDivider(item.key);
-      } else {
-        track += renderPondStop(item.node, i);
+    layout.forEach(function (block) {
+      if (block.divider) {
+        track += renderPondDivider(block.divider);
+        return;
       }
+      if (!block.nodes) return;
+      track +=
+        '<div class="lc-pond-zone ' +
+        (block.zone || "") +
+        '">' +
+        '<div class="lc-pond-zone-label" aria-hidden="true"></div>' +
+        '<div class="lc-pond-track-row">';
+      block.nodes.forEach(function (n, i) {
+        track += renderPondStop(n, i);
+      });
+      track += "</div></div>";
     });
     var unit = getActiveUnit();
     return (
-      '<div class="lc-pond-scene ' +
+      '<div class="lc-pond-scene lc-pond-scene--vivid ' +
       (unit.sceneClass || "") +
       '">' +
+      '<div class="lc-pond-scene-bg" aria-hidden="true"></div>' +
       renderPondPals() +
       '<div class="lc-pond-scroll">' +
       '<div class="lc-pond-river">' +
       '<div class="lc-pond-river-line" aria-hidden="true"></div>' +
-      '<div class="lc-pond-track">' +
+      '<div class="lc-pond-track lc-pond-track--wide">' +
       track +
       "</div></div></div>" +
       '<button type="button" class="lc-pond-scroll-hint" data-pond-scroll aria-label="Scroll">' +
@@ -280,6 +325,9 @@
       '<span aria-hidden="true">📖</span> ' +
       t("flow.learnGuide") +
       "</a></div>" +
+      '<p class="lc-pond-island-name">' +
+      t("flow.adventureIslandName") +
+      "</p>" +
       '<h1 class="lc-pond-chapter-title">' +
       t(unit.topicKey) +
       "</h1>" +
@@ -309,6 +357,9 @@
   }
 
   function hasUserProfile() {
+    if (global.RNFPlayerAuth && RNFPlayerAuth.isLoggedIn) {
+      return RNFPlayerAuth.isLoggedIn();
+    }
     try {
       return localStorage.getItem("rnf_profile_created") === "1";
     } catch (e) {
@@ -370,7 +421,27 @@
   }
 
   function renderHubProfileCard() {
-    if (hasUserProfile()) return "";
+    if (hasUserProfile()) {
+      var user =
+        global.RNFPlayerAuth && RNFPlayerAuth.getCurrentUser
+          ? RNFPlayerAuth.getCurrentUser()
+          : null;
+      var label = user
+        ? user.name || user.email || t("flow.hubProfileLoggedIn")
+        : t("flow.hubProfileLoggedIn");
+      return (
+        '<div class="lc-panel-card lc-pond-widget lc-pond-widget--profile lc-pond-widget--logged-in">' +
+        '<h3 class="lc-panel-title">' +
+        t("flow.hubProfileLoggedInTitle") +
+        "</h3>" +
+        '<p class="lc-panel-text">' +
+        t("flow.hubProfileLoggedInDesc", { name: label }) +
+        "</p>" +
+        '<a class="lc-panel-link" href="profile.html">' +
+        t("flow.hubQuickProfile") +
+        "</a></div>"
+      );
+    }
     return (
       '<div class="lc-panel-card lc-pond-widget lc-pond-widget--profile">' +
       '<h3 class="lc-panel-title">' +
@@ -380,10 +451,10 @@
       t("flow.hubProfileDesc") +
       "</p>" +
       '<div class="lc-hub-profile-actions">' +
-      '<a class="lc-panel-cta" href="setup.html?flow=profile">' +
+      '<a class="lc-panel-cta" href="auth.html?mode=register&return=learn.html">' +
       t("flow.hubProfileCta") +
       "</a>" +
-      '<a class="lc-panel-link lc-hub-profile-login" href="setup.html?flow=profile">' +
+      '<a class="lc-panel-link lc-hub-profile-login" href="auth.html?mode=login&return=learn.html">' +
       t("flow.hubProfileLogin") +
       "</a></div></div>"
     );

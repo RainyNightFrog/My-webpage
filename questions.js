@@ -1820,6 +1820,26 @@
           "true_false",
         ];
 
+    if (opts.mode === "listen") {
+      typeOrder = [
+        "listen_pick",
+        "listen_pick",
+        "translate_choice",
+        "emoji_pick",
+        "text_choice",
+        "word_bank:translate_chip",
+      ];
+    }
+    if (opts.mode === "match") {
+      typeOrder = [
+        "translate_choice",
+        "text_choice",
+        "word_bank:translate_chip",
+        "fill_pick",
+        "true_false",
+      ];
+    }
+
     typeOrder.forEach(function (tk) {
       if (out.length >= size) return;
       var q = pickFromPool(pool, used, usedVocab, tk, false);
