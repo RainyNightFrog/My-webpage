@@ -510,6 +510,11 @@ body.lc-app {
   width: 100%;
   margin: 0 auto;
   padding: 1rem 1.5rem 6rem;
+  min-height: 12rem;
+}
+
+.lc-lesson-page .lc-main .lc-complete .lc-quiz-q {
+  color: var(--text);
 }
 
 .lc-title {

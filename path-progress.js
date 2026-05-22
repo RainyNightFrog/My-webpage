@@ -412,6 +412,65 @@
     return n;
   }
 
+  function tierRankForNode(node, zone) {
+    if (node.boss || node.type === "trophy" || node.type === "raid") return 3;
+    if (zone === "lc-pond-zone--lake") return 3;
+    if (zone === "lc-pond-zone--coral") return 2;
+    if (zone === "lc-pond-zone--forest") return 2;
+    if (typeof node.difficulty === "number" && node.difficulty >= 5) return 2;
+    return 1;
+  }
+
+  function tierLabelKeyForRank(rank) {
+    if (rank >= 3) return "flow.pathTierElite";
+    if (rank >= 2) return "flow.pathTierAdvanced";
+    return "flow.pathTierBasic";
+  }
+
+  function annotateLevelMeta(layout) {
+    var ordered = [];
+    layout.forEach(function (block) {
+      if (!block.nodes) return;
+      var zone = block.zone || "";
+      block.nodes.forEach(function (n) {
+        if (n.type === "jump") return;
+        ordered.push({ node: n, zone: zone });
+      });
+    });
+    var total = ordered.length;
+    ordered.forEach(function (item, i) {
+      var n = item.node;
+      n.levelNum = i + 1;
+      n.levelTotal = total;
+      n.tierRank = tierRankForNode(n, item.zone);
+      n.tierLabelKey = tierLabelKeyForRank(n.tierRank);
+      if (i + 1 < ordered.length) {
+        var next = ordered[i + 1].node;
+        n.nextLevelNum = i + 2;
+        n.nextTierRank = next.tierRank;
+        n.nextIsAdvanced = next.tierRank > n.tierRank;
+        n.nextTierLabelKey = tierLabelKeyForRank(next.tierRank);
+      }
+    });
+    layout.forEach(function (block) {
+      if (!block.nodes) return;
+      var nums = [];
+      block.nodes.forEach(function (n) {
+        if (n.type !== "jump" && n.levelNum) nums.push(n.levelNum);
+      });
+      if (nums.length) {
+        block.levelFrom = nums[0];
+        block.levelTo = nums[nums.length - 1];
+        var maxRank = 1;
+        block.nodes.forEach(function (n) {
+          if (n.tierRank && n.tierRank > maxRank) maxRank = n.tierRank;
+        });
+        block.zoneTierKey = tierLabelKeyForRank(maxRank);
+      }
+    });
+    return layout;
+  }
+
   function applyProgressToLayout(layout, progress) {
     var playableIndex = 0;
     layout.forEach(function (block) {
@@ -582,7 +641,21 @@
   function buildPathLayout() {
     var progress = loadProgress();
     var layout = buildNodeBlueprint(progress.stage, progress.part);
-    return applyProgressToLayout(layout, progress);
+    layout = applyProgressToLayout(layout, progress);
+    return annotateLevelMeta(layout);
+  }
+
+  function getPathLevelSummary() {
+    var progress = loadProgress();
+    var layout = buildPathLayout();
+    var total = playableNodeCount(
+      buildNodeBlueprint(progress.stage, progress.part)
+    );
+    return {
+      current: Math.min(total, progress.nodeIndex + 1),
+      total: total,
+      nodeIndex: progress.nodeIndex,
+    };
   }
 
   function findNodeIndexById(layout, nodeId) {
@@ -890,6 +963,8 @@
     findNodeById: findNodeById,
     getPassThresholds: getPassThresholds,
     getPathProgressScore: getPathProgressScore,
+    getPathLevelSummary: getPathLevelSummary,
+    annotateLevelMeta: annotateLevelMeta,
     loadProgress: loadProgress,
     saveProgress: saveProgress,
     getActiveUnit: getActiveUnit,

@@ -703,7 +703,12 @@
       results: [],
     };
     this._bindFooter(opts);
-    this.start(opts.mode);
+    try {
+      this.start(opts.mode);
+    } catch (startErr) {
+      if (global.console && console.error) console.error(startErr);
+      this.renderEmptySession();
+    }
   }
 
   PracticeEngine.prototype.start = function (mode) {
@@ -726,10 +731,15 @@
         return;
       }
       var reviewSize = Math.max(1, Math.min(filterIds.length, SESSION_SIZE));
-      this.state.queue = RNFQuestions.buildSession(reviewSize, filterIds, {
-        mode: "review",
-        mistakesOnly: true,
-      });
+      try {
+        this.state.queue = RNFQuestions.buildSession(reviewSize, filterIds, {
+          mode: "review",
+          mistakesOnly: true,
+        });
+      } catch (reviewErr) {
+        if (global.console && console.error) console.error(reviewErr);
+        this.state.queue = [];
+      }
       this.renderCurrent();
       return;
     }
@@ -752,10 +762,18 @@
       global.RNFPathProgress && RNFPathProgress.getPathTier
         ? RNFPathProgress.getPathTier()
         : 1;
-    this.state.queue = RNFQuestions.buildSession(sessionSize, filterIds, {
-      mode: this.state.mode,
-      stageTier: stageTier,
-    });
+    try {
+      this.state.queue = RNFQuestions.buildSession(sessionSize, filterIds, {
+        mode: this.state.mode,
+        stageTier: stageTier,
+      });
+    } catch (sessionErr) {
+      if (global.console && console.error) console.error(sessionErr);
+      this.state.queue =
+        global.RNFQuestions && RNFQuestions.fallbackSession
+          ? RNFQuestions.fallbackSession(sessionSize)
+          : [];
+    }
     if (this.state.mode === "jump") {
       this._jumpPart = getJumpTestPart();
       var priority = [];
@@ -1420,6 +1438,7 @@
         '<div><strong id="engineFbTitle"></strong><span id="engineFbSub"></span></div></div>';
     }
 
+    html += "</div>";
     this.root.innerHTML = html;
     try {
       this.wireInteractions(q);
@@ -1603,7 +1622,7 @@
       bubbleCls +
       '">' +
       '<span class="lc-bubble-line">' +
-      translatePromptText(q) +
+      escapeHtml(translatePromptText(q)) +
       "</span>" +
       '<button type="button" class="lc-bubble-speak" aria-label="' +
       t("flow.guidePlayAudio") +
@@ -1619,7 +1638,7 @@
         '"><span class="lc-opt-key">' +
         (i + 1) +
         '</span><span class="lc-opt-txt">' +
-        tf(opt.label) +
+        escapeHtml(tf(opt.label)) +
         "</span></button>";
     });
     return html + "</div>";
@@ -1647,10 +1666,10 @@
         mascotHtml(this, q) +
         '<div class="lc-bubble lc-bubble--audio lc-bubble--cue">' +
         '<span class="lc-bubble-line">' +
-        cue +
+        escapeHtml(cue) +
         "</span>" +
         '<button type="button" class="lc-bubble-speak" aria-label="' +
-        t("flow.guidePlayAudio") +
+        escapeHtml(t("flow.guidePlayAudio")) +
         '">🔊</button></div></div>';
     }
     var opts = RNFQuestions.shuffle(q.options);
@@ -1665,7 +1684,7 @@
         '<span class="lc-pick-key">' +
         (i + 1) +
         "</span> " +
-        textChoiceOptionLabel(opt) +
+        escapeHtml(textChoiceOptionLabel(opt)) +
         "</button>";
     });
     return html + "</div>";
@@ -1816,7 +1835,7 @@
         '"><span class="lc-opt-key">' +
         (i + 1) +
         '</span><span class="lc-opt-txt">' +
-        chipWordText(w.text) +
+        escapeHtml(chipWordText(w.text)) +
         "</span></button>";
     });
     this._wordBankQ = q;

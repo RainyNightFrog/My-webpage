@@ -1810,7 +1810,42 @@
     return null;
   }
 
+  function fallbackSession(size, course) {
+    size = Math.max(1, size || SESSION_SIZE);
+    course = course || getLearnTarget();
+    var bank = getFullBank();
+    var picks = [];
+    var simpleTypes = {
+      text_choice: 1,
+      translate_choice: 1,
+      emoji_pick: 1,
+      fill_pick: 1,
+      true_false: 1,
+    };
+    for (var i = 0; i < bank.length && picks.length < size; i++) {
+      var q = bank[i];
+      if (!q || !q.id || !simpleTypes[q.type]) continue;
+      if (!questionMatchesCourse(q, course)) continue;
+      picks.push(q);
+    }
+    if (!picks.length) {
+      for (var j = 0; j < bank.length && picks.length < size; j++) {
+        if (bank[j] && bank[j].id) picks.push(bank[j]);
+      }
+    }
+    return picks.slice(0, size);
+  }
+
   function buildSession(size, filterIds, opts) {
+    try {
+      return buildSessionInner(size, filterIds, opts);
+    } catch (err) {
+      if (global.console && console.error) console.error("[RNFQuestions] buildSession", err);
+      return fallbackSession(size);
+    }
+  }
+
+  function buildSessionInner(size, filterIds, opts) {
     opts = opts || {};
     var out = [];
     var bank = getFullBank();
@@ -2003,6 +2038,7 @@
     getFullBank: getFullBank,
     MATCH_POOL: MATCH_POOL,
     buildSession: buildSession,
+    fallbackSession: fallbackSession,
     getById: getById,
     resolveQuestionRef: resolveQuestionRef,
     createMatchQuestion: createMatchQuestion,

@@ -51,8 +51,8 @@
   <script src="zh-literacy-bank.js"></script>
   <script src="en-literacy-bank.js"></script>
   <script src="mascot-pool.js"></script>
-  <script src="question-generator.js"></script>
-  <script src="questions.js"></script>
+  <script src="question-generator.js?v=20260521"></script>
+  <script src="questions.js?v=20260521"></script>
   <script src="question-audit.js"></script>
   <script src="quest-system.js"></script>
   <script src="path-progress.js"></script>
@@ -60,8 +60,8 @@
   <script src="leaderboard-data.js"></script>
   <script src="adventure-island.js"></script>
   <script src="shop-inventory.js"></script>
-  <script src="practice-backpack.js"></script>
-  <script src="practice-engine.js"></script>
+  <script src="practice-backpack.js?v=20260521"></script>
+  <script src="practice-engine.js?v=20260521"></script>
   <script>
     var mode = "normal";
     var params = new URLSearchParams(location.search);
@@ -168,17 +168,22 @@
           total: engine.state.queue.length,
           lives: lessonLives,
         });
-        if (!ensureQuizVisible()) {
+        if (!rootHasQuizMarkup()) {
+          forceRenderQuiz();
+        }
+        if (!rootHasQuizMarkup()) {
           showLessonBootError(new Error("quiz not rendered"));
           return;
         }
-        if (window.RNFPracticeBackpack && RNFPracticeBackpack.init) {
-          try {
-            RNFPracticeBackpack.init(engine);
-          } catch (bpErr) {
-            if (console.warn) console.warn(bpErr);
+        setTimeout(function () {
+          if (window.RNFPracticeBackpack && RNFPracticeBackpack.init) {
+            try {
+              RNFPracticeBackpack.init(engine);
+            } catch (bpErr) {
+              if (console.warn) console.warn(bpErr);
+            }
           }
-        }
+        }, 0);
       } catch (err) {
         showLessonBootError(err);
       }
@@ -207,7 +212,17 @@
       }
     });
 
-    boot();
+    try {
+      if (!sessionStorage.getItem("learn_target")) {
+        sessionStorage.setItem("learn_target", "en");
+      }
+    } catch (storeErr) {}
+
+    try {
+      boot();
+    } catch (fatalErr) {
+      showLessonBootError(fatalErr);
+    }
   </script>
 </body>
 </html>

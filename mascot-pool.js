@@ -71,13 +71,20 @@
     return POOL[start];
   }
 
+  function escAttr(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  }
+
   function html(q, slot, usedMap) {
     var m = pick(q, slot, usedMap);
     return (
       '<div class="lc-mascot lc-mascot--animal lc-mascot--' +
       m.theme +
       '" role="img" aria-label="' +
-      m.name +
+      escAttr(m.name) +
       '">' +
       '<span class="lc-mascot-ring" aria-hidden="true"></span>' +
       '<span class="lc-mascot-emoji" aria-hidden="true">' +
